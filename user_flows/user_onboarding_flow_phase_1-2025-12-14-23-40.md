@@ -74,7 +74,7 @@ StudentTrialProfile chỉ tồn tại trong thời gian dùng thử và sẽ b�
 
 Mở ứng dụng lần đầu
 → Màn hình giới thiệu
-→ Chọn “Dùng thử ngay”
+→ Chọn “Dùng thử ngay” (hoặc Login/Signup bằng Google/Apple/Manual)
 → Tạo StudentTrialProfile
 → Chọn lớp (6 hoặc 7)
 → Bắt đầu học với quyền hạn giới hạn
@@ -123,6 +123,19 @@ Học sinh có thể:
 - Rate limiting: Tối đa 3 lần gửi OTP/ngày/số điện thoại
 - reCaptcha bắt buộc khi gửi OTP
 - OTP có thời hạn 5 phút
+
+---
+
+## 4.6. Đăng nhập / Đăng ký học sinh (Phase 1) – chuẩn bị cho Phase 2
+
+- Phương thức:
+  - Google OAuth
+  - Apple OAuth
+  - Manual: Họ và tên / username / password
+- Sau khi login/signup bằng Google/Apple: **bắt buộc đặt username/password ngay** (username dùng để đăng nhập thủ công; mật khẩu để hỗ trợ đăng nhập trên thiết bị khác/đa hồ sơ ở Phase 2).
+- Quy tắc username (manual): chuỗi chữ + số (alphanumeric), không phân biệt hoa/thường.
+- Phase 1 giữ 1:1 (mỗi phụ huynh một học sinh), nhưng cần chuẩn bị cho Phase 2 (1:N) bằng việc đảm bảo mỗi học sinh có credential riêng (username/password) để đăng nhập đúng hồ sơ trên thiết bị chia sẻ.
+- Cho phép đa thiết bị cho học sinh (hạn chế thiết bị sẽ xem xét sau Phase 3).
 
 ---
 
@@ -280,6 +293,8 @@ Phụ huynh click "Đăng nhập bằng Google/Apple"
 - **Liên kết 1 chiều**: Chỉ học sinh có thể liên kết đến phụ huynh bằng số điện thoại (Phase 1).
 - **OAuth bắt buộc phone verification**: Phụ huynh đăng nhập OAuth phải cập nhật và verify số điện thoại trước khi vào dashboard.
 - **Email optional**: Email không bắt buộc trong đăng ký.
+- **Chuẩn bị Phase 2**: Học sinh có credential riêng (username/password, đặt ngay sau OAuth), hỗ trợ đăng nhập trên thiết bị chia sẻ; Phase 1 vẫn 1:1 nhưng kiến trúc login đã sẵn cho 1:N.
+- **Validation backend 1:1**: Trong Phase 1, backend cần chặn tạo >1 StudentProfile cho mỗi phụ huynh dù DB cho phép 1:N, tránh sai logic cho đến khi Phase 2 sẵn sàng.
 
 ---
 

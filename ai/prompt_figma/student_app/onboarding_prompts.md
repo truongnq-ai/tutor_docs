@@ -199,6 +199,176 @@
 
 ---
 
+## SCREEN 0: AUTH ENTRY (CHỌN PHƯƠNG THỨC ĐĂNG NHẬP)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Auth Entry - chọn phương thức đăng nhập
+
+[SCREEN PURPOSE]
+- Cho học sinh chọn 1 trong 3 phương thức login/signup:
+  - Google
+  - Apple
+  - Manual (username/password)
+- Chuẩn bị cho việc sau OAuth phải đặt username/password riêng
+
+[DESIGN REQUIREMENTS]
+- Header: "Chọn cách đăng nhập"
+- Buttons:
+  - Primary OAuth buttons: "Tiếp tục với Google", "Tiếp tục với Apple" (có icon)
+  - Divider "Hoặc"
+  - Manual: Button "Đăng nhập / Đăng ký thủ công"
+- Footer: "Bạn chưa có tài khoản? Đăng ký thủ công"
+- State: Loading khi gọi OAuth
+
+[VISUAL GUIDELINES]
+- Buttons full-width, height 48px, icon Google/Apple bên trái
+- Divider: đường kẻ + chữ "Hoặc"
+- Manual button: neutral/secondary
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Button spacing: 12px
+
+[CONTENT EXAMPLES]
+- Title: "Chọn cách đăng nhập"
+- Button 1: "Tiếp tục với Google"
+- Button 2: "Tiếp tục với Apple"
+- Manual: "Đăng nhập / Đăng ký thủ công"
+```
+
+---
+
+## SCREEN 0B: SET USERNAME/PASSWORD SAU KHI OAUTH
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Set username/password (bắt buộc sau OAuth)
+
+[SCREEN PURPOSE]
+- Sau khi OAuth (Google/Apple), yêu cầu học sinh đặt username/password riêng
+- Username rule: alphanumeric (chữ + số), không phân biệt hoa/thường
+- Mật khẩu: tối thiểu 8 ký tự
+
+[DESIGN REQUIREMENTS]
+- Header: "Tạo tài khoản đăng nhập"
+- Fields:
+  - Username (placeholder: "student123"; helper: "Chỉ dùng chữ và số")
+  - Password
+  - Confirm password
+- CTA: "Lưu"
+- Error states:
+  - Username không alphanumeric
+  - Password không đủ mạnh / không khớp confirm
+
+[VISUAL GUIDELINES]
+- Input height 48px, rounded 12px
+- Helper text dưới ô nhập
+- Error text màu đỏ, ngắn gọn
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Button height: 48px
+- Password strength indicator (simple text ok)
+
+[CONTENT EXAMPLES]
+- Title: "Tạo tài khoản đăng nhập"
+- Username helper: "Chỉ dùng chữ và số, không phân biệt hoa/thường"
+- Button: "Lưu"
+```
+
+---
+
+## SCREEN 0C: MANUAL SIGNUP (USERNAME/PASSWORD)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Manual Signup
+
+[SCREEN PURPOSE]
+- Cho phép học sinh tạo tài khoản thủ công
+- Username rule: alphanumeric (chữ + số), không phân biệt hoa/thường
+
+[DESIGN REQUIREMENTS]
+- Fields:
+  - Họ và tên (optional/hoặc required tùy team, đề xuất optional)
+  - Username (helper: "Chỉ chữ và số, không phân biệt hoa/thường")
+  - Password
+  - Confirm password
+- CTA: "Đăng ký"
+- Link: "Đã có tài khoản? Đăng nhập"
+- Error states: username không hợp lệ, password yếu/không khớp
+
+[VISUAL GUIDELINES]
+- Form centered, max width mobile
+- Inputs 48px, rounded 12px
+- Error text ngắn gọn
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Button height: 48px
+
+[CONTENT EXAMPLES]
+- Title: "Đăng ký"
+- Username placeholder: "student123"
+- Username helper: "Chỉ dùng chữ và số"
+- Button: "Đăng ký"
+- Link: "Đã có tài khoản? Đăng nhập"
+```
+
+---
+
+## SCREEN 0D: MANUAL LOGIN (USERNAME/PASSWORD)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Manual Login
+
+[SCREEN PURPOSE]
+- Đăng nhập bằng username/password (hỗ trợ đa thiết bị)
+
+[DESIGN REQUIREMENTS]
+- Fields:
+  - Username
+  - Password (show/hide)
+- CTA: "Đăng nhập"
+- Link: "Chưa có tài khoản? Đăng ký"
+- Error: username/password sai
+- Loading state trên nút
+
+[VISUAL GUIDELINES]
+- Form gọn, tối giản
+- Inputs 48px, rounded 12px
+- Error text rõ ràng
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Button height: 48px
+
+[CONTENT EXAMPLES]
+- Title: "Đăng nhập"
+- Button: "Đăng nhập"
+- Link: "Chưa có tài khoản? Đăng ký"
+```
+
+---
+
 ## SCREEN 5: OTP VERIFICATION
 
 ### Prompt:

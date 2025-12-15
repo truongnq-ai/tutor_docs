@@ -127,6 +127,124 @@ Production: https://api.tutor.app/api
 
 ## 5. STUDENT APP APIs
 
+### 5.0. Authentication (Student) – Phase 1 (chuẩn bị cho 1:N ở Phase 2)
+
+#### POST /api/student/oauth/login
+- Login bằng Google hoặc Apple.
+- Sau OAuth thành công, bắt buộc đặt username/password (alphanumeric, case-insensitive) nếu chưa có.
+
+**Request:**
+```json
+{
+  "provider": "google",        // "google" | "apple"
+  "token": "oauth-id-token"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "studentId": "uuid",
+    "requiresSetCredential": true,
+    "message": "Set username/password to finish signup"
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: OAuth token không hợp lệ
+- `400 VALIDATION_ERROR`: Provider không hợp lệ
+
+#### POST /api/student/set-credential
+- Dùng sau khi OAuth login nếu student chưa có username/password.
+- Username rule: alphanumeric (a-zA-Z0-9), không phân biệt hoa/thường, unique.
+
+**Request:**
+```json
+{
+  "username": "student123",
+  "password": "StrongPass123",
+  "confirmPassword": "StrongPass123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "studentId": "uuid",
+    "username": "student123"
+  }
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: Sai định dạng username (không phải alphanumeric) hoặc password yếu/không khớp
+- `409 CONFLICT`: Username đã tồn tại
+
+#### POST /api/student/register (Manual)
+- Manual signup cho học sinh (Phase 1 vẫn 1:1; chuẩn bị cho 1:N Phase 2).
+
+**Request:**
+```json
+{
+  "name": "Nguyen Van B",
+  "username": "student123",   // alphanumeric
+  "password": "StrongPass123",
+  "confirmPassword": "StrongPass123"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "studentId": "uuid",
+    "username": "student123"
+  }
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: Username không hợp lệ (chỉ alphanumeric) hoặc password yếu/không khớp
+- `409 CONFLICT`: Username đã tồn tại
+
+#### POST /api/student/login (Manual)
+- Login bằng username/password (hỗ trợ multi-device; hạn chế thiết bị sẽ xem xét sau Phase 3).
+
+**Request:**
+```json
+{
+  "username": "student123",
+  "password": "StrongPass123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "jwt-token-here",
+    "expiresIn": 3600,
+    "student": {
+      "id": "uuid",
+      "username": "student123"
+    }
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Username hoặc password sai
+- `403 FORBIDDEN`: Tài khoản bị khoá
+
+---
+
 ### 5.1. Onboarding & Trial
 
 #### POST /api/student/trial/start
