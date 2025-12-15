@@ -225,12 +225,78 @@ Là một học sinh, tôi muốn nhận được các gợi ý học tập phù
 
 ---
 
+## 4.7. NHÓM: LIÊN KẾT PHỤ HUYNH
+
+### US-15: Liên kết phụ huynh bằng số điện thoại
+**User story**  
+Là một học sinh, tôi muốn liên kết tài khoản với phụ huynh bằng số điện thoại để tiếp tục sử dụng ứng dụng sau khi hết lượt dùng thử.
+
+**Acceptance criteria**
+- [ ] Nhập số điện thoại phụ huynh
+- [ ] Gửi OTP qua SMS (qua Firebase Auth)
+- [ ] Nhập OTP để xác thực (học sinh hỏi phụ huynh lấy OTP)
+- [ ] Rate limiting: Tối đa 3 lần gửi OTP/ngày/số điện thoại
+- [ ] reCaptcha bắt buộc khi gửi OTP
+- [ ] OTP có thời hạn 5 phút
+- [ ] Nếu phụ huynh chưa có tài khoản → Tự động tạo tài khoản
+- [ ] Sau khi liên kết thành công, hiển thị thông tin đăng nhập:
+  - Username: Số điện thoại
+  - Password: Số điện thoại (tạm thời)
+  - Link dashboard để phụ huynh đăng nhập
+- [ ] Dữ liệu học tập trong thời gian dùng thử được giữ lại
+- [ ] Học sinh được cấp quyền sử dụng đầy đủ sau khi liên kết
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant S as Student App
+    participant C as Core Service
+    participant F as Firebase Auth
+    participant D as Database
+    participant SMS as SMS Service
+
+    S->>C: POST /api/link/request-otp<br/>{phone, trialId, recaptcha}
+    C->>C: Validate phone format<br/>Check rate limit (3/day)
+    C->>C: Verify reCaptcha
+    C->>D: Check parent_account<br/>by phone_number
+    alt Parent exists
+        C->>D: Get parent_id
+    else Parent not exists
+        C->>D: parent_id = null
+    end
+    C->>F: Request OTP via Firebase
+    F->>SMS: Send OTP SMS
+    SMS-->>F: SMS sent
+    F-->>C: OTP sent confirmation
+    C->>D: Store OTP session<br/>{phone, trialId, parentId, expires}
+    C-->>S: OTP sent successfully
+
+    S->>C: POST /api/link/verify-otp<br/>{phone, otp, trialId}
+    C->>D: Verify OTP session
+    C->>F: Verify OTP with Firebase
+    F-->>C: OTP valid
+    alt Parent exists
+        C->>D: Get/Create student_profile
+        C->>D: Convert trial to student
+    else Parent not exists
+        C->>D: Create parent_account<br/>{phone, status: pending_activation, phone_verified: true}
+        C->>D: Create student_profile
+        C->>D: Convert trial to student
+        C->>SMS: Send activation SMS<br/>with dashboard link
+    end
+    C->>D: Merge learning data
+    C-->>S: Success + login credentials<br/>{username: phone, password: phone, dashboardUrl}
+```
+
+---
+
 ## 5. QUY TẮC ƯU TIÊN (PRIORITY)
 
 | User Story | Mức độ ưu tiên |
 |-----------|---------------|
 | US-01 → US-10 | Must-have |
 | US-11 → US-12 | Must-have |
+| US-15 | Must-have |
 | US-13 → US-14 | Nice-to-have |
 
 ---

@@ -118,6 +118,10 @@ Production: https://api.tutor.app/api
 | `SERVICE_UNAVAILABLE` | 503 | External service unavailable |
 | `TRIAL_EXPIRED` | 403 | Trial period expired |
 | `SKILL_NOT_UNLOCKED` | 403 | Skill prerequisite not met |
+| `OTP_INVALID` | 400 | OTP code không đúng |
+| `OTP_EXPIRED` | 400 | OTP đã hết hạn |
+| `PHONE_NOT_VERIFIED` | 403 | Số điện thoại chưa được xác thực |
+| `RECAPTCHA_FAILED` | 400 | reCaptcha verification thất bại |
 
 ---
 
@@ -499,15 +503,46 @@ Nộp kết quả mini test.
 
 ---
 
-### 5.5. Linking Parent
+### 5.5. Linking Parent (Phone-based OTP)
 
-#### POST /api/link/request
+#### POST /api/link/request-otp
 
-Tạo link token để liên kết với phụ huynh.
+Gửi OTP để liên kết với phụ huynh bằng số điện thoại.
 
 **Request:**
 ```json
 {
+  "phone": "0912345678",
+  "trialId": "uuid",
+  "recaptchaToken": "recaptcha-token-here"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "OTP đã được gửi đến số điện thoại của bạn"
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: Số điện thoại không hợp lệ
+- `429 RATE_LIMIT_EXCEEDED`: Đã vượt quá 3 lần gửi OTP/ngày cho số điện thoại này
+- `400 RECAPTCHA_FAILED`: reCaptcha verification thất bại
+- `500 INTERNAL_ERROR`: Lỗi khi gửi OTP
+
+---
+
+#### POST /api/link/verify-otp
+
+Xác thực OTP và liên kết với phụ huynh.
+
+**Request:**
+```json
+{
+  "phone": "0912345678",
+  "otp": "123456",
   "trialId": "uuid"
 }
 ```
@@ -517,18 +552,30 @@ Tạo link token để liên kết với phụ huynh.
 {
   "success": true,
   "data": {
-    "linkToken": "abc123xyz",
-    "qrCodeUrl": "https://...",
-    "expiresAt": "2025-12-15T23:59:59Z"
+    "studentId": "uuid",
+    "parentId": "uuid",
+    "linkedAt": "2025-12-15T10:00:00Z",
+    "loginCredentials": {
+      "username": "0912345678",
+      "password": "0912345678",
+      "note": "Mật khẩu tạm thời, vui lòng đổi sau khi đăng nhập"
+    },
+    "dashboardUrl": "https://dashboard.tutor.app/activate?token=..."
   }
 }
 ```
 
+**Error Responses:**
+- `400 OTP_INVALID`: OTP không đúng
+- `400 OTP_EXPIRED`: OTP đã hết hạn (5 phút)
+- `404 TRIAL_NOT_FOUND`: Trial ID không tồn tại
+- `500 INTERNAL_ERROR`: Lỗi khi xác thực OTP
+
 ---
 
-#### POST /api/link/confirm
+#### POST /api/link/confirm (Parent-first flow - giữ nguyên)
 
-Xác nhận liên kết với phụ huynh.
+Xác nhận liên kết với phụ huynh bằng link token (cho parent-first flow).
 
 **Request:**
 ```json
@@ -566,9 +613,11 @@ Xác nhận liên kết với phụ huynh.
 **Request:**
 ```json
 {
-  "email": "parent@example.com",
+  "name": "Nguyễn Văn A",
+  "phone": "0912345678",
   "password": "securePassword123",
-  "confirmPassword": "securePassword123"
+  "confirmPassword": "securePassword123",
+  "email": "parent@example.com"
 }
 ```
 
@@ -578,15 +627,21 @@ Xác nhận liên kết với phụ huynh.
   "success": true,
   "data": {
     "parentId": "uuid",
+    "name": "Nguyễn Văn A",
+    "phone": "0912345678",
+    "phoneVerified": false,
     "email": "parent@example.com",
-    "status": "active"
+    "status": "pending_verification",
+    "requiresOtpVerification": true
   }
 }
 ```
 
+**Lưu ý:** Sau khi đăng ký, phụ huynh cần verify OTP. Gọi `/api/parent/phone/verify-otp` để hoàn tất đăng ký.
+
 **Error Responses:**
-- `400 VALIDATION_ERROR`: Email không hợp lệ hoặc password yếu
-- `409 CONFLICT`: Email đã tồn tại
+- `400 VALIDATION_ERROR`: Số điện thoại không hợp lệ, password yếu, hoặc tên rỗng
+- `409 CONFLICT`: Số điện thoại đã tồn tại
 
 ---
 
@@ -597,7 +652,7 @@ Xác nhận liên kết với phụ huynh.
 **Request:**
 ```json
 {
-  "email": "parent@example.com",
+  "phone": "0912345678",
   "password": "securePassword123"
 }
 ```
@@ -611,15 +666,135 @@ Xác nhận liên kết với phụ huynh.
     "expiresIn": 3600,
     "parent": {
       "id": "uuid",
-      "email": "parent@example.com"
+      "name": "Nguyễn Văn A",
+      "phone": "0912345678",
+      "phoneVerified": true
     }
   }
 }
 ```
 
 **Error Responses:**
-- `401 UNAUTHORIZED`: Email hoặc password sai
+- `401 UNAUTHORIZED`: Số điện thoại hoặc password sai
 - `403 FORBIDDEN`: Tài khoản bị inactive
+- `403 PHONE_NOT_VERIFIED`: Số điện thoại chưa được xác thực (yêu cầu verify OTP)
+
+---
+
+#### POST /api/parent/oauth/login
+
+Đăng nhập bằng Google hoặc Apple.
+
+**Request:**
+```json
+{
+  "provider": "google",
+  "token": "oauth-id-token-here"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "jwt-token-here",
+    "expiresIn": 3600,
+    "parent": {
+      "id": "uuid",
+      "name": "Nguyễn Văn A",
+      "email": "user@gmail.com",
+      "phoneVerified": true
+    },
+    "requiresPhoneVerification": false
+  }
+}
+```
+
+**Response (200 OK - Cần verify phone):**
+```json
+{
+  "success": true,
+  "data": {
+    "parentId": "uuid",
+    "name": "Nguyễn Văn A",
+    "email": "user@gmail.com",
+    "phoneVerified": false,
+    "requiresPhoneVerification": true,
+    "message": "Vui lòng cập nhật và xác thực số điện thoại"
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: OAuth token không hợp lệ
+- `400 VALIDATION_ERROR`: Provider không hợp lệ (chỉ hỗ trợ "google" hoặc "apple")
+
+---
+
+#### POST /api/parent/phone/update
+
+Cập nhật số điện thoại (sau OAuth login hoặc khi cần thay đổi).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Request:**
+```json
+{
+  "phone": "0912345678"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "OTP đã được gửi đến số điện thoại của bạn"
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: Số điện thoại không hợp lệ
+- `409 CONFLICT`: Số điện thoại đã được sử dụng bởi tài khoản khác
+- `429 RATE_LIMIT_EXCEEDED`: Đã vượt quá 3 lần gửi OTP/ngày
+
+---
+
+#### POST /api/parent/phone/verify-otp
+
+Xác thực OTP cho số điện thoại.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Request:**
+```json
+{
+  "phone": "0912345678",
+  "otp": "123456"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "phoneVerified": true,
+    "message": "Số điện thoại đã được xác thực thành công"
+  }
+}
+```
+
+**Error Responses:**
+- `400 OTP_INVALID`: OTP không đúng
+- `400 OTP_EXPIRED`: OTP đã hết hạn (5 phút)
+- `400 VALIDATION_ERROR`: Số điện thoại không khớp với OTP session
 
 ---
 

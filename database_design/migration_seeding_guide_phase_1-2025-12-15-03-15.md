@@ -84,15 +84,28 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 CREATE TABLE parent_account (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+  name VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(20) UNIQUE,
+  phone_verified BOOLEAN DEFAULT false,
+  email VARCHAR(255) UNIQUE,
+  password_hash TEXT,
+  oauth_provider VARCHAR(20),
+  oauth_id VARCHAR(255),
+  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending_activation')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT check_auth_method CHECK (
+    (password_hash IS NOT NULL) OR (oauth_provider IS NOT NULL)
+  ),
+  CONSTRAINT unique_oauth UNIQUE (oauth_provider, oauth_id) 
+    WHERE oauth_provider IS NOT NULL
 );
 
+CREATE INDEX idx_parent_account_phone ON parent_account(phone_number);
+CREATE INDEX idx_parent_account_phone_verified ON parent_account(phone_verified);
 CREATE INDEX idx_parent_account_email ON parent_account(email);
 CREATE INDEX idx_parent_account_status ON parent_account(status);
+CREATE INDEX idx_parent_account_oauth ON parent_account(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL;
 
 -- ============================================
 -- STUDENT_PROFILE
@@ -308,6 +321,33 @@ CREATE TABLE solve_history (
 CREATE INDEX idx_solve_student_id ON solve_history(student_id);
 CREATE INDEX idx_solve_trial_id ON solve_history(trial_id);
 CREATE INDEX idx_solve_created_at ON solve_history(created_at);
+
+-- ============================================
+-- OTP_SESSION
+-- ============================================
+CREATE TABLE otp_session (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  phone_number VARCHAR(20) NOT NULL,
+  trial_id UUID,
+  parent_id UUID,
+  otp_code VARCHAR(6),
+  expires_at TIMESTAMP NOT NULL,
+  verified_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT fk_otp_trial
+    FOREIGN KEY (trial_id) REFERENCES student_trial_profile(id)
+    ON DELETE CASCADE,
+  
+  CONSTRAINT fk_otp_parent
+    FOREIGN KEY (parent_id) REFERENCES parent_account(id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX idx_otp_session_phone ON otp_session(phone_number);
+CREATE INDEX idx_otp_session_expires_at ON otp_session(expires_at);
+CREATE INDEX idx_otp_session_trial_id ON otp_session(trial_id);
+CREATE INDEX idx_otp_session_parent_id ON otp_session(parent_id);
 ```
 
 ---
@@ -524,8 +564,8 @@ ON CONFLICT (id) DO UPDATE SET
 -- V2__Seed_test_data.sql (Optional - chỉ dùng cho development)
 
 -- Test Parent Account
-INSERT INTO parent_account (id, email, password_hash, status) VALUES
-('00000000-0000-0000-0000-000000000001', 'test@parent.com', '$2a$10$...', 'active')
+INSERT INTO parent_account (id, name, phone_number, phone_verified, email, password_hash, status) VALUES
+('00000000-0000-0000-0000-000000000001', 'Test Parent', '0912345678', true, 'test@parent.com', '$2a$10$...', 'active')
 ON CONFLICT (id) DO NOTHING;
 
 -- Test Student Profile
@@ -680,6 +720,7 @@ WHERE prerequisite_ids != '[]'::json;
 ## 12. LỊCH SỬ THAY ĐỔI
 
 - 2025-12-15-03-15: Tạo mới Database Migration & Seeding Guide
+- 2025-12-15-XX-XX: Cập nhật parent_account với phone_number (username), phone_verified, oauth fields, name. Email optional. Thêm otp_session table
 
 
 

@@ -71,11 +71,60 @@ Mục tiêu cốt lõi của phụ huynh trong Phase 1:
 Là một phụ huynh, tôi muốn đăng nhập vào dashboard để xem tình hình học tập của con.
 
 **Acceptance criteria**
-- [ ] Đăng nhập bằng email đã liên kết với tài khoản học sinh
-- [ ] Không cho đăng ký tài khoản phụ huynh độc lập
+- [ ] Đăng nhập bằng số điện thoại (username) + password
+- [ ] Hoặc đăng nhập bằng Google/Apple (OAuth)
+- [ ] Nếu đăng nhập OAuth và chưa có số điện thoại hoặc chưa verified → Bắt buộc cập nhật và verify số điện thoại
 - [ ] Tự động đăng xuất sau một khoảng thời gian không hoạt động
 
----
+### PU-01a: Đăng ký tài khoản phụ huynh
+**User story**  
+Là một phụ huynh, tôi muốn đăng ký tài khoản để quản lý việc học của con.
+
+**Acceptance criteria**
+- [ ] Form đăng ký gồm:
+  - Tên (bắt buộc)
+  - Số điện thoại (bắt buộc, là username)
+  - Password (bắt buộc)
+  - Email (không bắt buộc)
+- [ ] Bắt buộc xác thực số điện thoại bằng OTP trong quá trình đăng ký
+- [ ] Sau khi verify OTP → Tài khoản được kích hoạt
+- [ ] Có thể đăng nhập ngay sau khi đăng ký thành công
+
+**Flow Diagram:**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant P as Parent Web
+    participant C as Core Service
+    participant F as Firebase Auth
+    participant D as Database
+    participant SMS as SMS Service
+
+    P->>C: POST /api/parent/register<br/>{name, phone, password, email?}
+    C->>C: Validate input<br/>(name, phone format, password strength)
+    C->>D: Check phone_number exists
+    alt Phone already exists
+        C-->>P: 409 CONFLICT
+    else Phone available
+        C->>D: Create parent_account<br/>{name, phone, password_hash, email?, status: pending_verification}
+        C->>F: Request OTP via Firebase
+        F->>SMS: Send OTP SMS
+        SMS-->>F: SMS sent
+        F-->>C: OTP sent confirmation
+        C->>D: Store OTP session<br/>{phone, parentId, expires}
+        C-->>P: 201 Created<br/>{parentId, requiresOtpVerification: true}
+    end
+
+    P->>C: POST /api/parent/phone/verify-otp<br/>{phone, otp}
+    C->>D: Verify OTP session
+    C->>F: Verify OTP with Firebase
+    F-->>C: OTP valid
+    C->>D: Update parent_account<br/>{phone_verified: true, status: active}
+    C->>D: Mark OTP session as verified
+    C-->>P: 200 OK<br/>{phoneVerified: true}
+    Note over P: Redirect to dashboard<br/>Can login immediately
+```
 
 ## 4.2. NHÓM: TỔNG QUAN HỌC TẬP
 
@@ -194,15 +243,45 @@ Là một phụ huynh, tôi muốn chỉ xem được dữ liệu học tập c�
 - [ ] Không truy cập được dữ liệu học sinh khác
 - [ ] Không chỉnh sửa dữ liệu học tập
 
+### PU-11: Đăng nhập bằng Google/Apple
+**User story**  
+Là một phụ huynh, tôi muốn đăng nhập bằng tài khoản Google hoặc Apple để tiện lợi hơn.
+
+**Acceptance criteria**
+- [ ] Đăng nhập bằng Google hoặc Apple
+- [ ] Nếu chưa có tài khoản → Tự động tạo tài khoản (oauth_provider, oauth_id, email, name)
+- [ ] Nếu đã có tài khoản → Đăng nhập thành công
+- [ ] Sau khi đăng nhập OAuth:
+  - Nếu chưa có số điện thoại hoặc phone_verified = false → Bắt buộc cập nhật số điện thoại
+  - Gửi OTP để xác thực số điện thoại
+  - Sau khi verify OTP → phone_verified = true
+  - Mới được vào dashboard
+- [ ] Không cho vào dashboard nếu phone_verified = false
+
+### PU-12: Cập nhật số điện thoại sau OAuth login
+**User story**  
+Là một phụ huynh đã đăng nhập bằng OAuth, tôi muốn cập nhật số điện thoại để học sinh có thể liên kết với tôi.
+
+**Acceptance criteria**
+- [ ] Hiển thị màn hình "Cập nhật số điện thoại" sau OAuth login nếu phone_verified = false
+- [ ] Nhập số điện thoại
+- [ ] Gửi OTP qua SMS
+- [ ] Nhập OTP để xác thực
+- [ ] Sau khi verify OTP → phone_verified = true
+- [ ] Lưu số điện thoại vào tài khoản
+- [ ] Redirect đến dashboard sau khi verify thành công
+
 ---
 
 ## 5. QUY TẮC ƯU TIÊN (PRIORITY)
 
 | User Story | Mức độ ưu tiên |
 |-----------|---------------|
-| PU-01 → PU-08 | Must-have |
+| PU-01, PU-01a → PU-08 | Must-have |
 | PU-09 | Must-have |
 | PU-10 | Must-have |
+| PU-11 | Must-have |
+| PU-12 | Must-have |
 
 📌 **Lưu ý:**  
 Nếu không có nhóm user stories này, phụ huynh sẽ **không thấy giá trị để trả tiền**, dù app học sinh có tốt đến đâu.

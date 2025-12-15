@@ -38,9 +38,14 @@ Tài liệu này là cơ sở để:
 | Field | Type | Note |
 |-----|------|------|
 | id | UUID | Primary key |
-| email | String | Unique |
-| password_hash | String | |
-| status | Enum | active / inactive |
+| name | String | Bắt buộc |
+| phone_number | String | Unique, là username |
+| phone_verified | Boolean | Default false |
+| email | String | Optional, unique nếu có |
+| password_hash | String | Nullable nếu OAuth |
+| oauth_provider | String | google/apple/null |
+| oauth_id | String | Unique khi có oauth_provider |
+| status | Enum | active / inactive / pending_activation |
 | created_at | Timestamp | |
 
 ---
@@ -111,6 +116,18 @@ Tài liệu này là cơ sở để:
 | details | JSON | Skill-level |
 | created_at | Timestamp | |
 
+### 2.8. OtpSession
+| Field | Type | Note |
+|-----|------|------|
+| id | UUID | Primary key |
+| phone_number | String | |
+| trial_id | UUID | Nullable, FK → StudentTrialProfile |
+| parent_id | UUID | Nullable, FK → ParentAccount |
+| otp_code | String | 6 digits |
+| expires_at | Timestamp | |
+| verified_at | Timestamp | Nullable |
+| created_at | Timestamp | |
+
 ---
 
 
@@ -157,8 +174,9 @@ Tài liệu này là cơ sở để:
 
 | API | Method | Mô tả |
 |----|-------|------|
-| /api/link/request | POST | Tạo LinkToken |
-| /api/link/confirm | POST | Xác nhận liên kết |
+| /api/link/request-otp | POST | Gửi OTP để liên kết bằng số điện thoại |
+| /api/link/verify-otp | POST | Xác thực OTP và liên kết |
+| /api/link/confirm | POST | Xác nhận liên kết bằng LinkToken (parent-first) |
 
 ---
 
@@ -169,8 +187,11 @@ Tài liệu này là cơ sở để:
 
 | API | Method | Mô tả |
 |----|-------|------|
-| /api/parent/register | POST | Đăng ký phụ huynh |
-| /api/parent/login | POST | Đăng nhập |
+| /api/parent/register | POST | Đăng ký phụ huynh (name, phone, password, email optional) |
+| /api/parent/login | POST | Đăng nhập bằng số điện thoại + password |
+| /api/parent/oauth/login | POST | Đăng nhập bằng Google/Apple |
+| /api/parent/phone/update | POST | Cập nhật số điện thoại (sau OAuth) |
+| /api/parent/phone/verify-otp | POST | Xác thực OTP cho số điện thoại |
 
 ---
 
@@ -199,6 +220,9 @@ Tài liệu này là cơ sở để:
 - Không duplicate dữ liệu khi chuyển trial → linked
 - ParentAccount là root entity
 - API phân quyền rõ student / parent
+- **phone_number là username** cho đăng nhập phụ huynh
+- **Liên kết 1 chiều**: Chỉ học sinh có thể liên kết đến phụ huynh bằng số điện thoại (Phase 1)
+- **OAuth bắt buộc phone verification**: Phụ huynh đăng nhập OAuth phải verify số điện thoại trước khi vào dashboard
 
 ---
 
@@ -209,8 +233,12 @@ Tài liệu này là cơ sở để:
 - ../user_stories/parent_user_stories-2025-12-14-23-05.md
 - ../user_flows/user_onboarding_flow_phase1-2025-12-14-23-40.md
 
-
 ---
+
+## 7. LỊCH SỬ THAY ĐỔI
+
+- 2025-12-15-00-20: Tạo mới API & Database Mapping
+- 2025-12-15-XX-XX: Cập nhật ParentAccount với phone_number, phone_verified, oauth fields. Thêm OtpSession. Cập nhật linking APIs với OTP flow. Thêm OAuth login APIs.
 
 ---
 

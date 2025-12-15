@@ -43,10 +43,17 @@ erDiagram
 
   SKILL ||--o{ PRACTICE : relates_to
 
+  PARENT_ACCOUNT ||--o{ OTP_SESSION : generates
+
   PARENT_ACCOUNT {
     uuid id PK
+    string name
+    string phone_number
+    boolean phone_verified
     string email
     string password_hash
+    string oauth_provider
+    string oauth_id
     string status
     timestamp created_at
   }
@@ -85,6 +92,17 @@ erDiagram
     json prerequisite_ids
   }
 
+  OTP_SESSION {
+    uuid id PK
+    string phone_number
+    uuid trial_id FK
+    uuid parent_id FK
+    string otp_code
+    timestamp expires_at
+    timestamp verified_at
+    timestamp created_at
+  }
+
   PRACTICE {
     uuid id PK
     uuid student_id
@@ -109,10 +127,20 @@ erDiagram
 ### 3.1. parent_account
 CREATE TABLE parent_account (
   id UUID PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(20) UNIQUE,
+  phone_verified BOOLEAN DEFAULT false,
+  email VARCHAR(255) UNIQUE,
+  password_hash TEXT,
+  oauth_provider VARCHAR(20),
+  oauth_id VARCHAR(255),
   status VARCHAR(20) DEFAULT 'active',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT check_auth_method CHECK (
+    (password_hash IS NOT NULL) OR (oauth_provider IS NOT NULL)
+  ),
+  CONSTRAINT unique_oauth UNIQUE (oauth_provider, oauth_id) 
+    WHERE oauth_provider IS NOT NULL
 );
 
 ### 3.2. student_profile
@@ -196,6 +224,24 @@ CREATE TABLE mini_test_result (
     FOREIGN KEY (student_id) REFERENCES student_profile(id)
 );
 
+### 3.8. otp_session
+CREATE TABLE otp_session (
+  id UUID PRIMARY KEY,
+  phone_number VARCHAR(20) NOT NULL,
+  trial_id UUID,
+  parent_id UUID,
+  otp_code VARCHAR(6),
+  expires_at TIMESTAMP NOT NULL,
+  verified_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_otp_trial
+    FOREIGN KEY (trial_id) REFERENCES student_trial_profile(id),
+
+  CONSTRAINT fk_otp_parent
+    FOREIGN KEY (parent_id) REFERENCES parent_account(id)
+);
+
 ## 4. QUYẾT ĐỊNH THIẾT KẾ QUAN TRỌNG
 
 - Trial user và linked user dùng chung bảng practice
@@ -203,6 +249,16 @@ CREATE TABLE mini_test_result (
 - Không duplicate dữ liệu khi chuyển trial → student
 
 - ParentAccount là root entity
+
+- **phone_number là username** cho đăng nhập (unique, có thể null nếu OAuth chưa verify)
+
+- **phone_verified**: Bắt buộc true để truy cập dashboard (sau OAuth hoặc đăng ký)
+
+- **OAuth**: Hỗ trợ Google và Apple, oauth_id unique theo provider
+
+- **Email**: Optional, không bắt buộc
+
+- **Password**: Có thể null nếu đăng nhập bằng OAuth (chưa set password)
 
 - JSON được dùng cho:
 
@@ -222,7 +278,8 @@ CREATE TABLE mini_test_result (
 
 ## 6. LỊCH SỬ THAY ĐỔI
 
-2025-12-15-02-05: Tạo mới ERD & DDL cho Phase 1
+- 2025-12-15-02-05: Tạo mới ERD & DDL cho Phase 1
+- 2025-12-15-XX-XX: Cập nhật parent_account với phone_number, phone_verified, oauth fields, name. Thêm otp_session table
 
 
 
