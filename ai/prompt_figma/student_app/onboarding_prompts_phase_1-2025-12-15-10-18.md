@@ -5,6 +5,8 @@
 **Platform:** Mobile App (Flutter)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: WELCOME / INTRODUCTION
@@ -473,4 +475,8 @@
 - Tất cả buttons phải có disabled state
 - Error states: Hiển thị message rõ ràng, không technical
 - Success states: Confirmation message, next action rõ ràng
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

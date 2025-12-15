@@ -5,6 +5,8 @@
 **Platform:** Mobile App (Flutter)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: TODAY'S LEARNING PLAN
@@ -225,4 +227,8 @@
 - Timer nên có visual warning khi sắp hết thời gian
 - Progress indicators phải rõ ràng, dễ hiểu
 - Feedback phải tích cực, khuyến khích học sinh
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

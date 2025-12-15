@@ -5,6 +5,8 @@
 **Platform:** Mobile App (Flutter)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: TUTOR MODE ENTRY
@@ -277,4 +279,8 @@
 - Error states: Hiển thị message rõ ràng nếu OCR/solve thất bại
 - Success states: Celebration khi giải đúng
 - Step-by-step phải có animation nhẹ khi chuyển bước
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

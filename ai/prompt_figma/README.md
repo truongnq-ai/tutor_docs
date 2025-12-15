@@ -25,21 +25,21 @@ Các prompt được thiết kế để:
 ## 2. CẤU TRÚC THƯ MỤC
 
 ### 2.1. Student App Prompts
-- `onboarding_prompts.md` - Màn hình onboarding, chọn lớp, mục tiêu học tập
-- `learning_flow_prompts.md` - Lộ trình học hằng ngày, luyện tập
-- `tutor_mode_prompts.md` - Giải bài Toán, xem lời giải từng bước
-- `progress_prompts.md` - Theo dõi tiến độ, mastery, mini test
+- `onboarding_prompts_phase_1-2025-12-15-10-18.md` - Màn hình onboarding, chọn lớp, mục tiêu học tập, auth (Google/Apple/Manual)
+- `learning_flow_prompts_phase_1-2025-12-15-10-18.md` - Lộ trình học hằng ngày, luyện tập
+- `tutor_mode_prompts_phase_1-2025-12-15-10-18.md` - Giải bài Toán, xem lời giải từng bước
+- `progress_prompts_phase_1-2025-12-15-10-18.md` - Theo dõi tiến độ, mastery, mini test
 
 ### 2.2. Parent Dashboard Prompts
-- `authentication_prompts.md` - Đăng ký, đăng nhập phụ huynh
-- `dashboard_prompts.md` - Dashboard tổng quan, điểm yếu, tiến bộ
-- `reporting_prompts.md` - Báo cáo tuần/tháng, gợi ý cải thiện
+- `authentication_prompts_phase_1-2025-12-15-10-18.md` - Đăng ký, đăng nhập phụ huynh
+- `dashboard_prompts_phase_1-2025-12-15-10-18.md` - Dashboard tổng quan, điểm yếu, tiến bộ
+- `reporting_prompts_phase_1-2025-12-15-10-18.md` - Báo cáo tuần/tháng, gợi ý cải thiện
 
 ---
 
 ## 3. CÁCH SỬ DỤNG
 
-1. Đọc file `figma_prompt_standard.md` để hiểu cấu trúc prompt chuẩn
+1. Đọc file `figma_prompt_standard_phase_1-2025-12-15-10-18.md` để hiểu cấu trúc prompt chuẩn
 2. Chọn prompt phù hợp từ các file trong thư mục con
 3. Copy prompt vào Figma AI (Figma có hỗ trợ AI generation)
 4. Điều chỉnh prompt nếu cần theo context cụ thể

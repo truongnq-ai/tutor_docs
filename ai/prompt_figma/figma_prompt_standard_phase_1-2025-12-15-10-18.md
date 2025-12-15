@@ -7,6 +7,8 @@
 **Version:** 2025-12-15-10-18  
 **Author:** Education Design Expert
 
+- ← Quay lại: [Figma Prompt Library](./README.md)
+
 ---
 
 ## 1. MỤC ĐÍCH TÀI LIỆU
@@ -184,4 +186,8 @@ Xem các file trong thư mục `student_app/` và `parent_dashboard/` để tham
 - [README.md](./README.md)
 - [Student App Prompts](./student_app/)
 - [Parent Dashboard Prompts](./parent_dashboard/)
+
+---
+
+- ← Quay lại: [Figma Prompt Library](./README.md)
 

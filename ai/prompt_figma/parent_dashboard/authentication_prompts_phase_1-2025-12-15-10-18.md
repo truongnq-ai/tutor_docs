@@ -5,6 +5,8 @@
 **Platform:** Web Dashboard (Next.js)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: LANDING PAGE / INTRODUCTION
@@ -516,4 +518,8 @@
 - Success states cần confirmation rõ ràng
 - Responsive design cho tablet và mobile web
 - Accessibility: Keyboard navigation, screen reader support
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

@@ -5,6 +5,8 @@
 **Platform:** Web Dashboard (Next.js)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: WEEKLY REPORT
@@ -322,4 +324,8 @@
 - Recommendations phải actionable, không abstract
 - Loading states cho report generation
 - Success states khi gửi email
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

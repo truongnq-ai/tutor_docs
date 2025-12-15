@@ -5,6 +5,8 @@
 **Platform:** Web Dashboard (Next.js)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: DASHBOARD OVERVIEW
@@ -343,4 +345,8 @@
 - Color coding phải consistent
 - Loading states cho tất cả data fetching
 - Empty states phải friendly, encouraging
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

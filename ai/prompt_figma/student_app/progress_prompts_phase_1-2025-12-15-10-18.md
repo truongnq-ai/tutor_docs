@@ -5,6 +5,8 @@
 **Platform:** Mobile App (Flutter)  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](../README.md)
+
 ---
 
 ## SCREEN 1: PROGRESS DASHBOARD
@@ -311,4 +313,8 @@
 - Charts phải đơn giản, dễ hiểu cho học sinh
 - Celebrations khi đạt milestone (streak, mastery)
 - Encouragement messages khi chưa đạt
+
+---
+
+- ← Quay lại: [Figma Prompt Library](../README.md)
 

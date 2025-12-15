@@ -4,6 +4,8 @@
 **Document type:** Implementation Checklist  
 **Version:** 2025-12-15-10-18
 
+- ← Quay lại: [Figma Prompt Library](./README.md)
+
 ---
 
 ## ✅ ĐÃ HOÀN THÀNH
@@ -15,21 +17,21 @@
 
 ### 📄 File tài liệu
 - [x] `README.md` - Tổng quan và hướng dẫn sử dụng
-- [x] `figma_prompt_standard.md` - Tiêu chuẩn prompt
-- [x] `IMPLEMENTATION_CHECKLIST.md` - File này
+- [x] `figma_prompt_standard_phase_1-2025-12-15-10-18.md` - Tiêu chuẩn prompt
+- [x] `IMPLEMENTATION_CHECKLIST_phase_1-2025-12-15-10-18.md` - File này
 
 ### 📱 Student App Prompts
-- [x] `onboarding_prompts.md` - 4 screens (Welcome, Select Grade, Select Goal, Paywall)
-- [x] `learning_flow_prompts.md` - 4 screens (Today's Plan, Practice Question, Result, Complete)
-- [x] `tutor_mode_prompts.md` - 5 screens (Entry, Camera, Text Input, Solution, OCR)
-- [x] `progress_prompts.md` - 5 screens (Dashboard, Skill Detail, Test Start, Test Question, Test Result)
+- [x] `onboarding_prompts_phase_1-2025-12-15-10-18.md` - 4 screens (Welcome, Select Grade, Select Goal, Paywall) + auth screens
+- [x] `learning_flow_prompts_phase_1-2025-12-15-10-18.md` - 4 screens (Today's Plan, Practice Question, Result, Complete)
+- [x] `tutor_mode_prompts_phase_1-2025-12-15-10-18.md` - 5 screens (Entry, Camera, Text Input, Solution, OCR)
+- [x] `progress_prompts_phase_1-2025-12-15-10-18.md` - 5 screens (Dashboard, Skill Detail, Test Start, Test Question, Test Result)
 
 **Tổng: 18 screens cho Student App**
 
 ### 💻 Parent Dashboard Prompts
-- [x] `authentication_prompts.md` - 5 screens (Landing, Register, Login, Create Profile, Link Token)
-- [x] `dashboard_prompts.md` - 5 screens (Overview, Activity Detail, Weak Skills, Progress, Skill Detail)
-- [x] `reporting_prompts.md` - 4 screens (Weekly Report, Monthly Report, Recommendations, Email Preview)
+- [x] `authentication_prompts_phase_1-2025-12-15-10-18.md` - 5 screens (Landing, Register, Login, Create Profile, Link Token)
+- [x] `dashboard_prompts_phase_1-2025-12-15-10-18.md` - 5 screens (Overview, Activity Detail, Weak Skills, Progress, Skill Detail)
+- [x] `reporting_prompts_phase_1-2025-12-15-10-18.md` - 4 screens (Weekly Report, Monthly Report, Recommendations, Email Preview)
 
 **Tổng: 14 screens cho Parent Dashboard**
 
@@ -156,6 +158,7 @@
 
 ---
 
+- ← Quay lại: [Figma Prompt Library](./README.md)
 ## ✅ NEXT STEPS
 
 1. [ ] Review tất cả prompts với team
