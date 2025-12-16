@@ -188,10 +188,11 @@ v
 Core Service là **trung tâm nghiệp vụ** của toàn hệ thống.
 
 **Chức năng chính**
-- Auth & Account
+- Auth & Account (JWT với refresh token)
 - Quản lý học sinh / phụ huynh
 - Theo dõi tiến độ học tập
 - Tổng hợp báo cáo
+- Refresh token management (rotation, revocation, cleanup)
 
 **Đặc điểm**
 - Stateless REST API
@@ -236,7 +237,20 @@ Cung cấp toàn bộ năng lực AI cho hệ thống Tutor.
 ### 6.1. Frontend → Backend
 - REST API
 - JSON
-- Authentication bằng token
+- Authentication bằng JWT access token
+- Refresh token mechanism cho long-term authentication
+
+**Authentication Flow:**
+1. **Login**: User đăng nhập → Nhận `accessToken` (6 giờ) và `refreshToken` (30 ngày)
+2. **API Requests**: Gửi `accessToken` trong header `Authorization: Bearer <accessToken>`
+3. **Token Refresh**: Khi `accessToken` hết hạn (401) → Gọi `/api/v1/auth/refresh_token` với `refreshToken` → Nhận tokens mới
+4. **Token Rotation**: Mỗi lần refresh tạo `refreshToken` mới và revoke token cũ
+5. **Logout**: Gọi `/api/v1/auth/logout` với `refreshToken` → Revoke token
+
+**Security Features:**
+- Refresh tokens được hash (SHA-256) trước khi lưu database
+- Hỗ trợ multi-device: Mỗi user có thể có nhiều refresh tokens
+- Scheduled cleanup: Xóa expired tokens hàng ngày
 
 ### 6.2. Core Service → AI Service
 - REST API nội bộ

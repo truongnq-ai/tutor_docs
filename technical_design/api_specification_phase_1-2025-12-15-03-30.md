@@ -55,9 +55,20 @@ Production: https://api.tutor.app/api
 
 ### 2.4. Authentication
 
-- **Student App:** JWT token trong header `Authorization: Bearer <token>`
-- **Parent Dashboard:** JWT token trong header `Authorization: Bearer <token>`
+- **Student App:** JWT access token trong header `Authorization: Bearer <accessToken>`
+- **Parent Dashboard:** JWT access token trong header `Authorization: Bearer <accessToken>`
+- **Refresh Token:** Dùng để refresh access token khi hết hạn (30 ngày)
 - **Trial User:** Anonymous token hoặc device ID
+
+**Token Types:**
+- **Access Token:** JWT token, hết hạn sau 6 giờ, dùng để authenticate các API requests
+- **Refresh Token:** JWT token, hết hạn sau 30 ngày, dùng để lấy access token mới
+
+**Refresh Token Flow:**
+1. User login → Nhận `accessToken` và `refreshToken`
+2. Khi `accessToken` hết hạn (401) → Gọi `/api/v1/auth/refresh_token` với `refreshToken`
+3. Nhận `accessToken` và `refreshToken` mới (refresh token rotation)
+4. Tiếp tục sử dụng `accessToken` mới
 
 ---
 
@@ -227,15 +238,11 @@ Production: https://api.tutor.app/api
 **Response (200 OK):**
 ```json
 {
-  "success": true,
-  "data": {
-    "token": "jwt-token-here",
-    "expiresIn": 3600,
-    "student": {
-      "id": "uuid",
-      "username": "student123"
-    }
-  }
+  "accessToken": "jwt-access-token-here",
+  "refreshToken": "jwt-refresh-token-here",
+  "tokenType": "bearer",
+  "expiresIn": 21600,
+  "refreshTokenExpiresIn": 2592000
 }
 ```
 
@@ -792,6 +799,17 @@ Xác nhận liên kết với phụ huynh bằng link token (cho parent-first fl
 }
 ```
 
+**Response (200 OK):**
+```json
+{
+  "accessToken": "jwt-access-token-here",
+  "refreshToken": "jwt-refresh-token-here",
+  "tokenType": "bearer",
+  "expiresIn": 21600,
+  "refreshTokenExpiresIn": 2592000
+}
+```
+
 **Error Responses:**
 - `401 UNAUTHORIZED`: Số điện thoại hoặc password sai
 - `403 FORBIDDEN`: Tài khoản bị inactive
@@ -814,18 +832,11 @@ Xác nhận liên kết với phụ huynh bằng link token (cho parent-first fl
 **Response (200 OK):**
 ```json
 {
-  "success": true,
-  "data": {
-    "token": "jwt-token-here",
-    "expiresIn": 3600,
-    "parent": {
-      "id": "uuid",
-      "name": "Nguyễn Văn A",
-      "email": "user@gmail.com",
-      "phoneVerified": true
-    },
-    "requiresPhoneVerification": false
-  }
+  "accessToken": "jwt-access-token-here",
+  "refreshToken": "jwt-refresh-token-here",
+  "tokenType": "bearer",
+  "expiresIn": 21600,
+  "refreshTokenExpiresIn": 2592000
 }
 ```
 
@@ -1093,6 +1104,75 @@ Authorization: Bearer <token>
 
 ---
 
+## 6.4. Refresh Token & Logout
+
+### 6.4.1. Refresh Token
+
+#### GET /api/v1/auth/refresh_token
+
+Refresh access token bằng refresh token. Hỗ trợ refresh token rotation - mỗi lần refresh sẽ tạo refresh token mới và revoke token cũ.
+
+**Headers:**
+```
+Authorization: Bearer <refreshToken>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "new-jwt-access-token",
+    "refreshToken": "new-jwt-refresh-token",
+    "tokenType": "bearer",
+    "expiresIn": 21600,
+    "refreshTokenExpiresIn": 2592000
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Refresh token không hợp lệ, đã hết hạn, hoặc đã bị revoke
+- `400 VALIDATION_ERROR`: Authorization header không đúng format
+
+**Lưu ý:**
+- Refresh token cũ sẽ bị revoke sau khi refresh thành công (rotation)
+- Client phải lưu refresh token mới và sử dụng nó cho lần refresh tiếp theo
+- Hỗ trợ multi-device: Mỗi device có thể có refresh token riêng
+
+---
+
+### 6.4.2. Logout
+
+#### POST /api/v1/auth/logout
+
+Đăng xuất và revoke refresh token hiện tại.
+
+**Headers:**
+```
+Authorization: Bearer <refreshToken>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Logged out successfully",
+  "data": null
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Refresh token không hợp lệ
+- `400 VALIDATION_ERROR`: Authorization header không đúng format
+
+**Lưu ý:**
+- Refresh token sẽ bị revoke sau khi logout
+- Client nên xóa cả access token và refresh token khỏi storage
+- Logout chỉ revoke refresh token được gửi trong request, không revoke tất cả tokens của user
+
+---
+
 ## 7. INTERNAL APIs (Core Service ↔ AI Service)
 
 ### 7.1. POST /internal/ai/solve
@@ -1167,6 +1247,7 @@ X-RateLimit-Reset: 1639500000
 ## 11. LỊCH SỬ THAY ĐỔI
 
 - 2025-12-15-03-30: Tạo mới API Specification
+- 2025-12-15: Thêm refresh token endpoints và cập nhật authentication flow
 
 
 

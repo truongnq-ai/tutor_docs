@@ -1,6 +1,6 @@
 # Tutor Platform - Implementation Status & Next Steps
 
-**Last Updated**: 2025-12-15
+**Last Updated**: 2025-12-16
 
 ## Overview
 
@@ -106,25 +106,19 @@ npm install firebase
 #### Current State
 - **Base**: spring-security-jwt template
 - **Java**: 17 ✅
-- **Spring Boot**: 3.2.5 ✅
-- **Spring Security**: 6.x ✅
-- **PostgreSQL**: Supported ✅
+- **Spring Boot**: 3.5.8 ✅ (đã nâng cấp từ 3.2.5)
+- **Spring Security**: 6.5.4+ ✅ (auto-managed bởi Spring Boot 3.5.8)
+- **PostgreSQL**: Supported ✅ (JDBC Driver: 42.7.8)
 - **JWT**: Configured ✅
-- **Liquibase**: Included ✅
-- **Swagger**: 2.2.0 ✅
+- **Liquibase**: Included ✅ (4.31.0+ auto-managed)
+- **Swagger/OpenAPI**: 2.8.14 ✅ (đã nâng cấp từ 2.2.0)
+- **Firebase Admin SDK**: 9.7.0 ✅ (đã nâng cấp từ 9.2.0)
 
 #### Missing Dependencies
 
 Add to `pom.xml`:
 
 ```xml
-<!-- Firebase Admin SDK -->
-<dependency>
-    <groupId>com.google.firebase</groupId>
-    <artifactId>firebase-admin</artifactId>
-    <version>9.2.0</version>
-</dependency>
-
 <!-- WebFlux for AI Service HTTP client -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -140,12 +134,12 @@ Add to `pom.xml`:
 ```
 
 #### Implementation Tasks
-- [ ] Add Firebase Admin SDK dependency
-- [ ] Create Firebase configuration class
-- [ ] Implement OTP service with Firebase
+- [x] Add Firebase Admin SDK dependency ✅
+- [x] Create Firebase configuration class ✅
+- [ ] Implement OTP service with Firebase (FirebaseService interface đã có, cần implementation)
 - [ ] Create SMS Gateway abstraction layer
 - [ ] Implement phone-based authentication
-- [ ] Implement OAuth token verification (Google/Apple)
+- [ ] Implement OAuth token verification (Google/Apple) (FirebaseService interface đã có, cần implementation)
 - [ ] Create AI Service HTTP client
 - [ ] Implement Object Storage (S3) integration
 - [ ] Add rate limiting for OTP endpoints
@@ -154,7 +148,7 @@ Add to `pom.xml`:
 - [ ] Implement reporting APIs
 
 #### Next Steps Priority
-1. **High**: Firebase Admin SDK integration
+1. **High**: Firebase Admin SDK integration (Đã setup cơ bản, cần hoàn thiện implementation)
 2. **High**: OTP service implementation
 3. **High**: Phone-based authentication
 4. **Medium**: OAuth providers (Google/Apple)
@@ -557,4 +551,4 @@ Project documentation:
 
 ---
 
-**Last Updated**: 2025-12-15
+**Last Updated**: 2025-12-16

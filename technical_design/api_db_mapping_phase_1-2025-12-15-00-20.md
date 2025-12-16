@@ -128,6 +128,22 @@ Tài liệu này là cơ sở để:
 | verified_at | Timestamp | Nullable |
 | created_at | Timestamp | |
 
+### 2.9. RefreshToken
+| Field | Type | Note |
+|-----|------|------|
+| id | UUID | Primary key |
+| user_id | UUID | FK → users |
+| token_hash | String | SHA-256 hash của refresh token (UNIQUE) |
+| expires_at | Timestamp | Hết hạn sau 30 ngày |
+| revoked_at | Timestamp | Nullable, set khi revoke |
+| created_at | Timestamp | |
+| last_used_at | Timestamp | Nullable, track last usage |
+
+**Lưu ý:**
+- Hỗ trợ multi-device: Mỗi user có thể có nhiều refresh tokens
+- Token được hash bằng SHA-256 trước khi lưu DB
+- Refresh token rotation: Mỗi lần refresh tạo token mới, revoke token cũ
+
 ---
 
 
@@ -193,6 +209,19 @@ Tài liệu này là cơ sở để:
 | /api/parent/phone/update | POST | Cập nhật số điện thoại (sau OAuth) |
 | /api/parent/phone/verify-otp | POST | Xác thực OTP cho số điện thoại |
 
+### 4.1.1. Refresh Token & Logout
+
+| API | Method | Mô tả |
+|----|-------|------|
+| /api/v1/auth/refresh_token | GET | Refresh access token bằng refresh token (rotation) |
+| /api/v1/auth/logout | POST | Logout và revoke refresh token |
+
+**Lưu ý:**
+- Refresh token endpoints dùng chung cho tất cả user types (Parent, Student, Admin)
+- Login response bao gồm cả `accessToken` và `refreshToken`
+- Refresh token rotation: Mỗi lần refresh tạo token mới, revoke token cũ
+- Hỗ trợ multi-device: Mỗi user có thể có nhiều refresh tokens
+
 ---
 
 ### 4.2. Student Management
@@ -223,6 +252,11 @@ Tài liệu này là cơ sở để:
 - **phone_number là username** cho đăng nhập phụ huynh
 - **Liên kết 1 chiều**: Chỉ học sinh có thể liên kết đến phụ huynh bằng số điện thoại (Phase 1)
 - **OAuth bắt buộc phone verification**: Phụ huynh đăng nhập OAuth phải verify số điện thoại trước khi vào dashboard
+- **Refresh Token**: 
+  - Access token hết hạn sau 6 giờ, refresh token hết hạn sau 30 ngày
+  - Login response bao gồm cả `accessToken` và `refreshToken`
+  - Refresh token rotation: Mỗi lần refresh tạo token mới, revoke token cũ
+  - Hỗ trợ multi-device: Mỗi user có thể có nhiều refresh tokens cùng lúc
 
 ---
 

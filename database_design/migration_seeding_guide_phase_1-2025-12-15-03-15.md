@@ -26,9 +26,36 @@ Tài liệu này đảm bảo database được setup đúng từ đầu và có
 ---
 
 
-## 2. MIGRATION STRATEGY
+## 2. UUID v7 POLICY
 
-### 2.1. Tool Selection
+### 2.1. Quy định về PRIMARY ID
+
+**TẤT CẢ PRIMARY ID PHẢI SỬ DỤNG UUID v7 (Time-ordered UUID)**
+
+1. **UUID v7 được sinh ra ở tầng Application, KHÔNG phải Database hay Hibernate**
+   - UUID v7 được generate bởi `UuidGenerator.generate()` trong Java code
+   - BaseEntity sử dụng `@PrePersist` để tự động generate UUID v7 khi entity được persist lần đầu
+   - Database schema KHÔNG có DEFAULT value cho UUID columns
+
+2. **Lý do sử dụng UUID v7:**
+   - Time-ordered: UUID v7 chứa timestamp, giúp sorting và indexing tốt hơn UUID v4
+   - Distributed systems: Không cần database sequence, phù hợp với microservices
+   - Security: Không expose sequential IDs, khó đoán được ID tiếp theo
+
+3. **Implementation:**
+   - Tất cả entities extend `BaseEntity` (có UUID v7 id)
+   - Migration scripts KHÔNG có `DEFAULT uuid_generate_v4()` 
+   - Seed data scripts sử dụng pre-generated UUID v7 (cho deterministic seeding)
+
+4. **Lưu ý:**
+   - Skill entity có thêm field `code` (VARCHAR(50), UNIQUE) để lưu human-readable identifier (format: "6.1.1", "7.2.3")
+   - `code` field dùng cho business logic, `id` (UUID v7) dùng cho primary key và foreign keys
+
+---
+
+## 3. MIGRATION STRATEGY
+
+### 3.1. Tool Selection
 
 **Flyway** (Recommended cho Spring Boot)
 - Tích hợp tốt với Spring Boot
@@ -41,7 +68,7 @@ Tài liệu này đảm bảo database được setup đúng từ đầu và có
 - Hỗ trợ rollback tốt hơn
 - Phức tạp hơn cho MVP
 
-### 2.2. Migration Naming Convention
+### 3.2. Migration Naming Convention
 
 ```
 V{version}__{description}.sql
@@ -65,9 +92,9 @@ src/main/resources/db/migration/
 ---
 
 
-## 3. INITIAL SCHEMA MIGRATION
+## 4. INITIAL SCHEMA MIGRATION
 
-### 3.1. Migration File: V1__Initial_schema.sql
+### 4.1. Migration File: V1__Initial_schema.sql
 
 ```sql
 -- ============================================
@@ -76,14 +103,14 @@ src/main/resources/db/migration/
 -- Date: 2025-12-15
 -- ============================================
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Note: UUID v7 is generated at Application layer, not in database
+-- UUID extension is not needed for UUID v7 generation
 
 -- ============================================
 -- PARENT_ACCOUNT
 -- ============================================
 CREATE TABLE parent_account (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   name VARCHAR(255) NOT NULL,
   phone_number VARCHAR(20) UNIQUE,
   phone_verified BOOLEAN DEFAULT false,
@@ -111,7 +138,7 @@ CREATE INDEX idx_parent_account_oauth ON parent_account(oauth_provider, oauth_id
 -- STUDENT_PROFILE
 -- ============================================
 CREATE TABLE student_profile (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   parent_id UUID NOT NULL,
   grade INT NOT NULL CHECK (grade IN (6, 7)),
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'linked')),
@@ -130,7 +157,7 @@ CREATE INDEX idx_student_profile_status ON student_profile(status);
 -- STUDENT_TRIAL_PROFILE
 -- ============================================
 CREATE TABLE student_trial_profile (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   anonymous_id VARCHAR(255) NOT NULL,
   device_id VARCHAR(255),
   grade INT NOT NULL CHECK (grade IN (6, 7)),
@@ -146,7 +173,7 @@ CREATE INDEX idx_trial_expires_at ON student_trial_profile(expires_at);
 -- LINK_TOKEN
 -- ============================================
 CREATE TABLE link_token (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   token VARCHAR(255) UNIQUE NOT NULL,
   parent_id UUID,
   student_id UUID,
@@ -176,11 +203,12 @@ CREATE INDEX idx_link_token_used_at ON link_token(used_at);
 -- SKILL
 -- ============================================
 CREATE TABLE skill (
-  id VARCHAR(50) PRIMARY KEY, -- Format: 6.1.1, 7.2.3
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
+  code VARCHAR(50) UNIQUE NOT NULL, -- Format: 6.1.1, 7.2.3 (human-readable identifier)
   grade INT NOT NULL CHECK (grade IN (6, 7)),
   chapter VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
-  prerequisite_ids JSON, -- Array of skill IDs
+  prerequisite_ids JSON, -- Array of skill UUIDs
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -192,10 +220,10 @@ CREATE INDEX idx_skill_chapter ON skill(chapter);
 -- SKILL_MASTERY
 -- ============================================
 CREATE TABLE skill_mastery (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   student_id UUID,
   trial_id UUID,
-  skill_id VARCHAR(50) NOT NULL,
+  skill_id UUID NOT NULL, -- References skill.id (UUID)
   mastery_level INT DEFAULT 0 CHECK (mastery_level BETWEEN 0 AND 100),
   last_practiced_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -231,10 +259,10 @@ CREATE INDEX idx_mastery_level ON skill_mastery(mastery_level);
 -- PRACTICE
 -- ============================================
 CREATE TABLE practice (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   student_id UUID,
   trial_id UUID,
-  skill_id VARCHAR(50) NOT NULL,
+  skill_id UUID NOT NULL, -- References skill.id (UUID)
   is_correct BOOLEAN NOT NULL,
   duration_sec INT,
   difficulty_level INT DEFAULT 1 CHECK (difficulty_level BETWEEN 1 AND 5),
@@ -268,9 +296,9 @@ CREATE INDEX idx_practice_is_correct ON practice(is_correct);
 -- MINI_TEST_RESULT
 -- ============================================
 CREATE TABLE mini_test_result (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   student_id UUID NOT NULL,
-  skill_id VARCHAR(50) NOT NULL,
+  skill_id UUID NOT NULL, -- References skill.id (UUID)
   score INT CHECK (score BETWEEN 0 AND 100),
   total_questions INT NOT NULL,
   correct_answers INT NOT NULL,
@@ -295,7 +323,7 @@ CREATE INDEX idx_test_created_at ON mini_test_result(created_at);
 -- SOLVE_HISTORY (Tutor Mode)
 -- ============================================
 CREATE TABLE solve_history (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   student_id UUID,
   trial_id UUID,
   problem_text TEXT,
@@ -326,7 +354,7 @@ CREATE INDEX idx_solve_created_at ON solve_history(created_at);
 -- OTP_SESSION
 -- ============================================
 CREATE TABLE otp_session (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY, -- UUID v7 generated at Application layer
   phone_number VARCHAR(20) NOT NULL,
   trial_id UUID,
   parent_id UUID,
@@ -352,9 +380,14 @@ CREATE INDEX idx_otp_session_parent_id ON otp_session(parent_id);
 
 ---
 
-## 4. SEED DATA – SKILLS
+## 5. SEED DATA – SKILLS
 
-### 4.1. Repeatable Migration: R__Seed_skills.sql
+### 5.1. Repeatable Migration: R__Seed_skills.sql
+
+**Lưu ý về UUID v7 trong Seed Data:**
+- Seed script sử dụng pre-generated UUID v7 cho mỗi skill
+- UUIDs được hardcode trong seed script để đảm bảo deterministic seeding
+- Trong production, skills mới nên được tạo qua Application layer để tự động generate UUID v7
 
 ```sql
 -- ============================================
@@ -365,8 +398,8 @@ CREATE INDEX idx_otp_session_parent_id ON otp_session(parent_id);
 -- Grade 6 Skills
 
 -- Chương: Số tự nhiên
-INSERT INTO skill (id, grade, chapter, name, prerequisite_ids) VALUES
-('6.1.1', 6, 'Số tự nhiên', 'Đọc và viết số tự nhiên', '[]'::json),
+INSERT INTO skill (id, code, grade, chapter, name, prerequisite_ids) VALUES
+('018f1234-0000-7000-8000-000000000001'::uuid, '6.1.1', 6, 'Số tự nhiên', 'Đọc và viết số tự nhiên', '[]'::json),
 ('6.1.2', 6, 'Số tự nhiên', 'So sánh số tự nhiên', '["6.1.1"]'::json),
 ('6.1.3', 6, 'Số tự nhiên', 'Cộng trừ số tự nhiên', '["6.1.1"]'::json),
 ('6.1.4', 6, 'Số tự nhiên', 'Nhân chia số tự nhiên', '["6.1.3"]'::json),
@@ -576,7 +609,7 @@ ON CONFLICT (id) DO NOTHING;
 
 ---
 
-## 6. FLYWAY CONFIGURATION
+## 7. FLYWAY CONFIGURATION
 
 ### 6.1. Spring Boot Application Properties
 
@@ -720,6 +753,7 @@ WHERE prerequisite_ids != '[]'::json;
 ## 12. LỊCH SỬ THAY ĐỔI
 
 - 2025-12-15-03-15: Tạo mới Database Migration & Seeding Guide
+- 2025-12-15: Thêm migration V4__Create_refresh_token_table.sql
 - 2025-12-15-XX-XX: Cập nhật parent_account với phone_number (username), phone_verified, oauth fields, name. Email optional. Thêm otp_session table
 
 

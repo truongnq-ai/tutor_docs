@@ -25,6 +25,33 @@ Phạm vi:
 
 ---
 
+## 1.1. QUY ĐỊNH VỀ PRIMARY ID (UUID v7)
+
+**TẤT CẢ PRIMARY ID PHẢI SỬ DỤNG UUID v7 (Time-ordered UUID)**
+
+1. **UUID v7 được sinh ra ở tầng Application, KHÔNG phải Database hay Hibernate**
+   - UUID v7 được generate bởi `UuidGenerator.generate()` trong Java code
+   - BaseEntity sử dụng `@PrePersist` để tự động generate UUID v7 khi entity được persist lần đầu
+   - Database schema KHÔNG có DEFAULT value cho UUID columns
+
+2. **Lý do sử dụng UUID v7:**
+   - Time-ordered: UUID v7 chứa timestamp, giúp sorting và indexing tốt hơn UUID v4
+   - Distributed systems: Không cần database sequence, phù hợp với microservices
+   - Security: Không expose sequential IDs, khó đoán được ID tiếp theo
+
+3. **Implementation:**
+   - Tất cả entities extend `BaseEntity` (có UUID v7 id)
+   - Migration scripts KHÔNG có `DEFAULT uuid_generate_v4()` 
+   - Seed data scripts sử dụng pre-generated UUID v7 (cho deterministic seeding)
+
+4. **Lưu ý đặc biệt cho Skill entity:**
+   - Skill có thêm field `code` (VARCHAR(50), UNIQUE) để lưu human-readable identifier (format: "6.1.1", "7.2.3")
+   - `code` field dùng cho business logic và API responses, `id` (UUID v7) dùng cho primary key và foreign keys
+
+---
+
+---
+
 
 ## 2. DATABASE ERD (MERMAID)
 
@@ -44,6 +71,34 @@ erDiagram
   SKILL ||--o{ PRACTICE : relates_to
 
   PARENT_ACCOUNT ||--o{ OTP_SESSION : generates
+
+  USERS ||--o{ REFRESH_TOKEN : has
+
+  USERS {
+    uuid id PK
+    string username UK
+    string password_hash
+    string email UK
+    string phone_number UK
+    string user_type
+    string status
+    string oauth_provider
+    string oauth_id
+    boolean phone_verified
+    boolean email_verified
+    timestamp last_login_at
+    timestamp created_at
+  }
+
+  REFRESH_TOKEN {
+    uuid id PK
+    uuid user_id FK
+    string token_hash UK
+    timestamp expires_at
+    timestamp revoked_at
+    timestamp created_at
+    timestamp last_used_at
+  }
 
   PARENT_ACCOUNT {
     uuid id PK
@@ -87,9 +142,11 @@ erDiagram
 
   SKILL {
     uuid id PK
+    string code UK "Format: 6.1.1, 7.2.3"
     int grade
+    string chapter
     string name
-    json prerequisite_ids
+    json prerequisite_ids "Array of skill UUIDs"
   }
 
   OTP_SESSION {
@@ -242,6 +299,27 @@ CREATE TABLE otp_session (
     FOREIGN KEY (parent_id) REFERENCES parent_account(id)
 );
 
+### 3.9. refresh_token
+CREATE TABLE refresh_token (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  token_hash VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  revoked_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_used_at TIMESTAMP,
+
+  CONSTRAINT fk_refresh_token_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX idx_refresh_token_user_id ON refresh_token(user_id);
+CREATE INDEX idx_refresh_token_token_hash ON refresh_token(token_hash);
+CREATE INDEX idx_refresh_token_expires_at ON refresh_token(expires_at);
+CREATE INDEX idx_refresh_token_revoked_at ON refresh_token(revoked_at);
+CREATE INDEX idx_refresh_token_user_active ON refresh_token(user_id, revoked_at) WHERE revoked_at IS NULL;
+
 ## 4. QUYẾT ĐỊNH THIẾT KẾ QUAN TRỌNG
 
 - Trial user và linked user dùng chung bảng practice
@@ -259,6 +337,13 @@ CREATE TABLE otp_session (
 - **Email**: Optional, không bắt buộc
 
 - **Password**: Có thể null nếu đăng nhập bằng OAuth (chưa set password)
+
+- **Refresh Token**: 
+  - Hỗ trợ multi-device: Mỗi user có thể có nhiều refresh tokens cùng lúc
+  - Token được hash bằng SHA-256 trước khi lưu DB (token_hash)
+  - Refresh token rotation: Mỗi lần refresh tạo token mới, revoke token cũ
+  - Hết hạn sau 30 ngày, có thể revoke sớm khi logout
+  - Scheduled task cleanup expired tokens hàng ngày
 
 - JSON được dùng cho:
 
