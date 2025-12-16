@@ -228,10 +228,10 @@ Tài liệu này là cơ sở để:
 
 ## 6. TÀI LIỆU LIÊN QUAN
 
-- ../prd/prd_mvp-2025-12-14-22-15.md
-- ../user_stories/student_user_stories-2025-12-14-22-45.md
-- ../user_stories/parent_user_stories-2025-12-14-23-05.md
-- ../user_flows/user_onboarding_flow_phase1-2025-12-14-23-40.md
+- [PRD MVP](../prd/prd_mvp_phase_1-2025-12-14-22-15.md)
+- [Student User Stories](../user_stories/student_user_stories_phase_1-2025-12-14-22-45.md)
+- [Parent User Stories](../user_stories/parent_user_stories_phase_1-2025-12-14-23-05.md)
+- [User Onboarding Flow](../user_flows/user_onboarding_flow_phase_1-2025-12-14-23-40.md)
 
 ---
 

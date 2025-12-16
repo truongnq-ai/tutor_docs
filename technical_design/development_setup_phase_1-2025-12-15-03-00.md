@@ -649,9 +649,9 @@ Sau khi setup, verify các bước sau:
 ## 16. TÀI LIỆU LIÊN QUAN
 
 - [System Architecture](./system_architecture_phase_1-2025-12-15-00-21.md)
-- [Environment Configuration](./environment_config_phase_1-YYYY-MM-DD-HH-mm.md)
-- [Project Structure](./project_structure_phase_1-YYYY-MM-DD-HH-mm.md)
-- [Database Migration Guide](../database_design/migration_seeding_guide_phase_1-YYYY-MM-DD-HH-mm.md)
+- [Environment Configuration](./environment_config_phase_1-2025-12-15-04-00.md)
+- [Project Structure](./project_structure_phase_1-2025-12-15-04-30.md)
+- [Database Migration Guide](../database_design/migration_seeding_guide_phase_1-2025-12-15-03-15.md)
 
 ---
 

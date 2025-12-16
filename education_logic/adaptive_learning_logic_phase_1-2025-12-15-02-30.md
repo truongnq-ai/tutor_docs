@@ -174,9 +174,9 @@ Logic hiện tại **rule-based**, đủ chính xác và dễ kiểm soát.
 
 ## 11. TÀI LIỆU LIÊN QUAN
 
-- ../database_design/database_erd_ddl_phase1-2025-12-15-02-05.md
-- ../technical_design/api_db_mapping_phase1-2025-12-15-00-20.md
-- ../user_stories/student_user_stories-2025-12-14-22-45.md
+- [Database ERD & DDL](../database_design/database_erd_ddl_phase_1-2025-12-15-02-05.md)
+- [API & Database Mapping](../technical_design/api_db_mapping_phase_1-2025-12-15-00-20.md)
+- [Student User Stories](../user_stories/student_user_stories_phase_1-2025-12-14-22-45.md)
 
 ---
 

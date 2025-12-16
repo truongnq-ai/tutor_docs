@@ -291,8 +291,8 @@ Nếu không có nhóm user stories này, phụ huynh sẽ **không thấy giá 
 ## 6. PHỤ THUỘC & LIÊN KẾT
 
 - → Liên quan:
-  - `user_stories/student_user_stories-*.md`
-  - `education_logic/adaptive_learning_logic-*.md`
+  - [Student User Stories](./student_user_stories_phase_1-2025-12-14-22-45.md)
+  - [Adaptive Learning Logic](../education_logic/adaptive_learning_logic_phase_1-2025-12-15-02-30.md)
 
 ---
 

@@ -304,8 +304,8 @@ sequenceDiagram
 ## 6. PHỤ THUỘC & LIÊN KẾT
 
 - → Tài liệu liên quan:
-  - `education_logic/skill_graph_math_6_7-*.md`
-  - `education_logic/adaptive_learning_logic-*.md`
+  - [Skill Graph Toán 6–7](../learning/skill_graph/skill-graph-math-grade-6-7_phase_1-2025-12-15-02-30.md)
+  - [Adaptive Learning Logic](../education_logic/adaptive_learning_logic_phase_1-2025-12-15-02-30.md)
 
 ---
 

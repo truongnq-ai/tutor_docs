@@ -300,9 +300,9 @@ Phụ huynh click "Đăng nhập bằng Google/Apple"
 
 ## 10. TÀI LIỆU LIÊN QUAN
 
-- ../prd/prd_mvp-2025-12-14-22-15.md
-- ../user_stories/student_user_stories-2025-12-14-22-45.md
-- ../user_stories/parent_user_stories-2025-12-14-23-05.md
+- [PRD MVP](../prd/prd_mvp_phase_1-2025-12-14-22-15.md)
+- [Student User Stories](../user_stories/student_user_stories_phase_1-2025-12-14-22-45.md)
+- [Parent User Stories](../user_stories/parent_user_stories_phase_1-2025-12-14-23-05.md)
 
 ---
 

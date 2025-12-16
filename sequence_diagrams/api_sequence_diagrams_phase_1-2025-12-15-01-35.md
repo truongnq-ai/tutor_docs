@@ -222,11 +222,9 @@ sequenceDiagram
 
 ## 7. TÀI LIỆU LIÊN QUAN
 
-- ../system_architecture/system_architecture_phase1.md
-
-- ../technical_design/api_db_mapping_phase1-2025-12-15-00-20.md
-
-- ../user_flows/user_onboarding_flow_phase1-2025-12-14-23-40.md
+- [System Architecture](../technical_design/system_architecture_phase_1-2025-12-15-00-21.md)
+- [API & Database Mapping](../technical_design/api_db_mapping_phase_1-2025-12-15-00-20.md)
+- [User Onboarding Flow](../user_flows/user_onboarding_flow_phase_1-2025-12-14-23-40.md)
 
 ---
 

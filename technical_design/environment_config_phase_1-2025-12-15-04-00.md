@@ -514,7 +514,7 @@ echo "Please review .env files and update as needed."
 ## 14. TÀI LIỆU LIÊN QUAN
 
 - [Development Setup Guide](./development_setup_phase_1-2025-12-15-03-00.md)
-- [Deployment Guide](./deployment_guide_phase_1-YYYY-MM-DD-HH-mm.md)
+- [Deployment Guide](./deployment_guide_phase_1-2025-12-15-04-15.md)
 
 ---
 
