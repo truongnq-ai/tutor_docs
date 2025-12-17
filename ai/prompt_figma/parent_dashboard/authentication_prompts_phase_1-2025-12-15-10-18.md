@@ -511,15 +511,84 @@
 
 ---
 
+## SCREEN 10: DASHBOARD ACTIVATION (Sau khi được tạo tự động từ student linking)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Parent 35-50 tuổi
+- Platform: Web Dashboard
+- Screen: Dashboard Activation Screen
+
+[SCREEN PURPOSE]
+- Kích hoạt dashboard sau khi tài khoản được tạo tự động từ student linking
+- User story: PU-01a (Auto-created account)
+- Acceptance criteria: Đặt mật khẩu, kích hoạt tài khoản
+
+[DESIGN REQUIREMENTS]
+- Header: "Kích hoạt tài khoản"
+- Description: "Tài khoản của bạn đã được tạo tự động khi con liên kết. Hãy đặt mật khẩu để kích hoạt."
+- Info box:
+  - "Con của bạn đã liên kết với tài khoản này"
+  - "Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại"
+- Form:
+  - Password input:
+    - Label: "Mật khẩu mới"
+    - Placeholder: "Tối thiểu 8 ký tự"
+    - Show/hide toggle
+    - Strength indicator
+  - Confirm password:
+    - Label: "Xác nhận mật khẩu"
+    - Match indicator
+- Account info (read-only):
+  - "Số điện thoại: [phone_number]"
+  - "Email: [email]" (nếu có từ OAuth)
+- Button "Kích hoạt tài khoản" (primary)
+- Note: "Sau khi kích hoạt, bạn có thể đăng nhập bằng số điện thoại và mật khẩu"
+
+[VISUAL GUIDELINES]
+- Form: Centered, max width 450px
+- Info box: Blue background (#E3F2FD), padding 16px, rounded 12px
+- Account info: Gray background (#F5F5F5), padding 12px, rounded 8px
+- Button: Primary color, full width, height 48px
+- Typography: Clear hierarchy
+
+[SPECIFICATIONS]
+- Screen size: Desktop 1440px, Tablet 768px
+- Form width: 450px max
+- Input height: 48px
+- Button height: 48px
+
+[CONTENT EXAMPLES]
+- Header: "Kích hoạt tài khoản"
+- Description: "Tài khoản của bạn đã được tạo tự động khi con liên kết. Hãy đặt mật khẩu để kích hoạt."
+- Info: "Con của bạn đã liên kết với tài khoản này. Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại."
+- Password placeholder: "Tối thiểu 8 ký tự"
+- Button: "Kích hoạt tài khoản"
+```
+
+---
+
 ## NOTES
 
-- Tất cả auth screens cần có loading states
-- Error messages phải rõ ràng, không technical
-- Success states cần confirmation rõ ràng
-- Responsive design cho tablet và mobile web
-- Accessibility: Keyboard navigation, screen reader support
+- **Refresh Token Flow:**
+  - Sau khi login thành công, client nhận cả `accessToken` và `refreshToken`
+  - Khi `accessToken` hết hạn (401), gọi `/api/v1/auth/refresh_token` với `refreshToken`
+  - Nhận `accessToken` và `refreshToken` mới (rotation)
+  - Refresh token cũ sẽ bị revoke
+  
+- **Auto-created Account Flow:**
+  - Khi tài khoản được tạo tự động từ student linking, phụ huynh nhận SMS với link kích hoạt
+  - Link dẫn đến SCREEN 10 (Dashboard Activation)
+  - Sau khi kích hoạt, có thể đăng nhập bằng số điện thoại và mật khẩu
+  
+- **Tất cả auth screens cần có loading states**
+- **Error messages phải rõ ràng, không technical**
+- **Success states cần confirmation rõ ràng**
+- **Responsive design cho tablet và mobile web**
+- **Accessibility: Keyboard navigation, screen reader support**
 
 ---
 
 - ← Quay lại: [Figma Prompt Library](../README.md)
-

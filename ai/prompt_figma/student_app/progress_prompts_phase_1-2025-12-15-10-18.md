@@ -40,6 +40,10 @@
     - Skill name: "Rút gọn phân số"
     - Mastery: Circular progress 65%
     - Status badge: "Đang cải thiện" / "Đã vững"
+- Weak skills section (nếu có):
+  - "Kỹ năng cần cải thiện:"
+  - List 3-5 skill yếu nhất (mastery < 70)
+  - Quick action: "Luyện tập ngay"
 - Chart section (optional):
   - "Tiến bộ 7 ngày qua"
   - Line chart hoặc bar chart đơn giản
@@ -148,12 +152,16 @@
 - Màn hình bắt đầu mini test
 - User story: US-11
 - Acceptance criteria: 5-7 câu hỏi, có giới hạn thời gian
+- Unlock condition: Đã làm đủ số bài luyện tập (ví dụ: 10 bài) về skill đó
 
 [DESIGN REQUIREMENTS]
 - Header: "Mini Test"
 - Skill info:
   - Skill name: "Rút gọn phân số"
   - Mastery current: "65%"
+- Unlock status (nếu vừa unlock):
+  - "🎉 Bạn đã làm đủ bài luyện tập! Sẵn sàng cho Mini Test"
+  - "Đã làm: 10/10 bài luyện tập"
 - Test details card:
   - "Số câu hỏi: 6"
   - "Thời gian: 10 phút"
@@ -307,12 +315,79 @@
 
 ---
 
+## SCREEN 6: RECOMMENDATIONS (Gợi ý cải thiện)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Recommendations Screen
+
+[SCREEN PURPOSE]
+- Hiển thị gợi ý cải thiện học tập dựa trên dữ liệu thực tế
+- User story: US-14
+- Acceptance criteria: Gợi ý dựa trên dữ liệu học tập, ngôn ngữ đơn giản
+
+[DESIGN REQUIREMENTS]
+- Header: "Gợi ý học tập" + Back button
+- Summary card:
+  - "Dựa trên tiến độ học tập của bạn, chúng tôi gợi ý:"
+- Recommendations list:
+  - Mỗi recommendation card:
+    - Icon: 💡 / 🎯 / ⚠️
+    - Title: "Luyện tập thêm về Rút gọn phân số"
+    - Description: "Bạn đã làm sai 3/5 bài về kỹ năng này. Hãy luyện tập thêm để cải thiện!"
+    - Action: "Luyện tập ngay" (button)
+    - Priority: "Ưu tiên cao" badge (nếu là skill yếu nhất)
+- Weak skills section:
+  - "Kỹ năng cần cải thiện:"
+  - List 3-5 skill yếu nhất với:
+    - Skill name
+    - Mastery: "45%"
+    - Status: "Yếu"
+    - Recommendation: "Làm thêm 5 bài để đạt 70%"
+- Prerequisites section (nếu có):
+  - "⚠️ Bạn cần học kỹ năng cơ bản trước:"
+  - List prerequisite skills với mastery
+  - "Học skill này trước"
+- Next steps:
+  - "Bước tiếp theo:"
+  - "1. Luyện tập về Rút gọn phân số (5 bài)"
+  - "2. Làm Mini Test khi đạt 70%"
+  - "3. Chuyển sang skill tiếp theo"
+
+[VISUAL GUIDELINES]
+- Recommendation cards: White, rounded 12px, padding 20px, shadow nhẹ
+- Priority badge: Orange (#FF9800), rounded pill
+- Weak skills: Cards với mastery progress bar
+- Prerequisites: Warning style, yellow background (#FFF9E6)
+- Typography: Title 18px Bold, Description 16px Regular
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Card padding: 20px
+- Card spacing: 12px
+- Button height: 48px
+
+[CONTENT EXAMPLES]
+- Header: "Gợi ý học tập"
+- Recommendation: "💡 Luyện tập thêm về Rút gọn phân số - Bạn đã làm sai 3/5 bài. Hãy luyện tập thêm!"
+- Weak skill: "Rút gọn phân số - 45% - Yếu - Làm thêm 5 bài để đạt 70%"
+- Prerequisite: "⚠️ Bạn cần học: Nhận biết phân số (30%) trước"
+- Next step: "1. Luyện tập về Rút gọn phân số (5 bài)"
+```
+---
+
 ## NOTES
 
 - Tất cả progress screens cần có loading state
 - Charts phải đơn giản, dễ hiểu cho học sinh
 - Celebrations khi đạt milestone (streak, mastery)
 - Encouragement messages khi chưa đạt
+- Recommendations phải dựa trên dữ liệu thực tế, không generic
+- Ngôn ngữ gợi ý đơn giản, không thuật ngữ kỹ thuật
 
 ---
 

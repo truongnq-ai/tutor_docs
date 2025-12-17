@@ -27,18 +27,23 @@
 [DESIGN REQUIREMENTS]
 - Header: "Giải bài Toán"
 - Subtitle: "Chụp ảnh hoặc nhập đề bài"
+- Rate limit indicator (trial mode):
+  - "Số lượt giải hôm nay: 3/5"
+  - Progress bar: Visual indicator
+  - Warning (nếu ≥ 4/5): "⚠️ Còn 1 lượt. Hãy liên kết với phụ huynh để tiếp tục!"
 - 2 large action cards:
   - Card 1: "📷 Chụp ảnh"
     - Icon camera
     - Description: "Chụp đề bài từ sách vở"
-    - Button "Chụp ảnh"
+    - Button "Chụp ảnh" (disabled nếu đã hết lượt)
   - Card 2: "✏️ Nhập văn bản"
     - Icon keyboard
     - Description: "Gõ đề bài trực tiếp"
-    - Button "Nhập đề bài"
+    - Button "Nhập đề bài" (disabled nếu đã hết lượt)
 - Recent problems section (nếu có):
   - "Đề bài gần đây"
-  - List các đề đã giải
+  - List các đề đã giải (tối đa 5 đề)
+  - Tap để xem lại lời giải
 - Bottom navigation: Home, Practice, Tutor, Progress
 
 [VISUAL GUIDELINES]
@@ -57,8 +62,11 @@
 [CONTENT EXAMPLES]
 - Header: "Giải bài Toán"
 - Subtitle: "Chụp ảnh hoặc nhập đề bài"
+- Rate limit: "Số lượt giải hôm nay: 3/5"
+- Warning: "⚠️ Còn 1 lượt. Hãy liên kết với phụ huynh để tiếp tục!" (nếu ≥ 4/5)
 - Card 1: "📷 Chụp ảnh" - "Chụp đề bài từ sách vở"
 - Card 2: "✏️ Nhập văn bản" - "Gõ đề bài trực tiếp"
+- Recent: "Đề bài gần đây: Tính 2/3 + 1/4..."
 ```
 
 ---
@@ -196,6 +204,14 @@
 - Final answer card (ở bước cuối):
   - "Đáp án: 11/12"
   - Highlighted, prominent
+- Related skills section (ở bước cuối):
+  - "Kỹ năng liên quan:"
+  - List skills: "Rút gọn phân số", "Cộng phân số khác mẫu"
+  - Tap để xem skill detail hoặc luyện tập
+- Actions (ở bước cuối):
+  - Button "Luyện tập kỹ năng này" (primary)
+  - Button "Giải bài khác" (secondary)
+  - Button "Lưu vào lịch sử" (tertiary)
 
 [VISUAL GUIDELINES]
 - Step card: White, rounded 16px, padding 20px, shadow
@@ -273,12 +289,154 @@
 
 ---
 
+## SCREEN 6: SOLUTION COMPLETE
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Solution Complete Screen
+
+[SCREEN PURPOSE]
+- Màn hình tổng kết sau khi xem hết các bước giải
+- User story: US-07, US-08
+- Acceptance criteria: Hiển thị đáp án cuối cùng, related skills, next actions
+
+[DESIGN REQUIREMENTS]
+- Celebration: Confetti animation hoặc icon 🎉
+- Title: "Đã giải xong!"
+- Final answer display:
+  - Large, prominent: "Đáp án: 11/12"
+  - Background highlight: Green (#E8F5E9)
+- Problem summary:
+  - "Đề bài: Tính 2/3 + 1/4"
+  - "Số bước giải: 4 bước"
+- Related skills:
+  - "Kỹ năng liên quan:"
+  - List skills với mastery (nếu có):
+    - "Rút gọn phân số - 65%"
+    - "Cộng phân số khác mẫu - 58%"
+  - Tap để xem skill detail
+- Learning insights:
+  - "Bạn đã học được:"
+  - "✓ Quy đồng mẫu số"
+  - "✓ Cộng phân số cùng mẫu"
+- Actions:
+  - Primary: "Luyện tập kỹ năng này" (nếu có skill yếu)
+  - Secondary: "Giải bài khác"
+  - Tertiary: "Xem lại lời giải"
+- Rate limit reminder (nếu trial):
+  - "Số lượt còn lại hôm nay: 2/5"
+
+[VISUAL GUIDELINES]
+- Background: Gradient celebration (#E8F5E9 → #FFFFFF)
+- Final answer: Large text 32px Bold, green background
+- Related skills: Cards với mastery progress
+- Learning insights: Checkmark list, green
+- Typography: Title 24px Bold, Answer 32px Bold
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Final answer card: Padding 24px, rounded 16px
+- Button height: 56px
+
+[CONTENT EXAMPLES]
+- Title: "Đã giải xong!"
+- Answer: "Đáp án: 11/12"
+- Problem: "Đề bài: Tính 2/3 + 1/4 - 4 bước giải"
+- Related: "Rút gọn phân số - 65% | Cộng phân số khác mẫu - 58%"
+- Insights: "✓ Quy đồng mẫu số | ✓ Cộng phân số cùng mẫu"
+- Button: "Luyện tập kỹ năng này"
+```
+---
+
+## SCREEN 7: RECENT PROBLEMS LIST
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Recent Problems List Screen
+
+[SCREEN PURPOSE]
+- Hiển thị danh sách đề bài đã giải gần đây
+- User story: US-05, US-06
+- Acceptance criteria: Có thể xem lại lời giải
+
+[DESIGN REQUIREMENTS]
+- Header: "Đề bài gần đây" + Filter button
+- Filter options:
+  - "Tất cả" / "Hôm nay" / "Tuần này"
+- Problems list:
+  - Mỗi problem card:
+    - Problem preview: "Tính: 2/3 + 1/4"
+    - Date: "15/12/2025 10:30"
+    - Answer: "Đáp án: 11/12"
+    - Related skills: "Rút gọn phân số, Cộng phân số"
+    - Status icon: ✅ (đã xem hết) / ⏸️ (chưa xem hết)
+    - Tap để xem lại lời giải
+- Empty state:
+  - Icon: 📚
+  - Message: "Bạn chưa giải bài nào"
+  - Button "Giải bài ngay"
+- Pull to refresh
+- Load more (pagination)
+
+[VISUAL GUIDELINES]
+- Problem cards: White, rounded 12px, padding 16px, margin 8px
+- Problem preview: 16px Regular, truncated if long
+- Date: 14px Regular, gray (#757575)
+- Answer: 16px Bold, green (#4CAF50)
+- Related skills: Tags, small, gray background
+- Typography: Problem 16px Regular, Answer 16px Bold
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Card height: 100px minimum
+- Filter bar: Height 48px, sticky top
+
+[CONTENT EXAMPLES]
+- Header: "Đề bài gần đây"
+- Filter: "Tất cả | Hôm nay | Tuần này"
+- Problem: "Tính: 2/3 + 1/4 - 15/12/2025 10:30 - Đáp án: 11/12"
+- Empty: "Bạn chưa giải bài nào"
+- Button: "Giải bài ngay"
+```
+---
+
 ## NOTES
 
-- Tất cả screens cần có loading state khi AI đang xử lý
-- Error states: Hiển thị message rõ ràng nếu OCR/solve thất bại
-- Success states: Celebration khi giải đúng
-- Step-by-step phải có animation nhẹ khi chuyển bước
+- **Rate Limiting:**
+  - Trial mode: 3-5 lượt giải bài/ngày
+  - Hiển thị rõ ràng số lượt còn lại
+  - Warning khi sắp hết lượt
+  - Disable buttons khi hết lượt
+  
+- **Loading states:**
+  - Tất cả screens cần có loading state khi AI đang xử lý
+  - Loading khi OCR, khi giải bài, khi fetch related skills
+  
+- **Error states:**
+  - OCR error: "Không thể nhận dạng đề bài. Vui lòng chụp lại rõ hơn."
+  - Solve error: "Không thể giải bài này. Vui lòng thử lại hoặc nhập đề bài khác."
+  - Network error: "Không thể kết nối. Vui lòng thử lại."
+  
+- **Success states:**
+  - Celebration khi giải đúng
+  - Confetti animation khi hoàn thành
+  
+- **Step-by-step:**
+  - Phải có animation nhẹ khi chuyển bước
+  - Smooth scroll khi chuyển bước
+  - Progress indicator rõ ràng
+  
+- **Related skills:**
+  - Hiển thị skills liên quan từ API response
+  - Cho phép tap để xem skill detail hoặc luyện tập
 
 ---
 

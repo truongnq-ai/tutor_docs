@@ -29,7 +29,18 @@
   - "Dashboard" hoặc "Tổng quan"
   - Period selector: "Tuần này" | "Tháng này" | "Tùy chọn"
   - Student name: "Con: [Tên học sinh]"
-- Key metrics cards (4 cards, grid layout):
+  - Student status badge:
+    - "Đã liên kết" (green, nếu status = linked)
+    - "Chờ liên kết" (yellow, nếu status = pending)
+- Empty state (nếu student status = pending):
+  - Icon: 📱
+  - Title: "Chờ con liên kết"
+  - Description: "Hồ sơ học sinh đã được tạo. Con cần nhập mã liên kết trong app để bắt đầu học."
+  - Link token display: "Mã liên kết: [token]"
+  - QR code: "Hoặc quét mã QR này"
+  - Instructions: "Hướng dẫn con mở app và nhập mã này"
+  - Button "Xem lại mã liên kết" (secondary)
+- Key metrics cards (4 cards, grid layout, chỉ hiển thị nếu status = linked):
   - Card 1: "Số ngày học"
     - Large number: "5"
     - Label: "ngày trong tuần"
@@ -47,34 +58,45 @@
     - Label: "đúng/sai"
     - Progress bar: Visual indicator
     - Trend: "+5%"
-- Study activity chart:
+- Data preservation note (nếu vừa linking trong tuần này):
+  - Info box: "✅ Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại"
+  - "Con đã làm X bài tập và học Y kỹ năng trong thời gian dùng thử"
+- Study activity chart (chỉ hiển thị nếu status = linked):
   - Title: "Hoạt động học tập 7 ngày qua"
   - Bar chart hoặc line chart
   - X-axis: Days
   - Y-axis: Số bài / Thời gian
   - Simple, easy to understand
-- Quick actions:
+- Quick actions (chỉ hiển thị nếu status = linked):
   - "Xem báo cáo chi tiết"
   - "Xem điểm yếu"
   - "Xem tiến bộ"
 
 [VISUAL GUIDELINES]
 - Background: #FAFAFA
+- Status badge: Rounded pill, padding 8px 16px, prominent
+- Empty state: Centered, friendly, encouraging
 - Cards: White, rounded 12px, shadow nhẹ, padding 24px
 - Metrics: Large numbers (32-40px Bold), labels (14px Regular)
 - Trend indicators: Green/red arrows, small text
 - Chart: Simple colors, clear labels
+- Data preservation note: Blue background (#E3F2FD), padding 16px, rounded 12px
 - Typography: H1 24px Bold, Body 16px Regular
 - Spacing: Generous, clear sections
 
 [SPECIFICATIONS]
 - Screen size: Desktop 1440px, Tablet 768px
+- Status badge: Height 32px
 - Card grid: 4 columns (desktop), 2 columns (tablet)
 - Card padding: 24px
 - Chart height: 300px
+- Empty state: Min height 400px
 
 [CONTENT EXAMPLES]
 - Header: "Dashboard - Tuần này"
+- Status badge: "Đã liên kết" (green) hoặc "Chờ liên kết" (yellow)
+- Empty state: "Chờ con liên kết - Mã liên kết: ABC123XYZ"
+- Data note: "✅ Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại. Con đã làm 45 bài tập và học 8 kỹ năng."
 - Metric 1: "5 ngày học | +2 so với tuần trước"
 - Metric 2: "2.5 giờ | +0.5 giờ"
 - Metric 3: "42 bài | +8 bài"
@@ -118,6 +140,9 @@
 - Filters:
   - "Tất cả" | "Tích cực" | "Bình thường" | "Ít"
 - Export button: "Xuất báo cáo"
+- Empty state (nếu chưa có data):
+  - "Chưa có dữ liệu hoạt động học tập"
+  - "Con cần liên kết với tài khoản này để bắt đầu học"
 
 [VISUAL GUIDELINES]
 - Table: Clean, readable, alternating row colors
@@ -180,6 +205,9 @@
 - Empty state (nếu không có):
   - "Con không có điểm yếu nào!"
   - "Tiếp tục duy trì nhé!"
+- Empty state (nếu chưa linked):
+  - "Chưa có dữ liệu"
+  - "Con cần liên kết với tài khoản này để bắt đầu học"
 
 [VISUAL GUIDELINES]
 - Cards: White, rounded 12px, shadow, padding 20px
@@ -249,6 +277,9 @@
 - Summary:
   - "Con đã cải thiện X kỹ năng trong tháng này"
   - "Tiếp tục khuyến khích con học đều đặn!"
+- Empty state (nếu chưa có đủ data):
+  - "Chưa có đủ dữ liệu để hiển thị tiến bộ"
+  - "Hãy đợi thêm vài ngày để xem tiến bộ của con"
 
 [VISUAL GUIDELINES]
 - Comparison cards: Side-by-side, clear numbers
@@ -339,14 +370,27 @@
 
 ## NOTES
 
-- Tất cả dashboard screens phải responsive
-- Charts phải đơn giản, dễ hiểu cho phụ huynh
-- Ngôn ngữ không technical, đời thường
-- Color coding phải consistent
-- Loading states cho tất cả data fetching
-- Empty states phải friendly, encouraging
+- **Student Linking Status:**
+  - Status = "Pending": Hiển thị empty state với link token/QR code
+  - Status = "Linked": Hiển thị đầy đủ dashboard với data
+  - Status badge luôn hiển thị ở header để phụ huynh biết trạng thái
+  
+- **Data Preservation:**
+  - Khi student linking thành công, hiển thị note về việc giữ lại dữ liệu trial
+  - Thông tin về số bài tập và skills đã học trong trial (7 ngày)
+  - Note chỉ hiển thị trong tuần đầu tiên sau khi linking
+  
+- **Empty States:**
+  - Nếu student status = pending: Hiển thị empty state với link token
+  - Nếu chưa có đủ data: Hiển thị message friendly, encouraging
+  
+- **Tất cả dashboard screens phải responsive**
+- **Charts phải đơn giản, dễ hiểu cho phụ huynh**
+- **Ngôn ngữ không technical, đời thường**
+- **Color coding phải consistent**
+- **Loading states cho tất cả data fetching**
+- **Error states:** Hiển thị message rõ ràng nếu không load được data
 
 ---
 
 - ← Quay lại: [Figma Prompt Library](../README.md)
-

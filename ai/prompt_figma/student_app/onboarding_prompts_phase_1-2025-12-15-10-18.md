@@ -29,6 +29,7 @@
 - Hero section với illustration hoặc icon Toán học
 - Title: "Chào mừng đến với Tutor!"
 - Subtitle: "Gia sư Toán AI cá nhân hoá cho bạn"
+- Trial badge: "🎁 Dùng thử miễn phí 7 ngày - Đầy đủ tính năng"
 - 2 CTA buttons:
   - Primary: "Dùng thử ngay" (màu xanh #4CAF50)
   - Secondary: "Tìm hiểu thêm" (outlined)
@@ -37,6 +38,7 @@
 [VISUAL GUIDELINES]
 - Background: Gradient từ #E3F2FD đến #FFFFFF
 - Typography: Title 24px Bold, Subtitle 16px Regular
+- Trial badge: Rounded pill, background #FFF9E6, text #FF9800, padding 8px 16px
 - Spacing: Padding 24px, gap giữa elements 16px
 - Illustration: Friendly, educational, không quá trẻ con
 
@@ -45,14 +47,70 @@
 - Button height: 48px
 - Button border-radius: 12px
 - Safe area: Top 44px, Bottom 34px
+- Trial badge: Height 32px
 
 [CONTENT EXAMPLES]
 - Title: "Chào mừng đến với Tutor!"
 - Subtitle: "Gia sư Toán AI cá nhân hoá cho bạn"
+- Trial badge: "🎁 Dùng thử miễn phí 7 ngày - Đầy đủ tính năng"
 - Button 1: "Dùng thử ngay"
 - Button 2: "Tìm hiểu thêm"
 ```
 
+---
+
+## SCREEN 0A: TRIAL START (Sau Welcome, trước Select Grade)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App
+- Screen: Trial Start Screen
+
+[SCREEN PURPOSE]
+- Tạo trial profile cho học sinh mới
+- Thông báo về trial 7 ngày với đầy đủ tính năng
+- User story: US-15 (Trial profile)
+
+[DESIGN REQUIREMENTS]
+- Illustration: Friendly, welcoming
+- Title: "Bắt đầu dùng thử miễn phí!"
+- Description: "Bạn có 7 ngày để trải nghiệm đầy đủ tính năng của Tutor"
+- Features list:
+  - "✅ Giải bài Toán không giới hạn (3-5 lượt/ngày)"
+  - "✅ Lộ trình học hằng ngày"
+  - "✅ Luyện tập cá nhân hoá"
+  - "✅ Mini test kiểm tra kiến thức"
+- Trial info card:
+  - "Thời gian: 7 ngày"
+  - "Bắt đầu: [Date]"
+  - "Kết thúc: [Date + 7 days]"
+- Note: "Dữ liệu học tập sẽ được lưu lại khi bạn liên kết với phụ huynh"
+- Button "Bắt đầu" (primary)
+- Link "Đã có tài khoản? Đăng nhập"
+
+[VISUAL GUIDELINES]
+- Background: #F5F5F5
+- Features list: Icon + text, green checkmark
+- Trial info card: White, rounded 16px, padding 20px, shadow nhẹ
+- Typography: Title 24px Bold, Description 16px Regular, Features 14px Regular
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Card padding: 20px
+- Button height: 56px
+
+[CONTENT EXAMPLES]
+- Title: "Bắt đầu dùng thử miễn phí!"
+- Description: "Bạn có 7 ngày để trải nghiệm đầy đủ tính năng của Tutor"
+- Feature 1: "✅ Giải bài Toán không giới hạn (3-5 lượt/ngày)"
+- Feature 2: "✅ Lộ trình học hằng ngày"
+- Feature 3: "✅ Luyện tập cá nhân hoá"
+- Feature 4: "✅ Mini test kiểm tra kiến thức"
+- Button: "Bắt đầu"
+```
 ---
 
 ## SCREEN 2: SELECT GRADE
@@ -151,25 +209,31 @@
 
 ---
 
-## SCREEN 4: TRIAL LIMIT / PAYWALL
+## SCREEN 4: TRIAL EXPIRY / PAYWALL
 
 ### Prompt:
 ```
 [CONTEXT]
 - Project: Tutor - AI Math Tutor
-- Target User: Student 11-13 tuổi (Trial user)
+- Target User: Student 11-13 tuổi (Trial user sau 7 ngày)
 - Platform: Mobile App
-- Screen: Trial Limit / Paywall Screen
+- Screen: Trial Expiry / Paywall Screen
 
 [SCREEN PURPOSE]
-- Thông báo hết lượt dùng thử
-- Yêu cầu liên kết với phụ huynh bằng số điện thoại
+- Thông báo hết thời gian dùng thử (7 ngày)
+- Yêu cầu liên kết với phụ huynh bằng số điện thoại để tiếp tục
 - User story: US-15 (Liên kết phụ huynh bằng số điện thoại)
 
 [DESIGN REQUIREMENTS]
-- Illustration: Friendly, không đe dọa
-- Title: "Bạn đã dùng hết lượt miễn phí!"
-- Description: "Để tiếp tục học, bạn cần liên kết với tài khoản phụ huynh"
+- Illustration: Friendly, không đe dọa, encouraging
+- Title: "Thời gian dùng thử đã kết thúc!"
+- Description: "Bạn đã hoàn thành 7 ngày dùng thử. Để tiếp tục học, bạn cần liên kết với tài khoản phụ huynh"
+- Achievement summary (nếu có):
+  - "Bạn đã làm được:"
+  - "📚 X bài tập"
+  - "🎯 Y skill đã cải thiện"
+  - "🔥 Z ngày học liên tiếp"
+- Note: "Dữ liệu học tập của bạn sẽ được giữ lại khi liên kết"
 - Input field: "Nhập số điện thoại phụ huynh"
   - Placeholder: "0912345678"
   - Icon: Phone icon
@@ -180,7 +244,8 @@
 
 [VISUAL GUIDELINES]
 - Background: #FFF9E6 (warm yellow, friendly)
-- Illustration: Positive, encouraging
+- Illustration: Positive, encouraging, celebration
+- Achievement cards: White, rounded 12px, padding 16px, có icon
 - Input field: Rounded 12px, có icon phone, height 48px
 - Button: Primary color #4CAF50
 - reCaptcha: Hiển thị khi click "Gửi mã OTP"
@@ -189,10 +254,13 @@
 - Screen size: 375x812px
 - Input height: 48px
 - Rate limiting: Hiển thị warning nếu đã gửi quá 3 lần/ngày
+- Achievement cards: 2x2 grid hoặc list
 
 [CONTENT EXAMPLES]
-- Title: "Bạn đã dùng hết lượt miễn phí!"
-- Description: "Để tiếp tục học, bạn cần liên kết với tài khoản phụ huynh"
+- Title: "Thời gian dùng thử đã kết thúc!"
+- Description: "Bạn đã hoàn thành 7 ngày dùng thử. Để tiếp tục học, bạn cần liên kết với tài khoản phụ huynh"
+- Achievement: "📚 45 bài tập | 🎯 3 skill cải thiện | 🔥 7 ngày liên tiếp"
+- Note: "Dữ liệu học tập của bạn sẽ được giữ lại khi liên kết"
 - Input placeholder: "0912345678"
 - Button: "Gửi mã OTP"
 - Footer: "Mã OTP sẽ được gửi đến số điện thoại của phụ huynh"
@@ -419,6 +487,69 @@
 
 ---
 
+## SCREEN 0E: TRIAL STATUS (Trong app, có thể truy cập từ settings)
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor
+- Target User: Student 11-13 tuổi (Trial user)
+- Platform: Mobile App
+- Screen: Trial Status Screen
+
+[SCREEN PURPOSE]
+- Hiển thị trạng thái trial hiện tại
+- Thông báo số ngày còn lại
+- User story: US-15 (Trial profile)
+
+[DESIGN REQUIREMENTS]
+- Header: "Trạng thái dùng thử" + Back button
+- Trial status card:
+  - Status badge: "Đang dùng thử" (màu xanh) hoặc "Sắp hết hạn" (màu cam) hoặc "Đã hết hạn" (màu đỏ)
+  - Days remaining: Large number "5" + "ngày còn lại"
+  - Started: "Bắt đầu: 10/12/2025"
+  - Expires: "Kết thúc: 17/12/2025"
+  - Progress bar: Visual indicator số ngày đã dùng / tổng 7 ngày
+- Usage stats:
+  - "Số lượt giải bài hôm nay: 3/5"
+  - "Tổng bài đã làm: 45 bài"
+  - "Số skill đã học: 8 skill"
+- Features reminder:
+  - "Bạn đang có quyền truy cập:"
+  - "✅ Giải bài Toán (3-5 lượt/ngày)"
+  - "✅ Lộ trình học hằng ngày"
+  - "✅ Luyện tập cá nhân hoá"
+  - "✅ Mini test"
+- Warning (nếu < 2 ngày):
+  - "⚠️ Còn [X] ngày. Hãy liên kết với phụ huynh để tiếp tục học!"
+- Button "Liên kết với phụ huynh" (primary, nếu chưa liên kết)
+- Button "Tiếp tục học" (secondary)
+
+[VISUAL GUIDELINES]
+- Status card: White, rounded 16px, padding 24px, shadow nhẹ
+- Status badge: Rounded pill, padding 8px 16px
+- Days remaining: Large number 48px Bold, màu primary
+- Progress bar: Green gradient, height 8px, rounded
+- Warning: Yellow background (#FFF9E6), padding 16px, rounded 12px
+- Typography: Days 48px Bold, Labels 16px Regular
+
+[SPECIFICATIONS]
+- Screen size: 375x812px
+- Card padding: 24px
+- Progress bar: Height 8px, full width
+- Button height: 56px
+
+[CONTENT EXAMPLES]
+- Header: "Trạng thái dùng thử"
+- Status: "Đang dùng thử"
+- Days: "5 ngày còn lại"
+- Progress: "Đã dùng: 2/7 ngày"
+- Usage: "Số lượt giải bài hôm nay: 3/5"
+- Warning: "⚠️ Còn 2 ngày. Hãy liên kết với phụ huynh để tiếp tục học!"
+- Button: "Liên kết với phụ huynh"
+```
+---
+
 ## SCREEN 6: LINKING SUCCESS
 
 ### Prompt:
@@ -436,7 +567,12 @@
 [DESIGN REQUIREMENTS]
 - Success icon: Checkmark circle, màu xanh
 - Title: "Liên kết thành công!"
-- Description: "Tài khoản của bạn đã được liên kết với phụ huynh"
+- Description: "Tài khoản của bạn đã được liên kết với phụ huynh. Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại."
+- Data preservation note:
+  - "✅ Dữ liệu đã được lưu:"
+  - "📚 X bài tập đã làm"
+  - "🎯 Y skill đã học"
+  - "🔥 Z ngày học liên tiếp"
 - Information card: Hiển thị thông tin đăng nhập cho phụ huynh
   - "Thông tin đăng nhập cho phụ huynh:"
   - Username: [phone_number]
@@ -459,7 +595,8 @@
 
 [CONTENT EXAMPLES]
 - Title: "Liên kết thành công!"
-- Description: "Tài khoản của bạn đã được liên kết với phụ huynh"
+- Description: "Tài khoản của bạn đã được liên kết với phụ huynh. Dữ liệu học tập trong 7 ngày dùng thử đã được giữ lại."
+- Data note: "✅ Dữ liệu đã được lưu: 📚 45 bài tập | 🎯 8 skill | 🔥 7 ngày"
 - Username: "0912345678"
 - Password: "0912345678"
 - Note: "Mật khẩu tạm thời, vui lòng đổi sau khi đăng nhập"

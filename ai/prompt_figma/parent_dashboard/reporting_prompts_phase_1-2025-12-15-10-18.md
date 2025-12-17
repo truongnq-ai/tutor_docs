@@ -33,6 +33,9 @@
     - "Thời gian học: 2.5 giờ"
     - "Số bài đã làm: 42 bài"
     - "Tỉ lệ đúng: 78%"
+  - Note (nếu vừa linking trong tuần này):
+    - Info box: "📝 Bao gồm X bài tập từ thời gian dùng thử (7 ngày)"
+    - "Dữ liệu học tập trong trial đã được giữ lại khi liên kết"
 - Weekly breakdown:
   - "Hoạt động theo ngày:"
   - Table hoặc cards:
@@ -62,6 +65,9 @@
   - "Gửi báo cáo qua email"
   - "In báo cáo"
   - "Chia sẻ với giáo viên" (optional)
+- Empty state (nếu chưa có đủ data):
+  - "Chưa có đủ dữ liệu để tạo báo cáo tuần"
+  - "Hãy đợi thêm vài ngày để xem báo cáo chi tiết"
 
 [VISUAL GUIDELINES]
 - Summary card: Prominent, white, rounded, shadow
@@ -69,6 +75,7 @@
 - Skills: Color-coded progress indicators
 - Weak points: Highlighted, red/orange
 - Recommendations: Highlighted box, actionable
+- Data preservation note: Blue background (#E3F2FD), padding 16px, rounded 12px
 - Typography: Title 24px Bold, Body 16px Regular
 - Spacing: Generous, clear sections
 
@@ -81,6 +88,7 @@
 [CONTENT EXAMPLES]
 - Header: "Báo cáo tuần 08/12 - 15/12/2025"
 - Summary: "5/7 ngày | 2.5 giờ | 42 bài | 78%"
+- Data note: "📝 Bao gồm 15 bài tập từ thời gian dùng thử (7 ngày). Dữ liệu học tập trong trial đã được giữ lại khi liên kết."
 - Skills: "Rút gọn phân số: 45% → 52% (+7%)"
 - Weak points: "Rút gọn phân số - 45% - Cần luyện tập thêm"
 - Recommendation: "Khuyến khích con học đều đặn mỗi ngày"
@@ -145,6 +153,9 @@
   - "So với tháng trước:"
   - Summary: "Tốt hơn" / "Tương đương" / "Cần cải thiện"
   - Key metrics comparison
+- Empty state (nếu chưa có đủ data):
+  - "Chưa có đủ dữ liệu để tạo báo cáo tháng"
+  - "Hãy đợi đến cuối tháng để xem báo cáo chi tiết"
 
 [VISUAL GUIDELINES]
 - Summary: Large, prominent numbers
@@ -215,6 +226,9 @@
 - Actions:
   - "Đánh dấu đã đọc" (per recommendation)
   - "Lưu gợi ý"
+- Empty state (nếu chưa có data):
+  - "Chưa có gợi ý nào"
+  - "Con cần liên kết với tài khoản này để nhận gợi ý cá nhân hoá"
 
 [VISUAL GUIDELINES]
 - Cards: White, rounded 12px, shadow, padding 24px
@@ -317,15 +331,24 @@
 
 ## NOTES
 
-- Tất cả report screens phải có export functionality
-- Email format phải mobile-friendly
-- Ngôn ngữ phải đơn giản, không technical
-- Charts phải đơn giản, dễ hiểu
-- Recommendations phải actionable, không abstract
-- Loading states cho report generation
-- Success states khi gửi email
+- **Data Preservation:**
+  - Báo cáo có thể bao gồm dữ liệu từ thời gian trial (7 ngày)
+  - Hiển thị note rõ ràng nếu có dữ liệu từ trial trong tuần/tháng đó
+  - Note chỉ hiển thị trong tuần/tháng đầu tiên sau khi linking
+  
+- **Empty States:**
+  - Nếu chưa có student linked: "Chưa có dữ liệu. Con cần liên kết với tài khoản này."
+  - Nếu chưa có đủ data: "Chưa có đủ dữ liệu để tạo báo cáo. Hãy đợi thêm vài ngày."
+  
+- **Tất cả report screens phải có export functionality**
+- **Email format phải mobile-friendly**
+- **Ngôn ngữ phải đơn giản, không technical**
+- **Charts phải đơn giản, dễ hiểu**
+- **Recommendations phải actionable, không abstract**
+- **Loading states cho report generation**
+- **Success states khi gửi email**
+- **Error states:** Hiển thị message rõ ràng nếu không tạo được báo cáo
 
 ---
 
 - ← Quay lại: [Figma Prompt Library](../README.md)
-
