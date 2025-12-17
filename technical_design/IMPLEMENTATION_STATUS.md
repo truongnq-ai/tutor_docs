@@ -213,6 +213,15 @@ python-multipart>=0.0.6
 redis>=5.0.0
 ```
 
+#### Role & API Endpoints
+- **Vai trò**: OCR (nhận dạng đề Toán từ ảnh), Math Solver (giải bài từng bước), Hint Generator (gợi ý học tập), Adaptive Logic (đề xuất skill/độ khó)
+- **API Endpoints** (Internal, chỉ Core Service gọi):
+  - `POST /internal/ai/ocr` - OCR từ imageUrl
+  - `POST /internal/ai/solve` - Giải bài Toán (text hoặc imageUrl)
+  - `POST /internal/ai/hint` - Sinh gợi ý theo ngữ cảnh
+  - `POST /internal/ai/recommend` - Đề xuất skill và độ khó
+- **Performance Requirements**: OCR <3s, Solver <2s, Hint <5s, Overall <5s
+
 #### Implementation Tasks
 - [ ] Upgrade Python to 3.11+
 - [ ] Upgrade FastAPI to 0.104+
@@ -225,14 +234,16 @@ redis>=5.0.0
 - [ ] Implement adaptive learning engine
 - [ ] Add image preprocessing
 - [ ] Add caching for OCR results
+- [ ] Implement API endpoints (`/internal/ai/ocr`, `/internal/ai/solve`, `/internal/ai/hint`, `/internal/ai/recommend`)
 
 #### Next Steps Priority
-1. **High**: Upgrade Python and FastAPI
+1. **High**: Upgrade Python to 3.11+ and FastAPI to 0.104+
 2. **High**: Add OCR library (PaddleOCR/Pix2Text)
 3. **High**: Add SymPy for math solving
 4. **Medium**: Implement OCR service
 5. **Medium**: Implement math solver
-6. **Low**: Hint generator and adaptive learning
+6. **Medium**: Implement API endpoints for Core Service integration
+7. **Low**: Hint generator and adaptive learning
 
 ---
 
