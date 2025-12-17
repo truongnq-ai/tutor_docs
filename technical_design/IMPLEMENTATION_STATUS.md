@@ -12,7 +12,7 @@ This document provides a comprehensive overview of the current implementation st
 |--------|-----------|------------|----------------------|----------------------|
 | **tutor-admin-dashboard** | ✅ Complete | ✅ Meets requirements | Firebase Admin SDK, API Client | 🚧 40% |
 | **tutor-parent-dashboard** | ✅ Complete | ✅ Meets requirements | Firebase, Phone Auth, OTP Service | 🚧 40% |
-| **tutor-core-service** | ✅ Complete | ✅ Meets requirements | Firebase Admin SDK, OTP Service, SMS Gateway | 🚧 50% |
+| **tutor-core-service** | ✅ Complete | ✅ Meets requirements | SMS Gateway, AI Service Client, S3 Integration | 🚧 70% |
 | **tutor-ai-service** | ✅ Complete | ⚠️ Needs upgrade | OCR, Math Solver, AI SDK, Dependency upgrades | 🚧 30% |
 | **tutor-student-app** | ✅ Complete | ✅ Meets requirements | image_picker, camera, OAuth packages | 🚧 35% |
 
@@ -124,6 +124,7 @@ Add to `pom.xml`:
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-webflux</artifactId>
 </dependency>
+<!-- ✅ Đã thêm -->
 
 <!-- AWS SDK for S3 (Object Storage) -->
 <dependency>
@@ -131,27 +132,35 @@ Add to `pom.xml`:
     <artifactId>s3</artifactId>
     <version>2.20.0</version>
 </dependency>
+
+<!-- JWT for Apple token verification -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.3</version>
+</dependency>
+<!-- ✅ Đã thêm -->
 ```
 
 #### Implementation Tasks
 - [x] Add Firebase Admin SDK dependency ✅
 - [x] Create Firebase configuration class ✅
-- [ ] Implement OTP service with Firebase (FirebaseService interface đã có, cần implementation)
+- [x] Implement OTP service with Firebase (FirebaseService interface đã có, cần implementation) ✅
 - [ ] Create SMS Gateway abstraction layer
-- [ ] Implement phone-based authentication
-- [ ] Implement OAuth token verification (Google/Apple) (FirebaseService interface đã có, cần implementation)
+- [x] Implement phone-based authentication ✅
+- [x] Implement OAuth token verification (Google/Apple) (FirebaseService interface đã có, cần implementation) ✅
 - [ ] Create AI Service HTTP client
 - [ ] Implement Object Storage (S3) integration
-- [ ] Add rate limiting for OTP endpoints
+- [x] Add rate limiting for OTP endpoints ✅
 - [ ] Implement parent/student management APIs
 - [ ] Implement learning progress tracking
 - [ ] Implement reporting APIs
 
 #### Next Steps Priority
-1. **High**: Firebase Admin SDK integration (Đã setup cơ bản, cần hoàn thiện implementation)
-2. **High**: OTP service implementation
-3. **High**: Phone-based authentication
-4. **Medium**: OAuth providers (Google/Apple)
+1. **High**: Firebase Admin SDK integration ✅ (Đã hoàn thành implementation)
+2. **High**: OTP service implementation ✅ (Đã hoàn thành)
+3. **High**: Phone-based authentication ✅ (Đã hoàn thành)
+4. **Medium**: OAuth providers (Google/Apple) ✅ (Đã hoàn thành)
 5. **Medium**: AI Service client
 6. **Low**: Object Storage integration
 
@@ -319,10 +328,10 @@ All modules depend on:
 ### Phase 2: Authentication (Week 3-4)
 
 #### Week 3: Core Service Authentication
-- [ ] Implement OTP generation and verification
-- [ ] Implement phone/password authentication
-- [ ] Implement OAuth token verification
-- [ ] Add rate limiting for OTP
+- [x] Implement OTP generation and verification ✅
+- [x] Implement phone/password authentication ✅
+- [x] Implement OAuth token verification ✅
+- [x] Add rate limiting for OTP ✅
 
 #### Week 4: Frontend Authentication
 - [ ] Customize Parent Dashboard authentication
@@ -457,7 +466,7 @@ Each module needs `.env` or `.env.local` file. See:
 
 1. **AI Service**: FastAPI version outdated, needs upgrade
 2. **AI Service**: Python version needs upgrade to 3.11+
-3. **Core Service**: Firebase integration not implemented
+3. **Core Service**: SMS Gateway abstraction layer not implemented (Firebase Auth REST API used directly)
 4. **All Frontends**: API clients not configured
 5. **Student App**: Camera/image picker not integrated
 
@@ -506,14 +515,14 @@ flutter run
 
 ### Priority 1 (This Week)
 
-1. **Setup Firebase Project**
+1. **Setup Firebase Project** ✅
    - Create Firebase project
    - Enable authentication methods
    - Generate service account key
    - Add to Core Service
 
 2. **Add Missing Dependencies**
-   - Core Service: Firebase Admin SDK
+   - Core Service: Firebase Admin SDK ✅ (Đã thêm)
    - AI Service: Upgrade FastAPI, add OCR/Math libraries
    - Student App: Add image_picker, camera, OAuth packages
 
@@ -524,9 +533,11 @@ flutter run
 
 ### Priority 2 (Next Week)
 
-1. **Implement OTP Service** (Core Service)
-2. **Implement OCR Service** (AI Service)
-3. **Setup API Clients** (All frontends)
+1. **Implement OTP Service** (Core Service) ✅ (Đã hoàn thành)
+2. **Implement Phone Authentication** (Core Service) ✅ (Đã hoàn thành)
+3. **Implement OAuth Providers** (Core Service) ✅ (Đã hoàn thành)
+4. **Implement OCR Service** (AI Service)
+5. **Setup API Clients** (All frontends)
 
 ### Priority 3 (Following Weeks)
 
