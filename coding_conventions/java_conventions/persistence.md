@@ -4,11 +4,7 @@
 ## Quy tắc DB schema
 
 - Tên bảng/column dùng `snake_case`.
-- Tiền tố cột theo kiểu dữ liệu:
-  - `n_` số (BIGINT/INT/DECIMAL),
-  - `s_` chuỗi (VARCHAR/TEXT),
-  - `d_` ngày giờ (DATETIME/DATE).
-- Thêm comment cho cột qua `@Column(columnDefinition = " ... COMMENT '...'" )` để mô tả ý nghĩa.
+- Thêm comment cho cột qua `@Column(columnDefinition = " ... COMMENT '...'" )` hoặc comment trong SQL migration để mô tả ý nghĩa.
 - Khóa chính dùng UUID (`java.util.UUID`) thay vì auto-increment.
 - Sử dụng `@GeneratedValue(strategy = GenerationType.UUID)` cho primary key.
 
@@ -26,15 +22,15 @@
 @Table(name = "students")
 public class Student extends BaseEntity {
     
-    @Column(name = "s_username", nullable = false, unique = true, 
+    @Column(name = "username", nullable = false, unique = true, 
             columnDefinition = "VARCHAR(50) COMMENT 'Username của học sinh'")
     private String username;
     
-    @Column(name = "n_grade", nullable = false,
+    @Column(name = "grade", nullable = false,
             columnDefinition = "INT COMMENT 'Lớp học (6 hoặc 7)'")
     private Integer grade;
     
-    @Column(name = "d_date_of_birth",
+    @Column(name = "date_of_birth",
             columnDefinition = "DATE COMMENT 'Ngày sinh'")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
@@ -73,7 +69,7 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
 
 ## Naming & migration
 
-- Với bảng mới: tiếp tục áp dụng prefix `n_/s_/d_` và snake_case.
+- Với bảng mới: sử dụng `snake_case` cho tên cột, không cần prefix.
 - Script migration cần tuân thủ comment, kiểu dữ liệu phù hợp; index đặt tên `idx_<table>_<columns>`.
 - Sử dụng Flyway migrations với naming convention: `V{version}__{description}.sql`
 - Migration files trong `src/main/resources/db/migration/`
@@ -84,17 +80,17 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
 -- V1__Create_students_table.sql
 CREATE TABLE students (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    s_username VARCHAR(50) NOT NULL UNIQUE COMMENT 'Username của học sinh',
-    n_grade INT NOT NULL COMMENT 'Lớp học (6 hoặc 7)',
-    d_date_of_birth DATE COMMENT 'Ngày sinh',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT 'Username của học sinh',
+    grade INT NOT NULL COMMENT 'Lớp học (6 hoặc 7)',
+    date_of_birth DATE COMMENT 'Ngày sinh',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100),
     updated_by VARCHAR(100)
 );
 
-CREATE INDEX idx_students_username ON students(s_username);
-CREATE INDEX idx_students_grade ON students(n_grade);
+CREATE INDEX idx_students_username ON students(username);
+CREATE INDEX idx_students_grade ON students(grade);
 ```
 
 ## Pagination & sort
