@@ -61,6 +61,7 @@ ResponseObject<?> {
 - [`api-consumption.md` - Gọi API với HTTP client](api-consumption.md)
 - [`state-management.md` - State, utilities, form](state-management.md)
 - [`style-format-lint.md` - Style, format & lint](style-format-lint.md)
+- [`ui-components.md` - UI Components Conventions (ActionsDropdown)](ui-components.md)
 - [`code-quality.md` - Kiểm tra chất lượng code & làm sạch](code-quality.md)
 - [`security-auth.md` - Auth & bảo mật](security-auth.md)
 

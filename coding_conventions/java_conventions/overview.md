@@ -61,7 +61,7 @@ ResponseObject<?> {
 
 - [`code-structure.md` - Cấu trúc code & đặt tên](code-structure.md)
 - [`api-design.md` - API design & Swagger](api-design.md)
-- [`persistence.md` - Persistence (DB, Entity, Repository)](persistence.md)
+- [`persistence.md` - Persistence (DB, Entity, Repository)](persistence.md) - **Lưu ý**: Quy tắc TEXT vs VARCHAR cho searchable columns
 - [`service-integration.md` - Tích hợp dịch vụ, HTTP Client, Cache/Redis](service-integration.md)
 - [`code-quality.md` - Kiểm tra chất lượng code & làm sạch](code-quality.md)
 

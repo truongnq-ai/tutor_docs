@@ -8,6 +8,69 @@
 - Khóa chính dùng UUID (`java.util.UUID`) thay vì auto-increment.
 - Sử dụng `@GeneratedValue(strategy = GenerationType.UUID)` cho primary key.
 
+### Quy tắc kiểu dữ liệu cho String columns
+
+**QUAN TRỌNG**: Đối với các cột string được sử dụng trong queries có hàm `LOWER()`, `UPPER()`, `LIKE`, hoặc các string functions khác, **bắt buộc** sử dụng `TEXT` thay vì `VARCHAR` hoặc `CHARACTER VARYING`.
+
+**Lý do**: 
+- PostgreSQL có thể gặp lỗi `function lower(bytea) does not exist` nếu cột được lưu dưới dạng `bytea` hoặc có vấn đề type casting
+- `TEXT` type đảm bảo type consistency và tương thích tốt với các string functions
+- JPA/Hibernate map `String` type sang `TEXT` một cách an toàn
+
+**Quy tắc áp dụng**:
+- ✅ **Dùng TEXT**: Các cột string được dùng trong `@Query` với `LOWER()`, `UPPER()`, `LIKE`, pattern matching
+- ✅ **Có thể dùng VARCHAR**: Các cột string chỉ dùng cho exact match, không dùng string functions
+- ✅ **Luôn dùng TEXT**: Các cột string có thể cần search/filter trong tương lai
+
+**Ví dụ**:
+
+```java
+// ✅ ĐÚNG: Dùng TEXT cho cột dùng trong LOWER() query
+@Column(name = "username", nullable = false, unique = true, columnDefinition = "TEXT")
+private String username;
+
+@Column(name = "email", unique = true, columnDefinition = "TEXT")
+private String email;
+
+// ❌ SAI: Dùng VARCHAR cho cột dùng trong LOWER() query
+@Column(name = "username", nullable = false, unique = true, length = 255)
+private String username;  // Có thể gây lỗi "function lower(bytea) does not exist"
+
+// ✅ ĐÚNG: Dùng VARCHAR cho cột không dùng string functions
+@Column(name = "status", length = 20)
+private String status;  // OK vì chỉ dùng exact match
+```
+
+**Migration SQL**:
+
+```sql
+-- ✅ ĐÚNG: Dùng TEXT cho searchable columns
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT UNIQUE,
+    phone_number VARCHAR(20),  -- OK vì không dùng trong LOWER()
+    status VARCHAR(20) DEFAULT 'ACTIVE'  -- OK vì chỉ exact match
+);
+
+-- ❌ SAI: Dùng VARCHAR cho searchable columns
+CREATE TABLE users (
+    username VARCHAR(255) NOT NULL,  -- Có thể gây lỗi với LOWER()
+    email VARCHAR(255)  -- Có thể gây lỗi với LOWER()
+);
+```
+
+**Repository Query**:
+
+```java
+// Nếu query này sử dụng LOWER(), cột phải là TEXT
+@Query("SELECT u FROM User u WHERE " +
+       "LOWER(u.username) LIKE LOWER(CONCAT('%', :searchText, '%')) OR " +
+       "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchText, '%'))")
+Page<User> searchUsers(@Param("searchText") String searchText, Pageable pageable);
+// → username và email PHẢI là TEXT trong database
+```
+
 ## Entity
 
 - Kế thừa `BaseEntity` để có sẵn `id` (UUID), `createdAt/updatedAt`, `createdBy/updatedBy`, `@PrePersist/@PreUpdate`.
