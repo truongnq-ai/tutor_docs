@@ -130,6 +130,94 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
 }
 ```
 
+### Repository Query Best Practices
+
+#### Ưu tiên JPQL thay vì Native SQL
+- ✅ **Dùng JPQL**: Type-safe, dễ maintain, tận dụng JPA features
+- ❌ **Tránh Native SQL**: Chỉ dùng khi thực sự cần thiết (complex aggregations, database-specific functions)
+
+**Ví dụ**:
+```java
+// ✅ ĐÚNG: Dùng JPQL
+@Query("SELECT u FROM User u WHERE u.userType = :userType")
+Page<User> findByUserType(@Param("userType") UserType userType, Pageable pageable);
+
+// ❌ SAI: Dùng Native SQL không cần thiết
+@Query(value = "SELECT * FROM users u WHERE u.user_type = CAST(:userType AS text)", 
+       nativeQuery = true)
+Page<User> findByUserType(@Param("userType") UserType userType, Pageable pageable);
+```
+
+#### Xử lý LIKE queries với wildcards
+- ✅ **Xử lý wildcards ở Service Layer**: Repository chỉ nhận parameter đã được format sẵn
+- ❌ **Không dùng CONCAT trong Repository**: Tránh phức tạp hóa query, khó maintain
+
+**Lý do**:
+- Tách biệt concerns: Repository chỉ truy vấn, Service xử lý business logic
+- Dễ test và maintain hơn
+- Linh hoạt hơn khi cần thay đổi search pattern
+
+**Ví dụ**:
+
+```java
+// ✅ ĐÚNG: Repository đơn giản
+@Query("SELECT s FROM Skill s WHERE " +
+       "(:grade IS NULL OR s.grade = :grade) AND " +
+       "(:chapter IS NULL OR s.chapter LIKE :chapter) " +
+       "ORDER BY s.createdAt DESC")
+Page<Skill> searchSkills(
+        @Param("grade") Integer grade,
+        @Param("chapter") String chapter,  // Đã có % wildcards từ service
+        Pageable pageable
+);
+
+// ✅ ĐÚNG: Service xử lý wildcards
+@Override
+public Page<SkillListResponse> listSkills(SkillSearchRequest searchRequest) {
+    Pageable pageable = PageRequest.of(
+            searchRequest.page() != null ? searchRequest.page() : 0,
+            searchRequest.pageSize() != null ? searchRequest.pageSize() : 20
+    );
+
+    // Process chapter parameter for LIKE query - add % wildcards in service layer
+    String chapterParam = null;
+    if (searchRequest.chapter() != null && !searchRequest.chapter().trim().isEmpty()) {
+        chapterParam = "%" + searchRequest.chapter().trim() + "%";
+    }
+
+    Page<Skill> skills = skillRepository.searchSkills(
+            searchRequest.grade(),
+            chapterParam,  // Đã xử lý wildcards
+            pageable
+    );
+
+    return skills.map(this::toSkillListResponse);
+}
+
+// ❌ SAI: Xử lý wildcards trong Repository
+@Query("SELECT s FROM Skill s WHERE " +
+       "(:chapter IS NULL OR s.chapter LIKE CONCAT('%', :chapter, '%'))")
+Page<Skill> searchSkills(@Param("chapter") String chapter, Pageable pageable);
+```
+
+#### Xử lý Case-Insensitive Search
+- Nếu cần case-insensitive search, xử lý ở Service Layer bằng cách convert input sang lowercase/uppercase trước khi truyền vào repository
+- Repository query có thể dùng `LOWER()` hoặc `UPPER()` nhưng parameter đã được convert sẵn
+
+**Ví dụ**:
+```java
+// Service Layer
+String searchTextParam = null;
+if (searchRequest.searchText() != null && !searchRequest.searchText().trim().isEmpty()) {
+    searchTextParam = "%" + searchRequest.searchText().trim().toLowerCase() + "%";
+}
+
+// Repository
+@Query("SELECT e FROM Exercise e WHERE " +
+       "(:searchText IS NULL OR LOWER(e.problemText) LIKE :searchText)")
+Page<Exercise> searchExercises(@Param("searchText") String searchText, Pageable pageable);
+```
+
 ## Naming & migration
 
 - Với bảng mới: sử dụng `snake_case` cho tên cột, không cần prefix.

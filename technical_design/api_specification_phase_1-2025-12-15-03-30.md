@@ -133,6 +133,12 @@ Production: https://api.tutor.app/api
 | `OTP_EXPIRED` | 400 | OTP đã hết hạn |
 | `PHONE_NOT_VERIFIED` | 403 | Số điện thoại chưa được xác thực |
 | `RECAPTCHA_FAILED` | 400 | reCaptcha verification thất bại |
+| `QUESTION_NOT_FOUND` | 404 | Question không tồn tại |
+| `QUESTION_NOT_ASSIGNED` | 400 | Question chưa được assign |
+| `QUESTION_ALREADY_COMPLETED` | 400 | Question đã được submit |
+| `QUESTION_STUDENT_MISMATCH` | 403 | Question không thuộc về student này |
+| `EXERCISE_NOT_APPROVED` | 400 | Exercise chưa được approve, không thể sinh Questions |
+| `PREREQUISITE_NOT_MET` | 403 | Prerequisite skills chưa đạt mastery threshold |
 
 ---
 
@@ -456,12 +462,17 @@ Nộp kết quả bài luyện tập.
 **Request:**
 ```json
 {
-  "questionId": "uuid",
+  "questionId": "uuid",  // Optional - link Practice với Question nếu có
   "answer": "A",
   "durationSec": 45,
   "skillId": "6.3.9"
 }
 ```
+
+**Lưu ý**: 
+- `questionId` là optional để đảm bảo backward compatibility
+- Nếu có `questionId`, Practice sẽ được link với Question qua `practice.question_id`
+- Nếu không có `questionId`, Practice vẫn hoạt động bình thường (legacy flow)
 
 **Response (200 OK):**
 ```json
@@ -1206,6 +1217,474 @@ Core Service gọi AI Service để giải bài.
 
 ---
 
+## 7. ADMIN DASHBOARD APIs
+
+### 7.1. Question Management
+
+#### GET /api/admin/questions
+
+Danh sách Questions với filter, search, pagination.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page`: 0 (default)
+- `pageSize`: 20 (default)
+- `skillId`: (optional) Filter by skill
+- `exerciseId`: (optional) Filter by exercise
+- `studentId`: (optional) Filter by student
+- `status`: (optional) Filter by status (ASSIGNED, COMPLETED, SKIPPED)
+- `questionType`: (optional) Filter by type (PRACTICE, MINI_TEST, REVIEW)
+- `fromDate`: (optional) ISO date
+- `toDate`: (optional) ISO date
+- `searchText`: (optional) Search in problem_text
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "exerciseId": "uuid",
+      "exerciseName": "Rút gọn phân số: 12/18",
+      "skillId": "uuid",
+      "skillCode": "6.3.9",
+      "skillName": "Rút gọn phân số",
+      "assignedToStudentId": "uuid",
+      "problemText": "Rút gọn phân số: 12/18",
+      "status": "COMPLETED",
+      "questionType": "PRACTICE",
+      "isCorrect": true,
+      "timeTakenSec": 45,
+      "practiceCount": 1,
+      "assignedAt": "2025-12-21T10:00:00Z",
+      "submittedAt": "2025-12-21T10:00:45Z",
+      "createdAt": "2025-12-21T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 0,
+    "pageSize": 20,
+    "total": 100,
+    "totalPages": 5
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Chưa đăng nhập
+- `403 FORBIDDEN`: Không có quyền admin
+
+---
+
+#### GET /api/admin/questions/:id
+
+Chi tiết Question kèm Practices liên quan.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "exerciseId": "uuid",
+    "exercise": {
+      "id": "uuid",
+      "problemText": "Rút gọn phân số: 12/18",
+      "reviewStatus": "APPROVED"
+    },
+    "skillId": "uuid",
+    "skill": {
+      "id": "uuid",
+      "code": "6.3.9",
+      "name": "Rút gọn phân số"
+    },
+    "assignedToStudentId": "uuid",
+    "student": {
+      "id": "uuid",
+      "grade": 6
+    },
+    "problemText": "Rút gọn phân số: 12/18",
+    "problemLatex": "\\frac{12}{18}",
+    "problemImageUrl": "https://...",
+    "solutionSteps": [
+      {
+        "stepNumber": 1,
+        "description": "Tìm ƯCLN",
+        "content": "ƯCLN(12, 18) = 6",
+        "explanation": "..."
+      }
+    ],
+    "finalAnswer": "2/3",
+    "commonMistakes": [...],
+    "hints": [...],
+    "customizedData": null,
+    "difficultyLevel": 1,
+    "questionType": "PRACTICE",
+    "status": "COMPLETED",
+    "studentAnswer": "2/3",
+    "isCorrect": true,
+    "timeTakenSec": 45,
+    "assignedAt": "2025-12-21T10:00:00Z",
+    "submittedAt": "2025-12-21T10:00:45Z",
+    "practices": [
+      {
+        "id": "uuid",
+        "isCorrect": true,
+        "durationSec": 45,
+        "createdAt": "2025-12-21T10:00:45Z"
+      }
+    ],
+    "practiceCount": 1,
+    "createdAt": "2025-12-21T10:00:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Chưa đăng nhập
+- `403 FORBIDDEN`: Không có quyền admin
+- `404 NOT_FOUND`: Question không tồn tại
+
+---
+
+#### GET /api/admin/exercises/:id/questions
+
+Lấy Questions đã được sinh từ Exercise.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page`: 0 (default)
+- `pageSize`: 20 (default)
+- `status`: (optional) Filter by status
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "exerciseId": "uuid",
+    "exerciseName": "Rút gọn phân số: 12/18",
+    "totalQuestions": 25,
+    "questions": [
+      {
+        "id": "uuid",
+        "assignedToStudentId": "uuid",
+        "status": "COMPLETED",
+        "isCorrect": true,
+        "timeTakenSec": 45,
+        "assignedAt": "2025-12-21T10:00:00Z",
+        "submittedAt": "2025-12-21T10:00:45Z"
+      }
+    ],
+    "statistics": {
+      "totalGenerated": 25,
+      "completed": 20,
+      "assigned": 3,
+      "skipped": 2,
+      "avgSuccessRate": 85.5,
+      "avgTimeSec": 42
+    },
+    "pagination": {
+      "page": 0,
+      "pageSize": 20,
+      "total": 25,
+      "totalPages": 2
+    }
+  }
+}
+```
+
+---
+
+#### GET /api/admin/skills/:id/questions
+
+Lấy Questions theo Skill (tích hợp với Skills page).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page`: 0 (default)
+- `pageSize": 20 (default)
+- `difficultyLevel`: (optional) Filter by difficulty (1-5)
+- `status`: (optional) Filter by status
+- `onlyApprovedExercises`: true (default) - Chỉ Questions từ Exercises APPROVED
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "skillId": "uuid",
+    "skillCode": "6.3.9",
+    "skillName": "Rút gọn phân số",
+    "totalQuestions": 150,
+    "questions": [
+      {
+        "id": "uuid",
+        "exerciseId": "uuid",
+        "problemText": "Rút gọn phân số: 12/18",
+        "difficultyLevel": 1,
+        "status": "COMPLETED",
+        "practiceCount": 1,
+        "createdAt": "2025-12-21T10:00:00Z"
+      }
+    ],
+    "statistics": {
+      "byDifficulty": {
+        "1": 50,
+        "2": 40,
+        "3": 35,
+        "4": 20,
+        "5": 5
+      },
+      "totalPractices": 1200
+    },
+    "pagination": {
+      "page": 0,
+      "pageSize": 20,
+      "total": 150,
+      "totalPages": 8
+    }
+  }
+}
+```
+
+---
+
+#### GET /api/admin/questions/:id/practices
+
+Lấy Practices của Question.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "questionId": "uuid",
+    "practices": [
+      {
+        "id": "uuid",
+        "studentId": "uuid",
+        "isCorrect": true,
+        "durationSec": 45,
+        "difficultyLevel": 1,
+        "createdAt": "2025-12-21T10:00:45Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+---
+
+### 7.2. Practice Question APIs (Student App)
+
+#### GET /api/practice/questions
+
+Lấy Questions đã được assign cho học sinh.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+hoặc
+X-Device-Id: device-uuid (cho trial)
+```
+
+**Query Parameters:**
+- `status`: (optional) ASSIGNED, COMPLETED, SKIPPED
+- `skillId`: (optional) Filter by skill
+- `limit`: (optional) Số lượng Questions (default: 10)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "questions": [
+      {
+        "id": "uuid",
+        "exerciseId": "uuid",
+        "skillId": "uuid",
+        "skillName": "Rút gọn phân số",
+        "problemText": "Rút gọn phân số: 12/18",
+        "problemLatex": "\\frac{12}{18}",
+        "problemImageUrl": "https://...",
+        "difficultyLevel": 1,
+        "questionType": "PRACTICE",
+        "status": "ASSIGNED",
+        "assignedAt": "2025-12-21T10:00:00Z",
+        "timeEstimateSec": 120
+      }
+    ],
+    "total": 8
+  }
+}
+```
+
+---
+
+#### GET /api/practice/questions/:id
+
+Chi tiết Question (student view).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "problemText": "Rút gọn phân số: 12/18",
+    "problemLatex": "\\frac{12}{18}",
+    "problemImageUrl": "https://...",
+    "difficultyLevel": 1,
+    "questionType": "PRACTICE",
+    "status": "ASSIGNED",
+    "hints": [
+      "Hãy tìm số lớn nhất mà cả tử và mẫu đều chia hết"
+    ],
+    "timeEstimateSec": 120,
+    "assignedAt": "2025-12-21T10:00:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `401 UNAUTHORIZED`: Chưa đăng nhập
+- `403 FORBIDDEN`: Question không thuộc về student này
+- `404 NOT_FOUND`: Question không tồn tại
+
+---
+
+#### POST /api/practice/questions/:id/submit
+
+Submit answer cho Question (tạo Practice với question_id).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Request:**
+```json
+{
+  "answer": "2/3",
+  "durationSec": 45
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "questionId": "uuid",
+    "practiceId": "uuid",
+    "isCorrect": true,
+    "correctAnswer": "2/3",
+    "explanation": "Giải thích...",
+    "questionStatus": "COMPLETED",
+    "masteryUpdate": {
+      "skillId": "uuid",
+      "oldMastery": 45,
+      "newMastery": 52,
+      "change": 7
+    },
+    "nextDifficulty": 2
+  }
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: Answer không hợp lệ
+- `403 FORBIDDEN`: Question không thuộc về student này hoặc đã completed
+- `404 NOT_FOUND`: Question không tồn tại
+- `400 QUESTION_NOT_ASSIGNED`: Question chưa được assign
+- `400 QUESTION_ALREADY_COMPLETED`: Question đã được submit
+
+---
+
+### 7.3. Internal Learning APIs
+
+#### POST /api/internal/learning/generate-questions
+
+Generate Questions từ Exercises (cho Adaptive Learning Engine).
+
+**Headers:**
+```
+Authorization: Bearer <internal-token>
+```
+
+**Request:**
+```json
+{
+  "skillId": "uuid",
+  "studentId": "uuid",
+  "difficultyLevel": 2,
+  "count": 5,
+  "questionType": "PRACTICE",
+  "sessionId": "uuid"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "questions": [
+      {
+        "id": "uuid",
+        "exerciseId": "uuid",
+        "skillId": "uuid",
+        "problemText": "Rút gọn phân số: 12/18",
+        "problemLatex": "\\frac{12}{18}",
+        "difficultyLevel": 2,
+        "questionType": "PRACTICE",
+        "status": "ASSIGNED",
+        "assignedAt": "2025-12-21T10:00:00Z"
+      }
+    ],
+    "total": 5
+  }
+}
+```
+
+**Error Responses:**
+- `400 VALIDATION_ERROR`: SkillId, studentId không hợp lệ
+- `404 NOT_FOUND`: Skill hoặc Student không tồn tại
+- `400 EXERCISE_NOT_APPROVED`: Không có Exercises APPROVED cho skill này
+- `403 PREREQUISITE_NOT_MET`: Prerequisite skills chưa đạt mastery threshold
+
+---
+
 ## 8. RATE LIMITING
 
 ### 8.1. Limits
@@ -1214,8 +1693,10 @@ Core Service gọi AI Service để giải bài.
 |----------|-------|--------|
 | `/api/tutor/solve/*` | 20 requests | 1 hour |
 | `/api/practice/submit` | 100 requests | 1 hour |
+| `/api/practice/questions/:id/submit` | 100 requests | 1 hour |
 | `/api/parent/login` | 5 requests | 15 minutes |
 | `/api/parent/register` | 3 requests | 1 hour |
+| `/api/internal/learning/generate-questions` | 50 requests | 1 hour |
 
 ### 8.2. Rate Limit Headers
 
@@ -1248,6 +1729,7 @@ X-RateLimit-Reset: 1639500000
 
 - 2025-12-15-03-30: Tạo mới API Specification
 - 2025-12-15: Thêm refresh token endpoints và cập nhật authentication flow
+- 2025-12-21-16-45: Thêm Question Management APIs (admin, student, internal), cập nhật practice/submit để hỗ trợ questionId
 
 
 
