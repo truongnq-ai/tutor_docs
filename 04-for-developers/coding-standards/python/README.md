@@ -63,6 +63,7 @@ Tất cả API trả về response với cấu trúc:
 - [`api-design.md`](api-design.md) - API design & FastAPI
 - [`clean-architecture.md`](clean-architecture.md) - Clean Architecture patterns
 - [`code-quality.md`](code-quality.md) - Kiểm tra chất lượng code & làm sạch
+- [`latex-formatting.md`](latex-formatting.md) - Quy tắc định dạng LaTeX cho bài tập Toán
 
 ## Phạm vi áp dụng
 

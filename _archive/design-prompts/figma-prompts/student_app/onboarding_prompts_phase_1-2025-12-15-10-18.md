@@ -9,6 +9,61 @@
 
 ---
 
+## SCREEN 0: SPLASH / LAUNCH SCREEN
+
+### Prompt:
+```
+[CONTEXT]
+- Project: Tutor - AI Math Tutor for Grade 6-7
+- Target User: Student 11-13 tuổi
+- Platform: Mobile App (iOS/Android)
+- Screen: Splash/Launch Screen
+
+[SCREEN PURPOSE]
+- Màn hình đầu tiên khi mở ứng dụng
+- Hiển thị logo và branding của Tutor
+- Kiểm tra trạng thái đăng nhập và điều hướng phù hợp
+- Thời gian hiển thị: 2-3 giây (hoặc cho đến khi app sẵn sàng)
+
+[DESIGN REQUIREMENTS]
+- Full screen background: Gradient từ #4CAF50 đến #2196F3 (hoặc solid color #4CAF50)
+- Logo/Icon: Logo Tutor ở giữa màn hình
+  - Size: 120x120px (hoặc tương đương)
+  - Animation: Fade in hoặc scale in nhẹ nhàng
+- App name: "Tutor" (optional, dưới logo)
+  - Typography: 32px Bold, màu trắng
+- Loading indicator (optional): Circular progress ở dưới cùng
+  - Màu trắng, size nhỏ
+- Version info (optional): "Version 1.0.0" ở góc dưới
+  - Typography: 12px Regular, màu trắng với opacity 70%
+
+[VISUAL GUIDELINES]
+- Background: Solid color hoặc gradient, không có pattern phức tạp
+- Logo: Centered, có animation nhẹ khi xuất hiện
+- Typography: White text, high contrast
+- Spacing: Logo cách top 40%, app name cách logo 24px
+- Animation duration: 300-500ms cho fade in
+
+[SPECIFICATIONS]
+- Screen size: 375x812px (iPhone X) - Full screen
+- Logo size: 120x120px (hoặc scale theo screen)
+- Safe area: Không cần safe area cho splash (full screen)
+- Animation: Fade in 300ms, scale in 400ms (optional)
+
+[CONTENT EXAMPLES]
+- Logo: Tutor logo/icon
+- App name: "Tutor" (optional)
+- Version: "v1.0.0" (optional, bottom corner)
+- Loading: Circular spinner (optional)
+
+[STATES]
+- Default: Logo fade in, hiển thị 2-3 giây
+- Loading: Có thể hiển thị progress indicator nếu cần check network/auth
+- Error: Nếu có lỗi network, vẫn chuyển sang màn hình tiếp theo sau timeout
+```
+
+---
+
 ## SCREEN 1: WELCOME / INTRODUCTION
 
 ### Prompt:

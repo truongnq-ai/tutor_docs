@@ -60,7 +60,7 @@ ResponseObject<?> {
 - [`code-structure.md`](code-structure.md) - Cấu trúc code & đặt tên
 - [`api-client.md`](api-client.md) - Gọi API với HTTP client
 - [`state-management.md`](state-management.md) - State management với Riverpod
-- [`ui-widgets.md`](ui-widgets.md) - UI & Widgets patterns
+- [`ui-design-standards/`](ui-design-standards/README.md) - UI Design Standards & Widget Implementation
 - [`code-quality.md`](code-quality.md) - Kiểm tra chất lượng code & làm sạch
 
 ## Phạm vi áp dụng

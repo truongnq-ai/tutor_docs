@@ -78,7 +78,7 @@
 
 - [API consumption patterns](api-client.md)
 - [State management với Riverpod](state-management.md)
-- [UI & Widgets patterns](ui-widgets.md)
+- [UI Design Standards](ui-design-standards/README.md)
 - [Kiểm tra chất lượng code](code-quality.md)
 
 [← Quay lại Overview](README.md)

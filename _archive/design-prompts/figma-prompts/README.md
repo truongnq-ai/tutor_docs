@@ -25,10 +25,12 @@ Các prompt được thiết kế để:
 ## 2. CẤU TRÚC THƯ MỤC
 
 ### 2.1. Student App Prompts
-- `onboarding_prompts_phase_1-2025-12-15-10-18.md` - Màn hình onboarding, chọn lớp, mục tiêu học tập, auth (Google/Apple/Manual)
-- `learning_flow_prompts_phase_1-2025-12-15-10-18.md` - Lộ trình học hằng ngày, luyện tập
-- `tutor_mode_prompts_phase_1-2025-12-15-10-18.md` - Giải bài Toán, xem lời giải từng bước
-- `progress_prompts_phase_1-2025-12-15-10-18.md` - Theo dõi tiến độ, mastery, mini test
+- `onboarding_prompts_phase_1-2025-12-15-10-18.md` - Màn hình onboarding, splash, chọn lớp, mục tiêu học tập, auth (Google/Apple/Manual) - **14 màn hình**
+- `learning_flow_prompts_phase_1-2025-12-15-10-18.md` - Lộ trình học hằng ngày, luyện tập - **7 màn hình**
+- `tutor_mode_prompts_phase_1-2025-12-15-10-18.md` - Giải bài Toán, xem lời giải từng bước - **7 màn hình**
+- `progress_prompts_phase_1-2025-12-15-10-18.md` - Theo dõi tiến độ, mastery, mini test - **6 màn hình**
+- `profile_prompts_phase_1-2025-12-15-10-18.md` - Hồ sơ, cài đặt, đổi mật khẩu, giới thiệu - **5 màn hình**
+- `screens_overview.md` - Tổng quan tất cả màn hình cần thiết kế - **39 màn hình tổng cộng**
 
 ### 2.2. Parent Dashboard Prompts
 - `authentication_prompts_phase_1-2025-12-15-10-18.md` - Đăng ký, đăng nhập phụ huynh
@@ -77,4 +79,5 @@ Các prompt được thiết kế để:
 ## 6. LỊCH SỬ THAY ĐỔI
 
 - 2025-12-15-10-18: Tạo mới thư mục và prompt library
+- 2025-12-21: Cập nhật - Thêm Splash screen vào onboarding, tạo profile_prompts với 5 màn hình, tạo screens_overview
 
