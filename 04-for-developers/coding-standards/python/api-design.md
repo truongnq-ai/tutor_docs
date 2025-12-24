@@ -264,5 +264,174 @@ async def solve(request: SolveRequest):
 - Các header đặc thù (API key, trace id) cần được mô tả trong tài liệu chi tiết của service.
 - Internal API key: Sử dụng header `X-API-Key` cho authentication với Core Service.
 
+## Service-to-Service Communication (AI Service → Core Service)
+
+### Nguyên tắc
+
+- **Chỉ dùng Internal Endpoints**: Khi AI Service cần gọi Core Service, **bắt buộc** sử dụng Internal API endpoints (`/api/v1/internal/**`) với API Key authentication.
+- **Không dùng Admin Endpoints**: **Tuyệt đối không** gọi trực tiếp admin endpoints (`/api/v1/admin/**`) vì chúng yêu cầu JWT token với role ADMIN.
+- **API Key Authentication**: Sử dụng header `X-API-Key` với giá trị từ `settings.core_service_api_key`.
+
+### Internal Endpoints Available
+
+#### Skills
+- `GET /api/v1/internal/skills/{id}` - Get skill metadata by ID
+
+#### Prompt Templates
+- `GET /api/v1/internal/prompt-templates/active` - Get all active prompt templates
+- `GET /api/v1/internal/prompt-templates/by-name/{name}` - Get prompt template by name
+- `GET /api/v1/internal/prompt-templates/{id}` - Get prompt template by ID
+
+### Ví dụ Implementation
+
+```python
+import httpx
+from src.core.config import settings
+from src.core.exceptions import ExternalServiceException
+
+class ExerciseGenerationService:
+    def __init__(self):
+        self.core_service_url = settings.core_service_url
+        self.core_service_api_key = settings.core_service_api_key
+    
+    async def _fetch_skill_metadata(self, skill_id: str) -> dict[str, Any]:
+        """Fetch skill metadata from Core Service using internal API."""
+        url = f"{self.core_service_url}/api/v1/internal/skills/{skill_id}"
+        
+        headers = {
+            "X-API-Key": self.core_service_api_key,  # API key, NOT JWT token
+            "Content-Type": "application/json",
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                response = await client.get(url, headers=headers)
+                response.raise_for_status()
+                
+                data = response.json()
+                if data.get("errorCode") != "0000":
+                    raise ExternalServiceException(
+                        f"Failed to fetch skill: {data.get('errorDetail', 'Unknown error')}"
+                    )
+                
+                skill = data.get("data", {})
+                return {
+                    "id": skill.get("id"),
+                    "name": skill.get("name"),
+                    "code": skill.get("code"),
+                    "chapter": skill.get("chapter"),
+                    "description": skill.get("description", ""),
+                    "prerequisite_ids": skill.get("prerequisiteIds", []),
+                }
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 401:
+                    raise ExternalServiceException(
+                        "Unauthorized: Invalid API key for Core Service"
+                    )
+                elif e.response.status_code == 404:
+                    raise ExternalServiceException(f"Skill not found: {skill_id}")
+                else:
+                    raise ExternalServiceException(
+                        f"Core Service error: {e.response.status_code}"
+                    )
+            except httpx.TimeoutException:
+                raise ExternalServiceException("Core Service timeout")
+            except Exception as e:
+                raise ExternalServiceException(f"Failed to fetch skill: {str(e)}")
+    
+    async def _load_prompt_template(self, template_name: str) -> dict[str, Any]:
+        """Load prompt template from Core Service using internal API."""
+        headers = {
+            "X-API-Key": self.core_service_api_key,
+            "Content-Type": "application/json",
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # Try to get template by name first (most efficient)
+            try:
+                url = f"{self.core_service_url}/api/v1/internal/prompt-templates/by-name/{template_name}"
+                response = await client.get(url, headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("errorCode") == "0000":
+                        template = data.get("data", {})
+                        return {
+                            "id": template.get("id"),
+                            "name": template.get("name"),
+                            "system_prompt": template.get("systemPrompt"),
+                            "user_prompt_template": template.get("userPromptTemplate"),
+                            "output_format_schema": template.get("outputFormatSchema"),
+                        }
+            except Exception as e:
+                logger.warning(f"Failed to get template by name {template_name}: {str(e)}")
+            
+            # Fallback: Get all active templates
+            try:
+                url = f"{self.core_service_url}/api/v1/internal/prompt-templates/active"
+                response = await client.get(url, headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("errorCode") == "0000":
+                        templates = data.get("data", [])
+                        for template in templates:
+                            if template.get("name") == template_name:
+                                return {
+                                    "id": template.get("id"),
+                                    "name": template.get("name"),
+                                    "system_prompt": template.get("systemPrompt"),
+                                    "user_prompt_template": template.get("userPromptTemplate"),
+                                    "output_format_schema": template.get("outputFormatSchema"),
+                                }
+            except Exception as e:
+                logger.warning(f"Failed to get active templates: {str(e)}")
+            
+            # Final fallback to default template
+            logger.warning(f"Failed to load template {template_name}, using defaults")
+            return self._get_default_template()
+```
+
+### Best Practices
+
+1. **Luôn dùng Internal Endpoints**: 
+   - ✅ `GET /api/v1/internal/skills/{id}`
+   - ❌ `GET /api/v1/admin/skills/{id}` (sẽ bị 401 Unauthorized)
+
+2. **API Key Header**:
+   - ✅ `X-API-Key: {core_service_api_key}`
+   - ❌ `Authorization: Bearer {token}` (không cần JWT cho internal calls)
+
+3. **Error Handling**:
+   - Parse response body để lấy error message chi tiết
+   - Map HTTP status codes sang custom exceptions
+   - Log đầy đủ context (request_id, endpoint, status_code)
+
+4. **Timeout & Retry**:
+   - Set timeout rõ ràng (ví dụ 10s cho internal calls)
+   - Implement retry logic cho transient errors (5xx, timeout)
+   - Không retry cho 4xx errors (client errors)
+
+5. **Logging**:
+   - Log request/response ở mức INFO cho internal calls
+   - **Không log API key** trong logs
+   - Include request_id trong mọi log message
+
+### Configuration
+
+API key được cấu hình trong `src/core/config.py`:
+
+```python
+# Development
+DEV_CORE_SERVICE_URL = "http://localhost:6889"
+DEV_CORE_SERVICE_API_KEY = "internal-api-key-12345"
+
+# Production
+PROD_CORE_SERVICE_URL = "http://localhost:6889"
+PROD_CORE_SERVICE_API_KEY = "internal-api-key-12345"  # Should use env var
+```
+
+**Lưu ý**: Trong production, API key nên được lưu trong environment variables, không hardcode trong config file.
+
 [← Quay lại Overview](README.md)
 

@@ -15,10 +15,10 @@ Admin có thể nhập bài tập theo 6 cách khác nhau:
 ## Cấu trúc tài liệu
 
 ### Workflows
-- [Manual Form Input](manual-form.md)
+- [Manual Form Input](manual-form.md) ✅
 - [CSV Import](csv-import.md)
 - [JSON Import](json-import.md)
-- [AI Generate](ai-generate.md)
+- [AI Generate](ai-generate.md) ✅ - [Implementation Details](ai-generate-implementation.md)
 - [Image Upload (OCR)](image-upload.md)
 - [DOCX Upload](docx-upload.md)
 

@@ -17,6 +17,69 @@ Template này cung cấp checklist và quick reference cho các tiêu chuẩn th
 
 ---
 
+## QUICK REFERENCE FOR FIGMA AI
+
+**Cách sử dụng:** Copy section này vào đầu mỗi Figma AI prompt khi gen screen.
+
+### Colors
+- **Primary:** `#4CAF50` (Green - Main actions, success states)
+- **Secondary:** `#2196F3` (Blue - Information, links)
+- **Accent:** `#FF9800` (Orange - Warnings, highlights, streaks)
+- **Error:** `#F44336` (Red - Errors, destructive actions)
+- **Success:** `#4CAF50` (Green - Success states)
+- **Background:** `#F5F5F5` (Light Gray - Screen background)
+- **Surface:** `#FFFFFF` (White - Card, container background)
+- **Text Primary:** `#212121` (Dark Gray - Main text, headings)
+- **Text Secondary:** `#757575` (Medium Gray - Secondary text, captions)
+- **Border:** `#E0E0E0` (Light Gray - Borders, dividers)
+- **Disabled:** `#BDBDBD` (Gray - Disabled states)
+
+### Typography Scale
+- **Heading 1:** 24px, Bold (700), Line-height 32px (Main page titles)
+- **Heading 2:** 20px, Semi-bold (600), Line-height 28px (Section titles)
+- **Heading 3:** 18px, Semi-bold (600), Line-height 24px (Subsection titles)
+- **Body:** 16px, Regular (400), Line-height 24px (Default text, paragraphs)
+- **Body Small:** 14px, Regular (400), Line-height 20px (Secondary text, captions)
+- **Caption:** 12px, Regular (400), Line-height 16px (Labels, metadata)
+
+**Lưu ý:** 
+- Font size tối thiểu **14px** cho body text
+- Font size tối thiểu **12px** cho caption
+- Sử dụng system default fonts (San Francisco trên iOS, Roboto trên Android)
+
+### Spacing Scale
+- **XS:** 4px (Tight spacing, icon padding)
+- **S:** 8px (Default spacing, button padding)
+- **M:** 16px (Section spacing, card padding)
+- **L:** 24px (Large spacing, screen margins)
+- **XL:** 32px (Extra large spacing, section gaps)
+- **XXL:** 48px (Screen-level spacing)
+
+### Touch Targets
+- **Minimum size:** 44x44px
+- **Button height:** ≥ 44px
+- **Spacing between targets:** ≥ 8px
+
+### Component Specs
+- **Primary Button:** Height ≥ 44px, Padding 16px H/12px V, Border-radius 8px, Shadow elevation 2
+- **Secondary Button:** Height ≥ 44px, Padding 16px H/12px V, Border-radius 8px, No shadow
+- **Text Input:** Height 48px, Padding 12px H/14px V, Border-radius 8px, Border 1px #E0E0E0
+- **Card:** Padding 16px, Border-radius 12px, Shadow elevation 1
+
+### Animation Guidelines
+- **Quick feedback:** 100-200ms (button press, hover)
+- **Standard transitions:** 200-300ms (page transitions, card animations)
+- **Complex animations:** 300-500ms (modal, drawer)
+- **Easing:** easeOut (enter), easeIn (exit), easeInOut (standard)
+
+### Accessibility
+- **Contrast ratio:** ≥ 4.5:1 cho normal text, ≥ 3:1 cho large text (≥18px)
+- **Touch targets:** ≥ 44x44px
+- **Focus states:** Rõ ràng, visible
+- **Screen reader:** Semantic labels cho tất cả interactive elements
+
+---
+
 ## 1. ACCESSIBILITY CHECKLIST
 
 ### Touch Targets
@@ -237,6 +300,146 @@ Template này cung cấp checklist và quick reference cho các tiêu chuẩn th
 
 ---
 
+## 8. CODE GENERATION STANDARDS
+
+### Framework & Architecture
+- **Target Framework:** Flutter 3.16+ / Dart 3.2+
+- **State Management:** Riverpod 2.5.1
+- **Navigation:** go_router 17.0.1
+- **Architecture Pattern:** Clean Architecture
+- **File Structure:** `lib/src/presentation/features/{feature_name}/view/{screen_name}_page.dart`
+
+### Widget Types
+- **StatelessWidget:** Cho screens không cần state management
+- **ConsumerWidget:** Cho screens cần đọc Riverpod providers (không modify state)
+- **ConsumerStatefulWidget:** Cho screens cần modify state hoặc lifecycle methods (initState, dispose)
+
+### Code Style
+- **Colors:** `Color(0xFF4CAF50)` format, không dùng hex string
+- **Spacing:** `SizedBox(height: 24)` hoặc `Padding(padding: EdgeInsets.all(16))`
+- **Typography:** `TextStyle(fontSize: 24, fontWeight: FontWeight.bold)`
+- **Theme:** Sử dụng `context.color`, `context.textStyle`, `context.spacing` từ theme extensions
+- **Assets:** `assets/images/...` hoặc `assets/icons/...` (không hardcode paths)
+- **Imports:** Sử dụng relative imports cho internal files, absolute imports cho packages
+
+### Animation
+- **Controller:** `AnimationController` với `SingleTickerProviderStateMixin`
+- **Duration:** 200-400ms cho standard animations, 0ms nếu reduced motion
+- **Curves:** `Curves.easeOut` cho most animations, `Curves.easeInOut` cho standard
+- **Dispose:** Luôn dispose `AnimationController` trong `dispose()` method
+- **Example:**
+  ```dart
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _controller.forward();
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  ```
+
+### Navigation
+- **Router:** go_router với `context.go()` hoặc `context.push()`
+- **Routes:** Sử dụng `Routes` constants từ `routes.dart`
+- **Deep Links:** Hỗ trợ deep linking nếu được chỉ định trong prompt
+- **Example:**
+  ```dart
+  context.go(Routes.welcome);
+  context.push(Routes.onboarding);
+  ```
+
+### Error Handling
+- **Network Timeout:** Tất cả network calls phải có timeout (default: 10 giây)
+- **Error Messages:** User-friendly, không technical jargon
+- **Retry:** Cung cấp retry mechanism cho critical operations
+- **Offline:** Graceful degradation khi không có network
+- **Try-Catch:** Proper error handling với try-catch blocks
+- **Example:**
+  ```dart
+  try {
+    await someNetworkCall();
+  } catch (e) {
+    // Show user-friendly error message
+    showErrorSnackBar('Không thể kết nối. Vui lòng thử lại.');
+  }
+  ```
+
+### Accessibility
+- **Semantics:** Sử dụng `Semantics` widget cho screen readers
+- **Labels:** Tất cả interactive elements phải có semantic labels
+- **Focus:** Proper focus management cho keyboard navigation
+- **Contrast:** Đảm bảo contrast ratio ≥ 4.5:1
+- **Example:**
+  ```dart
+  Semantics(
+    label: 'Tutor logo',
+    child: Image.asset('assets/images/logo.png'),
+  )
+  ```
+
+### Performance
+- **Dispose:** Proper dispose() cho controllers, timers, streams
+- **Memory:** Tránh memory leaks, sử dụng `const` constructors khi có thể
+- **Rebuild:** Minimize rebuilds, sử dụng `ConsumerWidget.select()` khi có thể
+- **Example:**
+  ```dart
+  // Good: const constructor
+  const Text('Hello');
+  
+  // Good: select specific provider
+  final value = ref.watch(someProvider.select((v) => v.specificField));
+  ```
+
+---
+
+## 9. ERROR HANDLING STANDARDS
+
+### Network Error Handling
+- **Timeout:** Tất cả network calls phải có timeout (default: 10 giây)
+- **Retry Logic:** Cung cấp retry mechanism cho critical operations (max 3 lần)
+- **Offline Detection:** Kiểm tra network connectivity trước khi thực hiện network calls
+- **Fallback:** Graceful degradation khi không có network (ví dụ: hiển thị cached data)
+
+### Error Message Guidelines
+- **User-Friendly:** Không dùng technical jargon
+- **Actionable:** Cung cấp hướng dẫn sửa lỗi hoặc action để thử lại
+- **Positive Tone:** Tránh negative language, dùng positive/encouraging tone
+- **Examples:**
+  - ✅ Good: "Không thể kết nối. Vui lòng kiểm tra internet và thử lại."
+  - ❌ Bad: "NetworkError: Connection timeout"
+
+### Error States UI
+- **Visual Feedback:** Red border (#F44336) cho input errors, error icon
+- **Error Message Position:** Hiển thị error message dưới input field hoặc trong alert dialog
+- **Retry Button:** Cung cấp nút "Thử lại" cho network errors
+- **Loading State:** Hiển thị loading indicator khi đang retry
+
+### Timeout Handling
+- **Splash Screen:** Nếu network error, vẫn chuyển sang màn hình tiếp theo sau timeout (3 giây)
+- **API Calls:** Hiển thị timeout error sau 10 giây, cung cấp retry option
+- **Image Loading:** Hiển thị placeholder hoặc error icon nếu image load timeout
+
+### Error Logging
+- **Development:** Log full error details trong development mode
+- **Production:** Log error type và context (không log sensitive data)
+- **User Feedback:** Chỉ hiển thị user-friendly message, không hiển thị technical error details
+
+---
+
 ## Tài liệu liên quan
 
 - [Design Principles](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/design-principles.md) - Nguyên tắc thiết kế
@@ -248,7 +451,7 @@ Template này cung cấp checklist và quick reference cho các tiêu chuẩn th
 
 ---
 
-**Last Updated:** 2025-12-21
+**Last Updated:** 2025-12-21 (Added CODE GENERATION STANDARDS and ERROR HANDLING STANDARDS)
 
 - ← Quay lại: [Figma Prompt Library](../README.md)
 

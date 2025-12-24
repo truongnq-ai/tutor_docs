@@ -37,7 +37,9 @@
 [CONTEXT]
 - Project: Tutor - AI Math Tutor for Grade 6-7
 - Target User: Student 11-13 tuổi
-- Platform: Mobile App (iOS/Android)
+- Platform: Mobile App (Flutter - iOS/Android)
+- Framework: Flutter 3.16+ with Dart 3.2+
+- State Management: Riverpod (ConsumerWidget/ConsumerStatefulWidget)
 - Screen: Splash/Launch Screen
 
 [SCREEN PURPOSE]
@@ -45,52 +47,117 @@
 - Hiển thị logo và branding của Tutor
 - Kiểm tra trạng thái đăng nhập và điều hướng phù hợp
 - Thời gian hiển thị: 2-3 giây (hoặc cho đến khi app sẵn sàng)
+- User story: Entry point cho onboarding flow
 
 [DESIGN REQUIREMENTS]
-- Full screen background: Gradient từ #4CAF50 đến #2196F3 (hoặc solid color #4CAF50)
+- Full screen background: Gradient từ #4CAF50 đến #2196F3
+  - Flutter: BoxDecoration với LinearGradient
+  - begin: Alignment.topLeft, end: Alignment.bottomRight
+  - Colors: Color(0xFF4CAF50) và Color(0xFF2196F3)
 - Logo/Icon: Logo Tutor ở giữa màn hình
-  - Size: 120x120px (hoặc tương đương)
-  - Animation: Fade in hoặc scale in nhẹ nhàng
+  - Size: 120x120px (hoặc scale theo screen)
+  - Flutter: Container(width: 120, height: 120) với BoxDecoration
+  - Asset: Image.asset('assets/images/logo.png') hoặc Icon widget
+  - Animation: Fade in + scale in nhẹ nhàng
 - App name: "Tutor" (optional, dưới logo)
   - Typography: 32px Bold, màu trắng
+  - Flutter: Text widget với TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
 - Loading indicator (optional): Circular progress ở dưới cùng
-  - Màu trắng, size nhỏ
+  - Flutter: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+  - Size: 24x24px, màu trắng
 - Version info (optional): "Version 1.0.0" ở góc dưới
   - Typography: 12px Regular, màu trắng với opacity 70%
+  - Flutter: Text với TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.7))
 
 [VISUAL GUIDELINES]
-- Background: Solid color hoặc gradient, không có pattern phức tạp
+- Background: LinearGradient, không có pattern phức tạp
 - Logo: Centered, có animation nhẹ khi xuất hiện
-- Typography: White text, high contrast
-- Spacing: Logo cách top 40%, app name cách logo 24px
+- Typography: White text, high contrast (≥ 4.5:1)
+- Spacing: Logo cách top 40%, app name cách logo 24px (L spacing)
+  - Flutter: Column với MainAxisAlignment.center, SizedBox(height: 24) giữa logo và text
 - Animation duration: 300-500ms cho fade in
+  - Flutter: AnimationController(duration: Duration(milliseconds: 400))
 
 [SPECIFICATIONS]
 - Screen size: 375x812px (iPhone X) - Full screen
 - Logo size: 120x120px (hoặc scale theo screen)
 - Safe area: Không cần safe area cho splash (full screen)
+  - Flutter: Scaffold không có SafeArea, hoặc SafeArea nếu cần
 - Animation: Fade in 300ms, scale in 400ms (optional)
+  - Flutter: 
+    - AnimationController với SingleTickerProviderStateMixin
+    - Tween<double>(begin: 0.0, end: 1.0) cho opacity
+    - Tween<double>(begin: 0.8, end: 1.0) cho scale
+    - CurvedAnimation với Curves.easeOut
+
+[FLUTTER IMPLEMENTATION DETAILS]
+- Widget Type: ConsumerStatefulWidget (cần AnimationController)
+- Structure:
+  Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4CAF50), Color(0xFF2196F3)],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo with AnimatedBuilder
+                // App name
+                // Loading indicator
+              ],
+            ),
+          ),
+          // Version info at bottom
+        ],
+      ),
+    ),
+  )
+- Animation:
+  - Sử dụng AnimationController trong initState
+  - AnimatedBuilder để rebuild khi animation thay đổi
+  - Transform.scale và Opacity cho logo animation
+- Colors:
+  - Primary: Color(0xFF4CAF50)
+  - Secondary: Color(0xFF2196F3)
+  - White: Colors.white
+- Assets:
+  - Logo: assets/images/logo.png (120x120px)
+  - Nếu không có asset, dùng Icon(Icons.calculate, size: 72, color: Color(0xFF4CAF50))
+- File Location: lib/src/presentation/features/splash/view/splash_page.dart
+- Theme: Sử dụng context.color, context.textStyle, context.spacing nếu available
 
 [CONTENT EXAMPLES]
-- Logo: Tutor logo/icon
-- App name: "Tutor" (optional)
-- Version: "v1.0.0" (optional, bottom corner)
-- Loading: Circular spinner (optional)
+- Logo: Tutor logo/icon (asset hoặc icon)
+- App name: "Tutor"
+- Version: "v1.0.0"
+- Loading: CircularProgressIndicator
 
 [ACCESSIBILITY]
-- Logo image: Có semanticLabel "Tutor logo"
-- Loading indicator: Có semanticLabel "Đang tải ứng dụng"
+- Logo image: Semantics(label: "Tutor logo", child: Image.asset(...))
+- Loading indicator: Semantics(label: "Đang tải ứng dụng", child: CircularProgressIndicator(...))
 - Contrast: White text trên gradient background đảm bảo ≥ 4.5:1
 - Touch targets: Không có interactive elements (splash screen)
 
 [STATES]
 - Default: Logo fade in, hiển thị 2-3 giây
+  - Flutter: Timer(Duration(seconds: 2), () => navigateToNext())
 - Loading: Có thể hiển thị progress indicator nếu cần check network/auth
 - Error: Nếu có lỗi network, vẫn chuyển sang màn hình tiếp theo sau timeout (sau 3 giây)
+  - Flutter: Timer(Duration(seconds: 3), () => navigateToNext()) với try-catch
+  - Error handling: Graceful fallback, không hiển thị error message cho user
 
 [NAVIGATION]
 - Entry: Từ app launch
 - Exit: Tự động chuyển đến Welcome screen hoặc Home (nếu đã đăng nhập) sau 2-3 giây
+  - Flutter: Timer hoặc Future.delayed trong initState
+  - Navigation: context.go(Routes.welcome) hoặc context.go(Routes.home)
 - Deep link: Không áp dụng (entry point)
 ```
 
@@ -1016,10 +1083,42 @@
 
 ## NOTES
 
+### General Requirements (Áp dụng cho tất cả screens trong file này)
 - Tất cả màn hình onboarding phải có loading state
 - Tất cả buttons phải có disabled state
 - Error states: Hiển thị message rõ ràng, không technical
 - Success states: Confirmation message, next action rõ ràng
+
+### Code Generation Requirements
+**Xem [Design Standards Template](design_standards_template.md#8-code-generation-standards) cho requirements chung về Flutter/Dart code generation.**
+
+**Requirements cụ thể cho Onboarding screens:**
+- Tất cả onboarding screens sử dụng `ConsumerWidget` hoặc `ConsumerStatefulWidget` (Riverpod)
+- Navigation: Sử dụng go_router, `context.go()` hoặc `context.push()`
+- File location: `lib/src/presentation/features/onboarding/view/{screen_name}_page.dart`
+- Theme: Sử dụng `context.color`, `context.textStyle`, `context.spacing` từ theme extensions
+- Animation: Sử dụng `AnimationController` với `SingleTickerProviderStateMixin` cho transitions
+- Colors: Sử dụng `Color(0xFF4CAF50)` format, không dùng hex string
+- Spacing: Sử dụng `SizedBox(height: 24)` hoặc `Padding(padding: EdgeInsets.all(16))`
+- Typography: Sử dụng `TextStyle(fontSize: 24, fontWeight: FontWeight.bold)`
+- Assets: Sử dụng `assets/images/...` hoặc `assets/icons/...` (không hardcode paths)
+- Dispose: Proper dispose() cho controllers, timers, streams
+
+### Error Handling Requirements
+**Xem [Design Standards Template](design_standards_template.md#9-error-handling-standards) cho requirements chung về error handling.**
+
+**Requirements cụ thể cho Onboarding screens:**
+- Network timeout: Tất cả network calls phải có timeout fallback (ví dụ: 3 giây cho splash screen)
+  - Splash screen: Nếu network error, vẫn chuyển sang màn hình tiếp theo sau timeout (3 giây)
+  - OTP verification: Timeout 10 giây, cung cấp retry option
+- Error messages: Hiển thị message user-friendly, không technical jargon
+  - Good: "Không thể kết nối. Vui lòng kiểm tra internet và thử lại."
+  - Bad: "NetworkError: Connection timeout"
+- Retry mechanism: Cung cấp nút "Thử lại" cho các operations quan trọng (OTP, linking)
+- Offline handling: Graceful degradation khi không có network
+  - Splash screen: Vẫn chuyển sang màn hình tiếp theo sau timeout
+  - OTP screen: Hiển thị error message và retry button
+- Error logging: Log error type và context (không log sensitive data như OTP)
 
 ---
 

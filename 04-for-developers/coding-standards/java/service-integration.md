@@ -1,6 +1,137 @@
 # Tích hợp dịch vụ, HTTP Client, Cache/Redis
 [← Quay lại Overview](README.md)
 
+## Service-to-Service Communication
+
+### Nguyên tắc
+
+- **Internal APIs**: Tất cả giao tiếp giữa các microservices (Core ↔ AI Service) phải sử dụng **Internal API endpoints** với **API Key authentication**.
+- **Không dùng Admin APIs**: Không được gọi trực tiếp các admin endpoints (`/api/v1/admin/**`) từ service khác vì chúng yêu cầu JWT token với role ADMIN.
+- **API Key Authentication**: Sử dụng header `X-API-Key` với giá trị từ config `ai-service.api-key` (Core → AI) hoặc `core-service.api-key` (AI → Core).
+
+### Internal API Endpoints
+
+Internal endpoints được định nghĩa trong package `com.tutor.core.controller.internal` với pattern:
+- Base path: `/api/v1/internal/{resource}`
+- Authentication: API Key (X-API-Key header)
+- Security: Role `INTERNAL_SERVICE` (được set bởi `ApiKeyAuthenticationFilter`)
+
+#### Ví dụ Internal Controllers
+
+```java
+@RestController
+@RequestMapping("/api/v1/internal/skills")
+@PreAuthorize("hasRole('INTERNAL_SERVICE')")
+public class InternalSkillController {
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseObject<SkillResponse>> getSkillById(@PathVariable UUID id) {
+        // Implementation
+    }
+}
+```
+
+#### Security Configuration
+
+Internal endpoints được bảo vệ bởi `ApiKeyAuthenticationFilter` và SecurityFilterChain với `@Order(0)`:
+
+```java
+@Bean
+@Order(0)  // Highest priority
+public SecurityFilterChain internalServiceFilterChain(HttpSecurity http) {
+    http
+        .securityMatcher("/api/v1/internal/**")
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/v1/internal/**").hasRole("INTERNAL_SERVICE")
+        )
+        .addFilterBefore(apiKeyAuthenticationFilter, BearerTokenAuthenticationFilter.class);
+    return http.build();
+}
+```
+
+### AI Service → Core Service
+
+Khi AI Service cần gọi Core Service:
+
+1. **Sử dụng Internal Endpoints**: Chỉ gọi `/api/v1/internal/**` endpoints
+2. **API Key Header**: Gửi `X-API-Key` header với giá trị từ `settings.core_service_api_key`
+3. **Không dùng JWT**: Không cần và không được dùng JWT token
+
+#### Ví dụ Python (AI Service)
+
+```python
+async def _fetch_skill_metadata(self, skill_id: str) -> dict[str, Any]:
+    """Fetch skill metadata from Core Service using internal API."""
+    url = f"{self.core_service_url}/api/v1/internal/skills/{skill_id}"
+    
+    headers = {
+        "X-API-Key": self.core_service_api_key,  # API key, NOT JWT token
+        "Content-Type": "application/json",
+    }
+    
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.get(url, headers=headers)
+        response.raise_for_status()
+        # Process response
+```
+
+### Core Service → AI Service
+
+Khi Core Service gọi AI Service:
+
+1. **Sử dụng Internal Endpoints**: Gọi `/internal/ai/**` endpoints
+2. **API Key Header**: Gửi `X-API-Key` header với giá trị từ `ai-service.api-key`
+3. **WebClient Configuration**: Sử dụng `WebClient` được cấu hình trong `WebClientConfig`
+
+#### Ví dụ Java (Core Service)
+
+```java
+@Service
+public class AIServiceClient {
+    
+    private final WebClient aiServiceWebClient;
+    
+    @Value("${ai-service.api-key}")
+    private String aiServiceApiKey;
+    
+    public GenerateExercisesResponse generateExercises(GenerateExercisesRequest request) {
+        return aiServiceWebClient.post()
+            .uri("/internal/ai/generate-exercises")
+            .header("X-API-Key", aiServiceApiKey)  // API key, NOT JWT token
+            .bodyValue(request)
+            .retrieve()
+            .bodyToMono(GenerateExercisesResponse.class)
+            .block();
+    }
+}
+```
+
+### Available Internal Endpoints
+
+#### Skills
+- `GET /api/v1/internal/skills/{id}` - Get skill by ID
+
+#### Prompt Templates
+- `GET /api/v1/internal/prompt-templates/active` - Get all active templates
+- `GET /api/v1/internal/prompt-templates/by-name/{name}` - Get template by name
+- `GET /api/v1/internal/prompt-templates/{id}` - Get template by ID
+
+### Best Practices
+
+1. **Luôn dùng Internal Endpoints**: Khi cần data từ service khác, tạo internal endpoint thay vì expose admin endpoint
+2. **API Key Security**: 
+   - API key phải được lưu trong config file (không hardcode)
+   - Sử dụng environment variables cho production
+   - Rotate API keys định kỳ
+3. **Error Handling**: 
+   - Parse error response body để có error message chi tiết
+   - Map HTTP status codes sang error codes nội bộ
+   - Log đầy đủ context (request_id, endpoint, status_code)
+4. **Logging**: 
+   - Log request/response ở mức INFO cho internal calls
+   - Không log API key trong logs
+   - Include request_id trong mọi log
+
 ## HTTP Client cho AI Service
 
 - Sử dụng Spring WebFlux `WebClient` cho HTTP client tới AI Service.
