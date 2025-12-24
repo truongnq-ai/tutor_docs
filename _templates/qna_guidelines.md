@@ -6,7 +6,21 @@ Tài liệu này mô tả:
 
 ## 1. Quy ước hỏi – đáp nhanh
 - Khi cần xác nhận, đưa sẵn lựa chọn và yêu cầu trả lời theo định dạng: `Trả lời: A` (hoặc B/C/…).
-- Ví dụ:
+
+### Quy trình khi đặt câu hỏi:
+1. **Phân tích vấn đề**: Phân tích vấn đề liên quan đến câu hỏi, bối cảnh và các yếu tố ảnh hưởng.
+2. **Phân tích từng lựa chọn**: Phân tích chi tiết từng câu trả lời (A/B/C…) được đưa ra.
+3. **Tóm tắt**: Tóm tắt nội dung vào câu hỏi để làm rõ vấn đề cần quyết định.
+4. **Đưa ra khuyến nghị**: 
+   - Đưa ra khuyến nghị cụ thể để dễ lựa chọn.
+   - **Lưu ý về mode**: 
+     - Nếu ở mode **Plan**: Chỉ cần đưa ra khuyến nghị.
+     - Nếu ở mode **Agent/Ask** (không phải Plan): Khi đưa ra khuyến nghị, cần kèm theo **lập luận giải thích** rõ ràng vì sao đưa ra khuyến nghị đó (phân tích ưu tiên, rủi ro, tác động, v.v.).
+
+### Yêu cầu cho các câu trả lời:
+- Mỗi lựa chọn (A/B/C…) cần có phần **so sánh ưu nhược điểm** để hỗ trợ việc đánh giá và quyết định.
+
+### Ví dụ:
   - Kiến trúc triển khai:  
     - A: K8s/Ingress  
     - B: 1–2 VM + Docker Compose + Nginx reverse proxy  
