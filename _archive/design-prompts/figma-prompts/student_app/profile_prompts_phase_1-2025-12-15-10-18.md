@@ -9,6 +9,27 @@
 
 ---
 
+## DESIGN STANDARDS REFERENCE
+
+**Xem [Design Standards Template](design_standards_template.md) cho checklist và quick reference về:**
+- Accessibility checklist (touch targets, contrast, screen reader, etc.)
+- Color & Typography quick reference
+- Interaction patterns (button states, feedback, animations)
+- Component specs (buttons, cards, inputs, progress indicators)
+- Navigation patterns (bottom nav, AppBar, deep linking)
+- Spacing scale
+- Microcopy guidelines
+
+**Tài liệu chi tiết:**
+- [Design Principles](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/design-principles.md)
+- [Color & Typography](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/color-typography.md)
+- [Components](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/components.md)
+- [Interaction Patterns](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/interaction-patterns.md)
+- [Navigation & Flow](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/navigation-flow.md)
+- [Accessibility](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/accessibility.md)
+
+---
+
 ## SCREEN 1: PROFILE OVERVIEW
 
 ### Prompt:
@@ -64,13 +85,45 @@
 - Menu item: Height 56px
 - Button spacing: 12px
 
+[ACCESSIBILITY]
+- Menu items: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Menu items: Có semantic labels từ text content
+- Settings icon: Touch target ≥ 44x44px, có semantic label "Cài đặt"
+- Stats cards: Có semantic labels cho mỗi stat
+- Avatar: Có semanticLabel "Ảnh đại diện của [tên]"
+- Logout button: Có semantic label "Đăng xuất"
+
+[STATES]
+- Default: Hiển thị profile info và menu
+- Loading: Skeleton cards khi đang fetch profile data
+- Menu item tap: Navigate đến screen tương ứng
+- Logout confirmation: Hiển thị dialog "Bạn có chắc muốn đăng xuất?" khi click logout
+- Button pressed: Scale down 0.95, duration 100-200ms
+
+[NAVIGATION]
+- Entry: Từ Bottom navigation (Profile tab) hoặc từ Settings
+- Exit:
+  - Menu "Chỉnh sửa hồ sơ" → Edit Profile screen
+  - Menu "Cài đặt" → Settings screen
+  - Menu "Đổi mật khẩu" → Change Password screen
+  - Menu "Trạng thái dùng thử" → Trial Status screen (nếu trial)
+  - Settings icon → Settings screen
+  - Logout → Auth Entry screen (sau confirmation)
+  - Bottom nav: Home, Practice, Tutor, Progress
+- Back button: Không có (main screen trong Profile tab)
+- Deep link: `/profile` hoặc `/profile/overview`
+
 [CONTENT EXAMPLES]
+- Header: "Hồ sơ của tôi"
 - Name: "Nguyễn Văn A"
 - Username: "@student123"
 - Grade: "Lớp 6"
-- Stats: "🔥 5 ngày | 142 bài | 65%"
-- Menu: "✏️ Chỉnh sửa hồ sơ | ⚙️ Cài đặt | 🔒 Đổi mật khẩu"
-- Logout: "Đăng xuất"
+- Status: "Đang học" (màu xanh) hoặc "Dùng thử" (màu cam)
+- Stats: "🔥 5 ngày liên tiếp | 142 bài đã làm | Mastery 65%"
+- Menu: "✏️ Chỉnh sửa hồ sơ | ⚙️ Cài đặt | 🔒 Đổi mật khẩu | ℹ️ Giới thiệu & Trợ giúp | 📊 Trạng thái dùng thử"
+- Account info: "Tài khoản: student123 | Email: student@example.com | Liên kết với: Phụ huynh"
+- Logout: "Đăng xuất" (màu đỏ #F44336)
+- Logout confirmation: "Bạn có chắc muốn đăng xuất?"
 ```
 
 ---
@@ -125,13 +178,50 @@
 - Button height: 56px (fixed bottom)
 - Card padding: 24px
 
+[ACCESSIBILITY]
+- Input fields: Touch target ≥ 44x44px (height 48px đã đạt yêu cầu)
+- Input fields: Có labels và helper text
+- Avatar button: Touch target ≥ 44x44px
+- Avatar: Có semanticLabel "Ảnh đại diện hiện tại"
+- Read-only fields: Có semantic label "Không thể thay đổi"
+- Save button: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+
+[STATES]
+- Default: Hiển thị form với current values
+- Input focused: Border 2px #4CAF50
+- Input error: Border #F44336, error message "Tên không được để trống"
+- Avatar upload: Hiển thị preview sau khi chọn ảnh, có crop functionality
+- Button enabled: Khi có thay đổi
+- Button disabled: Khi chưa có thay đổi, grey (#BDBDBD)
+- Button loading: Hiển thị spinner khi đang lưu
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Success: Toast message "Đã lưu thay đổi!" và navigate back sau 1 giây
+
+[NAVIGATION]
+- Entry: Từ Profile Overview screen (khi click "Chỉnh sửa hồ sơ")
+- Exit:
+  - Button "Lưu thay đổi" → Profile Overview screen (sau khi save thành công)
+  - Button "Hủy" → Profile Overview screen (có thể có confirmation nếu có thay đổi)
+  - Back button → Profile Overview screen (có thể có confirmation nếu có thay đổi)
+- Deep link: Không áp dụng
+
 [CONTENT EXAMPLES]
 - Header: "Chỉnh sửa hồ sơ"
 - Avatar button: "Đổi ảnh đại diện"
-- Name field: "Nguyễn Văn A"
-- Username: "student123 (Không thể thay đổi)"
-- Grade: "Lớp 6 (Liên hệ admin để thay đổi)"
-- Button: "Lưu thay đổi"
+- Avatar options: "Chụp ảnh | Chọn từ thư viện | Xóa ảnh"
+- Name label: "Họ và tên"
+- Name placeholder: "Nhập họ và tên"
+- Name value: "Nguyễn Văn A"
+- Username label: "Tên đăng nhập"
+- Username value: "student123"
+- Username helper: "Không thể thay đổi"
+- Grade label: "Lớp học"
+- Grade value: "Lớp 6"
+- Grade helper: "Liên hệ admin để thay đổi"
+- Button: "Lưu thay đổi" (disabled khi chưa có thay đổi)
+- Button cancel: "Hủy"
+- Success toast: "Đã lưu thay đổi!"
+- Error: "Tên không được để trống"
 ```
 
 ---
@@ -191,13 +281,41 @@
 - Toggle switch: Standard Material size
 - Section spacing: 16px
 
+[ACCESSIBILITY]
+- Menu items: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Toggle switches: Touch target ≥ 44x44px, có semantic labels "Bật" hoặc "Tắt"
+- Menu items: Có semantic labels từ text content
+- Links: Có semantic labels cho mỗi link
+
+[STATES]
+- Default: Hiển thị settings với current values
+- Toggle switch ON: Primary color (#4CAF50)
+- Toggle switch OFF: Grey (#BDBDBD)
+- Toggle switch tap: Immediate feedback, update state
+- Menu item tap: Navigate đến screen tương ứng
+- Logout confirmation: Hiển thị dialog "Bạn có chắc muốn đăng xuất?" khi click logout
+- Cache clear: Hiển thị confirmation dialog "Bạn có chắc muốn xóa cache?" và success toast "Đã xóa cache"
+
+[NAVIGATION]
+- Entry: Từ Profile Overview screen (khi click "Cài đặt" hoặc Settings icon)
+- Exit:
+  - Menu "Đổi mật khẩu" → Change Password screen
+  - Menu "Trạng thái dùng thử" → Trial Status screen (nếu trial)
+  - Menu "Đăng xuất" → Auth Entry screen (sau confirmation)
+  - Links "Về Tutor", "Điều khoản", "Chính sách", "Liên hệ" → (có thể là webview hoặc external links)
+  - Back button → Profile Overview screen
+- Deep link: `/profile/settings`
+
 [CONTENT EXAMPLES]
-- Section: "Thông báo"
-- Items: "🔔 Thông báo đẩy [ON] | 📧 Nhắc nhở học tập [ON]"
-- Section: "Học tập"
-- Items: "📊 Hiển thị thống kê [ON] | 🎮 Chế độ luyện tập: Tự động"
-- Section: "Tài khoản"
-- Items: "🔒 Đổi mật khẩu → | 🚪 Đăng xuất"
+- Header: "Cài đặt"
+- Section "Thông báo": "🔔 Thông báo đẩy [ON] | 📧 Nhắc nhở học tập [ON] | 🎯 Thông báo tiến độ [ON]"
+- Section "Học tập": "📊 Hiển thị thống kê chi tiết [ON] | 🎮 Chế độ luyện tập: Tự động"
+- Section "Ứng dụng": "🌐 Ngôn ngữ: Tiếng Việt | 📱 Phiên bản: 1.0.0 | 💾 Dung lượng cache: 25 MB [Xóa cache]"
+- Section "Tài khoản": "🔒 Đổi mật khẩu → | 📊 Trạng thái dùng thử → | 🚪 Đăng xuất"
+- Info section: "Về Tutor | Điều khoản sử dụng | Chính sách bảo mật | Liên hệ hỗ trợ"
+- Logout confirmation: "Bạn có chắc muốn đăng xuất?"
+- Cache clear confirmation: "Bạn có chắc muốn xóa cache?"
+- Cache clear success: "Đã xóa cache thành công!"
 ```
 
 ---
@@ -261,13 +379,50 @@
 - Card padding: 24px
 - Field spacing: 16px
 
+[ACCESSIBILITY]
+- Input fields: Touch target ≥ 44x44px (height 48px đã đạt yêu cầu)
+- Input fields: Có labels và helper text
+- Password fields: Có show/hide toggle với semantic label
+- Password strength indicator: Có semantic label "Độ mạnh mật khẩu: Yếu/Trung bình/Mạnh"
+- Button: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Error messages: Hiển thị dưới field, có icon error
+
+[STATES]
+- Default: Tất cả fields trống, button disabled
+- Input focused: Border 2px #4CAF50
+- Input error: Border #F44336, error message dưới field
+  - Current password: "Mật khẩu hiện tại không đúng"
+  - New password: "Mật khẩu quá yếu" hoặc "Mật khẩu phải có ít nhất 8 ký tự"
+  - Confirm password: "Mật khẩu không khớp"
+- Password strength: Color-coded indicator (red/orange/green)
+- Button enabled: Khi tất cả fields hợp lệ
+- Button disabled: Grey (#BDBDBD), không clickable khi chưa điền đủ hoặc invalid
+- Button loading: Hiển thị spinner khi đang đổi mật khẩu
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Success: Toast message "✅ Đã đổi mật khẩu thành công!" và auto navigate back sau 2 giây
+
+[NAVIGATION]
+- Entry: Từ Profile Overview hoặc Settings screen (khi click "Đổi mật khẩu")
+- Exit:
+  - Button "Đổi mật khẩu" → Profile Overview screen (sau khi save thành công, auto sau 2 giây)
+  - Back button → Profile Overview hoặc Settings screen
+- Deep link: Không áp dụng
+
 [CONTENT EXAMPLES]
 - Header: "Đổi mật khẩu"
-- Current password: "Nhập mật khẩu hiện tại"
-- New password: "Tối thiểu 8 ký tự"
-- Confirm: "Nhập lại mật khẩu mới"
-- Requirements: "✓ Tối thiểu 8 ký tự | ✓ Có chữ và số"
-- Button: "Đổi mật khẩu"
+- Current password label: "Mật khẩu hiện tại"
+- Current password placeholder: "Nhập mật khẩu hiện tại"
+- New password label: "Mật khẩu mới"
+- New password placeholder: "Tối thiểu 8 ký tự"
+- Confirm password label: "Xác nhận mật khẩu mới"
+- Confirm password placeholder: "Nhập lại mật khẩu mới"
+- Requirements: "Mật khẩu phải có: ✓ Tối thiểu 8 ký tự | ✓ Có chữ và số"
+- Password strength: "Yếu" (đỏ) / "Trung bình" (cam) / "Mạnh" (xanh)
+- Button: "Đổi mật khẩu" (disabled khi chưa điền đủ hoặc invalid)
+- Error current: "Mật khẩu hiện tại không đúng"
+- Error new: "Mật khẩu quá yếu. Vui lòng sử dụng mật khẩu mạnh hơn."
+- Error confirm: "Mật khẩu không khớp"
+- Success: "✅ Đã đổi mật khẩu thành công!"
 ```
 
 ---
@@ -333,14 +488,45 @@
 - Section spacing: 16px
 - Link height: 48px
 
+[ACCESSIBILITY]
+- Menu items: Touch target ≥ 44x44px (height 48px đã đạt yêu cầu)
+- Menu items: Có semantic labels từ text content
+- Links: Có semantic labels cho mỗi link
+- Logo: Có semanticLabel "Tutor logo"
+- Expandable FAQ items: Có semantic labels cho expanded/collapsed state
+
+[STATES]
+- Default: Hiển thị about info và help sections
+- FAQ expanded: Hiển thị answer, arrow indicator rotate
+- FAQ collapsed: Ẩn answer, arrow indicator normal
+- Link tap: Navigate đến webview hoặc external link
+- Button pressed: Scale down 0.95, duration 100-200ms
+
+[NAVIGATION]
+- Entry: Từ Profile Overview screen (khi click "Giới thiệu & Trợ giúp")
+- Exit:
+  - Links "Điều khoản sử dụng", "Chính sách bảo mật", "Giấy phép" → Webview hoặc external browser
+  - Links "Hướng dẫn sử dụng", "Video hướng dẫn" → (có thể là webview hoặc external links)
+  - Contact links → Email client hoặc chat app
+  - Back button → Profile Overview screen
+- Deep link: `/profile/about` hoặc `/profile/help`
+
 [CONTENT EXAMPLES]
-- Logo: Tutor logo
+- Header: "Giới thiệu & Trợ giúp"
+- Logo: Tutor logo (80x80px)
 - App name: "Tutor"
 - Tagline: "Gia sư Toán AI cá nhân hoá"
-- Version: "v1.0.0"
-- FAQ: "❓ Câu hỏi thường gặp"
-- Contact: "📧 support@tutor.app"
-- Legal: "📄 Điều khoản sử dụng | 🔒 Chính sách bảo mật"
+- Version: "Phiên bản 1.0.0"
+- Description: "Tutor là ứng dụng học Toán thông minh, giúp bạn học tập hiệu quả với AI gia sư cá nhân hoá."
+- FAQ: "❓ Câu hỏi thường gặp" (expandable)
+  - "Làm thế nào để giải bài Toán?" (expandable)
+  - "Làm sao để luyện tập hiệu quả?" (expandable)
+  - "Tôi quên mật khẩu thì sao?" (expandable)
+- Help: "📖 Hướng dẫn sử dụng → | 🎥 Video hướng dẫn →"
+- Contact: "📧 Email hỗ trợ: support@tutor.app | 💬 Chat hỗ trợ | 📞 Hotline: 1900-xxxx"
+- Legal: "📄 Điều khoản sử dụng → | 🔒 Chính sách bảo mật → | ℹ️ Giấy phép →"
+- Social: "Facebook | YouTube | Website" (optional)
+- Footer: "© 2025 Tutor. All rights reserved."
 ```
 
 ---

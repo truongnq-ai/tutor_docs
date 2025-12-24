@@ -9,6 +9,27 @@
 
 ---
 
+## DESIGN STANDARDS REFERENCE
+
+**Xem [Design Standards Template](design_standards_template.md) cho checklist và quick reference về:**
+- Accessibility checklist (touch targets, contrast, screen reader, etc.)
+- Color & Typography quick reference
+- Interaction patterns (button states, feedback, animations)
+- Component specs (buttons, cards, inputs, progress indicators)
+- Navigation patterns (bottom nav, AppBar, deep linking)
+- Spacing scale
+- Microcopy guidelines
+
+**Tài liệu chi tiết:**
+- [Design Principles](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/design-principles.md)
+- [Color & Typography](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/color-typography.md)
+- [Components](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/components.md)
+- [Interaction Patterns](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/interaction-patterns.md)
+- [Navigation & Flow](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/navigation-flow.md)
+- [Accessibility](../../../../04-for-developers/coding-standards/flutter/ui-design-standards/accessibility.md)
+
+---
+
 ## SCREEN 1: TODAY'S LEARNING PLAN
 
 ### Prompt:
@@ -51,6 +72,28 @@
 - Progress bar height: 8px
 - Button height: 48px
 
+[ACCESSIBILITY]
+- Button "Bắt đầu học": Touch target ≥ 44x44px (height 48px đã đạt yêu cầu)
+- Main card: Có semantic label "Lộ trình học hôm nay: Rút gọn phân số"
+- Progress indicator: Có semantic label "Tiến độ: 45% hoàn thành"
+- Streak badge: Có semantic label "5 ngày học liên tiếp"
+- Bottom navigation: Active tab có semantic label "Trang chủ, tab hiện tại"
+
+[STATES]
+- Default: Hiển thị lộ trình hôm nay
+- Loading: Skeleton screen khi đang fetch learning plan
+- Empty: "Chưa có lộ trình hôm nay. Hãy bắt đầu học!" với button "Bắt đầu học"
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Button loading: Hiển thị spinner khi đang khởi tạo session
+
+[NAVIGATION]
+- Entry: Từ app launch (nếu đã đăng nhập) hoặc sau onboarding
+- Exit:
+  - Button "Bắt đầu học" → Practice Question screen (bắt đầu session)
+  - Bottom nav: Practice, Tutor, Progress, Profile
+- Back button: Không có (main screen)
+- Deep link: `/home` hoặc `/`
+
 [CONTENT EXAMPLES]
 - Header: "Lộ trình hôm nay - 15/12/2025"
 - Skill: "Rút gọn phân số"
@@ -58,6 +101,8 @@
 - Questions: "8 bài tập"
 - Time: "~20 phút"
 - Streak: "🔥 5 ngày liên tiếp"
+- Button: "Bắt đầu học"
+- Empty state: "Chưa có lộ trình hôm nay. Hãy bắt đầu học!"
 ```
 
 ---
@@ -110,16 +155,46 @@
 - Button: Fixed bottom, height 56px
 - Progress bar: Height 4px, margin top 8px
 
+[ACCESSIBILITY]
+- Answer options: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Answer options: Có semantic labels "Đáp án A: 2/3", "Đáp án B: 3/4", etc.
+- Selected option: Kết hợp màu xanh với border để hỗ trợ color blind users
+- Button: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Hint button: Touch target ≥ 44x44px
+- Progress indicator: Có semantic label "Câu 3 trong tổng số 8 câu"
+- Difficulty badge: Có semantic label "Độ khó: Trung bình"
+
+[STATES]
+- Default: Question hiển thị, chưa chọn đáp án, button "Kiểm tra" disabled
+- Option selected: Border 2px #4CAF50, background #E8F5E9
+- Option unselected: Border 1px #E0E0E0, background #FFFFFF
+- Button enabled: Khi đã chọn/điền đáp án
+- Button disabled: Grey (#BDBDBD), không clickable
+- Button loading: Hiển thị spinner khi đang submit answer
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Hint visible: Khi sai ≥2 lần liên tiếp, hiển thị hint button
+- Loading: Skeleton khi đang fetch question
+
+[NAVIGATION]
+- Entry: Từ Today's Learning Plan (khi click "Bắt đầu học") hoặc Skill Selection
+- Exit:
+  - Button "Kiểm tra" → Practice Result screen
+  - Back button → Today's Learning Plan hoặc Skill Selection
+- Deep link: `/practice/question/{sessionId}/{questionId}`
+
 [CONTENT EXAMPLES]
 - Progress: "Câu 3/8"
 - Progress bar: "3/8 bài đã làm"
-- Difficulty: "Độ khó: Trung bình"
+- Difficulty: "Độ khó: Trung bình" (màu cam #FF9800)
 - Question: "Rút gọn phân số: 12/18"
 - Option A: "2/3"
 - Option B: "3/4"
 - Option C: "4/5"
 - Option D: "6/9"
-- Button: "Kiểm tra"
+- Button: "Kiểm tra" (disabled khi chưa chọn)
+- Hint button: "💡 Gợi ý" (hiển thị khi sai ≥2 lần)
+- Skill indicator: "Skill: Rút gọn phân số"
+- Session info: "Tiến độ: 3/8 bài"
 ```
 
 ---
@@ -175,15 +250,43 @@
 - Secondary button: Height 48px, outlined style
 - Animation: Mastery progress bar có smooth animation 0.5s
 
+[ACCESSIBILITY]
+- Buttons: Touch target ≥ 44x44px (height 56px/48px đã đạt yêu cầu)
+- Result indicator: Có semantic label "Chính xác" hoặc "Chưa đúng"
+- Mastery progress: Có semantic label "Mastery tăng từ 45% lên 52%"
+- Adaptive notification: Có semantic label cho notification text
+- Success/Error state: Kết hợp icon với text để hỗ trợ color blind users
+
+[STATES]
+- Default: Hiển thị result sau khi submit answer
+- Success: Background #E8F5E9, icon ✅ màu #4CAF50, celebration animation
+- Error: Background #FFEBEE, icon ❌ màu #F44336, encouraging message
+- Mastery animation: Progress bar animate từ 45% → 52% trong 0.5s
+- Adaptive notification visible: Khi đúng ≥5 hoặc sai ≥2 liên tiếp
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Button loading: Không có (màn hình này chỉ hiển thị result)
+
+[NAVIGATION]
+- Entry: Từ Practice Question screen (sau khi click "Kiểm tra")
+- Exit:
+  - Button "Câu tiếp theo ▶" → Practice Question screen (câu tiếp theo) hoặc Practice Session Complete (nếu là câu cuối)
+  - Button "Tạm dừng" → Session Resume screen (lưu tiến độ)
+  - Button "Xem lại giải thích" → (có thể là modal hoặc screen khác)
+- Back button: Không có (hoặc disabled, vì đã submit answer)
+- Deep link: Không áp dụng
+
 [CONTENT EXAMPLES]
 - Success: "✅ Chính xác!" + "Tuyệt vời!"
+- Error: "❌ Chưa đúng" + "Không sao, bạn đã học được điều gì đó!"
 - Answer: "Đáp án đúng: 2/3"
 - Explanation: "12/18 = (12:6)/(18:6) = 2/3"
-- Mastery: "45% → 52% (+7%)"
-- Adaptive: "🎉 Độ khó sẽ tăng ở câu tiếp theo!" (khi đúng ≥5)
-- Adaptive: "💡 Độ khó sẽ giảm để bạn dễ hiểu hơn" (khi sai ≥2)
+- Mastery: "Mastery: 45% → 52% (+7%)"
+- Adaptive success: "🎉 Độ khó sẽ tăng ở câu tiếp theo!" (khi đúng ≥5)
+- Adaptive warning: "💡 Độ khó sẽ giảm để bạn dễ hiểu hơn" (khi sai ≥2)
+- Common mistake: "⚠️ Lưu ý: Không được rút gọn khi tử và mẫu không cùng chia hết cho một số"
 - Button primary: "Câu tiếp theo ▶"
 - Button secondary: "Tạm dừng"
+- Button tertiary: "Xem lại giải thích" (chỉ khi sai)
 ```
 
 ---
@@ -242,14 +345,42 @@
 - Mastery progress bar: Height 12px, full width
 - Button: Height 56px, rounded 12px
 
+[ACCESSIBILITY]
+- Buttons: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Stats cards: Có semantic labels cho mỗi stat
+- Mastery progress: Có semantic label "Mastery tăng từ 45% lên 58%"
+- Celebration animation: Respect reduced motion preference
+- Success/Error indicators: Kết hợp icon với text
+
+[STATES]
+- Default: Hiển thị celebration và stats
+- Celebration animation: Confetti hoặc icon 🎉 (có thể disable nếu reduced motion)
+- Mastery animation: Progress bar animate trong 0.5s
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Button loading: Không có (màn hình này chỉ hiển thị result)
+
+[NAVIGATION]
+- Entry: Từ Practice Result screen (khi click "Câu tiếp theo" ở câu cuối)
+- Exit:
+  - Button "Làm Mini Test" → Mini Test Start screen (nếu unlock)
+  - Button "Làm thêm bài" → Skill Selection hoặc Practice Question (session mới)
+  - Button "Về trang chủ" → Today's Learning Plan
+  - Button "Xem lại bài làm" → (có thể là modal hoặc screen review)
+- Back button: Không có (hoặc disabled, vì đã hoàn thành session)
+- Deep link: Không áp dụng
+
 [CONTENT EXAMPLES]
 - Title: "Hoàn thành session!"
-- Stats: "8/8 câu | Đúng: 6 | Sai: 2 | Tỉ lệ: 75%"
-- Mastery: "45% → 58% (+13%)"
+- Stats: "8/8 câu đã làm | Đúng: 6 câu | Sai: 2 câu | Tỉ lệ: 75%"
+- Mastery: "Mastery tăng: 45% → 58% (+13%)"
 - Encouragement: "Bạn đã cải thiện rất nhiều!"
-- Recommendation: "🎯 Sẵn sàng cho Mini Test!" (nếu mastery ≥ 70%)
-- Button primary: "Làm Mini Test"
+- Skill status: "Rút gọn phân số: Đang cải thiện"
+- Recommendation < 70%: "Làm thêm 5 bài để đạt 70%"
+- Recommendation ≥ 70%: "🎯 Sẵn sàng cho Mini Test!"
+- Recommendation đủ bài: "Bạn đã làm đủ bài! Hãy làm Mini Test để kiểm tra kiến thức"
+- Button primary: "Làm Mini Test" (nếu unlock) hoặc "Làm thêm bài"
 - Button secondary: "Về trang chủ"
+- Button tertiary: "Xem lại bài làm" (nếu có bài sai)
 ```
 
 ---
@@ -298,11 +429,38 @@
 - Card height: 100px minimum
 - Button: Fixed bottom, height 56px
 
+[ACCESSIBILITY]
+- Skill cards: Touch target ≥ 44x44px (height 100px đã đạt yêu cầu)
+- Skill cards: Có semantic labels với skill name, mastery, status
+- Mastery circles: Có semantic label "Mastery 45%" với color coding
+- Priority badge: Có semantic label "Ưu tiên cao"
+- Button: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Selected state: Kết hợp màu xanh với border để hỗ trợ color blind users
+
+[STATES]
+- Default: Hiển thị danh sách skill yếu, chưa chọn, button disabled
+- Card selected: Border 2px #4CAF50, background #E8F5E9
+- Card unselected: Border 1px #E0E0E0, background #FFFFFF
+- Button enabled: Khi đã chọn 1 skill
+- Button disabled: Grey (#BDBDBD), không clickable
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Button loading: Hiển thị spinner khi đang khởi tạo session
+- Empty state: "Không có skill yếu. Tuyệt vời!" với button "Về trang chủ"
+
+[NAVIGATION]
+- Entry: Từ Today's Learning Plan (khi có nhiều skill yếu) hoặc Progress Dashboard
+- Exit:
+  - Button "Bắt đầu học" → Practice Question screen (bắt đầu session với skill đã chọn)
+  - Back button → Today's Learning Plan hoặc Progress Dashboard
+- Deep link: `/practice/skill/{skillId}`
+
 [CONTENT EXAMPLES]
 - Header: "Chọn kỹ năng để luyện tập"
-- Skill 1: "Rút gọn phân số - 45% - Yếu - 8 bài - ~20 phút"
+- Description: "Bạn có thể chọn một trong các kỹ năng sau để cải thiện"
+- Skill 1: "Rút gọn phân số - 45% - Yếu - 8 bài - ~20 phút" (có priority badge ⭐)
 - Skill 2: "So sánh phân số - 52% - Chưa vững - 6 bài - ~15 phút"
-- Button: "Bắt đầu học"
+- Button: "Bắt đầu học" (disabled khi chưa chọn)
+- Empty state: "Không có skill yếu. Tuyệt vời!"
 ```
 ---
 
@@ -352,11 +510,37 @@
 - Card height: 100px minimum
 - Filter bar: Height 48px, sticky top
 
+[ACCESSIBILITY]
+- Session cards: Touch target ≥ 44x44px (height 100px đã đạt yêu cầu)
+- Session cards: Có semantic labels với date, skill name, stats
+- Filter buttons: Touch target ≥ 44x44px (height 48px đã đạt yêu cầu)
+- Result icons: Kết hợp icon với text để hỗ trợ color blind users
+- Empty state: Có semantic label "Chưa có bài luyện tập"
+
+[STATES]
+- Default: Hiển thị danh sách sessions
+- Loading: Skeleton cards khi đang fetch history
+- Filter selected: Active filter có background primary color
+- Filter unselected: Grey background
+- Card tap: Navigate đến session detail hoặc review
+- Pull to refresh: Loading indicator khi refresh
+- Load more: Loading indicator ở cuối list khi load thêm
+- Empty state: Icon + message + CTA button
+
+[NAVIGATION]
+- Entry: Từ Bottom navigation (Practice tab) hoặc từ Today's Learning Plan
+- Exit:
+  - Tap session card → (có thể là modal review hoặc screen detail)
+  - Back button → Today's Learning Plan hoặc Practice tab
+- Deep link: `/practice/history` hoặc `/practice/history/{sessionId}`
+
 [CONTENT EXAMPLES]
 - Header: "Lịch sử luyện tập"
-- Filter: "Tất cả | Hôm nay | Tuần này"
-- Session: "15/12/2025 - Rút gọn phân số - 8 bài | Đúng: 6 | 75% - 45% → 58% - 20 phút"
-- Empty: "Bạn chưa có bài luyện tập nào"
+- Filter: "Tất cả | Hôm nay | Tuần này | Theo skill"
+- Session: "15/12/2025 - Rút gọn phân số - 8 bài | Đúng: 6 | Sai: 2 | 75% - 45% → 58% - 20 phút"
+- Empty: "Bạn chưa có bài luyện tập nào" + "Hãy bắt đầu học để xem lịch sử ở đây" + Button "Bắt đầu học"
+- Loading: Skeleton cards
+- Error: "Không thể tải lịch sử. Vui lòng thử lại." + Button "Thử lại"
 ```
 ---
 
@@ -401,12 +585,39 @@
 - Card padding: 20px
 - Button spacing: 12px
 
+[ACCESSIBILITY]
+- Buttons: Touch target ≥ 44x44px (height 56px đã đạt yêu cầu)
+- Info card: Có semantic label "Session: Rút gọn phân số, đã làm 3/8 bài"
+- Progress bar: Có semantic label "Tiến độ: 3/8 bài"
+- Text button: Touch target ≥ 44x44px
+- Warning button: Kết hợp màu cam với text để hỗ trợ color blind users
+
+[STATES]
+- Default: Hiển thị session info
+- Button pressed: Scale down 0.95, duration 100-200ms
+- Button loading: Hiển thị spinner khi đang resume session
+- Warning visible: Khi click "Bắt đầu lại", hiển thị confirmation dialog
+
+[NAVIGATION]
+- Entry: Từ Today's Learning Plan (khi có session đang tạm dừng) hoặc từ Practice Result (khi click "Tạm dừng")
+- Exit:
+  - Button "Tiếp tục từ câu 4" → Practice Question screen (câu tiếp theo)
+  - Button "Bắt đầu lại từ đầu" → Confirmation dialog → Practice Question screen (câu 1)
+  - Text button "Bỏ session này" → Confirmation dialog → Today's Learning Plan
+- Back button: Có, quay lại Today's Learning Plan
+- Deep link: Không áp dụng
+
 [CONTENT EXAMPLES]
 - Header: "Tiếp tục luyện tập"
 - Skill: "Rút gọn phân số"
 - Progress: "Đã làm: 3/8 bài"
+- Started: "Bắt đầu: 15/12/2025 10:30"
+- Last activity: "Lần cuối: 15/12/2025 10:45"
 - Mastery: "Mastery hiện tại: 52%"
-- Button: "Tiếp tục từ câu 4"
+- Button primary: "Tiếp tục từ câu 4"
+- Button secondary: "Bắt đầu lại từ đầu" (có warning icon)
+- Text button: "Bỏ session này" (màu đỏ #F44336)
+- Confirmation dialog: "Bạn có chắc muốn bỏ session này? Tiến độ sẽ bị mất."
 ```
 ---
 
