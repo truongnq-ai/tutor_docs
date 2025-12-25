@@ -99,6 +99,7 @@
 - [ ] Không có warning nghiêm trọng
 - [ ] Đã xóa tất cả unused imports
 - [ ] Đã xóa unused code (nếu có)
+- [ ] **Không có hardcode text UI** - Tất cả text phải dùng i18n keys (xem [`i18n-standards.md`](i18n-standards.md))
 - [ ] Code vẫn hoạt động đúng (nếu có thể test)
 - [ ] File đã được format đúng chuẩn (`dart format`)
 

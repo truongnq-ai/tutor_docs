@@ -62,6 +62,7 @@ ResponseObject<?> {
 - [`state-management.md`](state-management.md) - State management với Riverpod
 - [`ui-design-standards/`](ui-design-standards/README.md) - UI Design Standards & Widget Implementation
 - [`code-quality.md`](code-quality.md) - Kiểm tra chất lượng code & làm sạch
+- [`i18n-standards.md`](i18n-standards.md) - Tiêu chuẩn đa ngôn ngữ (i18n)
 
 ## Phạm vi áp dụng
 

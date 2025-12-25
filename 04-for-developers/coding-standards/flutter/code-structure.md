@@ -40,6 +40,7 @@
 ## Nguyên tắc chung khi viết code
 
 - Không hardcode string/number lặp lại; đưa vào constants hoặc config.
+- **Không hardcode text UI**: Tất cả text hiển thị trên giao diện phải sử dụng i18n keys. Xem chi tiết tại [`i18n-standards.md`](i18n-standards.md).
 - Validate đầu vào bằng validators; ném custom exception với errorCode tương ứng.
 - Sử dụng Riverpod cho dependency injection và state management.
 - Sử dụng Retrofit + Dio cho API calls.
@@ -80,6 +81,7 @@
 - [State management với Riverpod](state-management.md)
 - [UI Design Standards](ui-design-standards/README.md)
 - [Kiểm tra chất lượng code](code-quality.md)
+- [Tiêu chuẩn đa ngôn ngữ (i18n)](i18n-standards.md)
 
 [← Quay lại Overview](README.md)
 
