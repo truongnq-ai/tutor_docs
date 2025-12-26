@@ -16,11 +16,11 @@
 
 **Mastery**: Mức độ thành thạo của học sinh với một skill (0-100)
 
-**Practice**: Phiên luyện tập của học sinh
+**Practice**: Record kết quả làm bài của học sinh cho một Question. Lưu student response (student_answer, is_correct, duration_sec, submitted_at), session info (session_id + session_type), và link với Question. Một Question có thể có nhiều Practice records (re-attempt logic).
 
-**Exercise**: Bài tập (có thể chứa nhiều questions)
+**Exercise**: Bài tập template được tạo bởi Admin hoặc AI Service. Sau khi được approve, Exercise có thể được dùng để generate Questions.
 
-**Question**: Câu hỏi cụ thể trong một exercise
+**Question**: Instance của Exercise được assign cho học sinh. Chứa nội dung câu hỏi (snapshot Exercise data tại thời điểm assign), status (DRAFT, ASSIGNED, SUBMITTED, RESUBMITTED, SKIPPED), nhưng KHÔNG lưu response data (đã chuyển sang Practice table) và KHÔNG có session_id (được quản lý qua Practice records).
 
 **Adaptive Learning**: Học tập thích ứng - hệ thống tự động điều chỉnh độ khó và nội dung theo năng lực học sinh
 

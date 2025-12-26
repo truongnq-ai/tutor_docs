@@ -172,9 +172,13 @@ erDiagram
     uuid student_id
     uuid trial_id
     uuid skill_id FK
-    uuid question_id FK "Nullable, links to Question"
-    boolean is_correct
-    int duration_sec
+    uuid question_id FK "Required, links to Question (NOT NULL)"
+    uuid session_id "Polymorphic relationship with sessions"
+    string session_type "PRACTICE/PRACTICE_SESSION/MINI_TEST/etc."
+    text student_answer "Response data (moved from Question)"
+    boolean is_correct "Response data"
+    int duration_sec "Response data"
+    timestamp submitted_at "Response data (moved from Question)"
     timestamp created_at
   }
 
@@ -195,12 +199,11 @@ erDiagram
     uuid assigned_to_student_id FK
     text problem_text "Snapshot from Exercise"
     jsonb solution_steps "Snapshot from Exercise"
-    text student_answer
-    boolean is_correct
-    string status "ASSIGNED, COMPLETED, SKIPPED"
+    string status "DRAFT, ASSIGNED, SUBMITTED, RESUBMITTED, SKIPPED"
     timestamp assigned_at
-    timestamp submitted_at
     timestamp created_at
+    note "Response data (student_answer, is_correct, time_taken_sec, submitted_at) moved to Practice table"
+    note "Session info (session_id) moved to Practice table (session_id + session_type)"
   }
 
   MINI_TEST_RESULT {
@@ -288,9 +291,14 @@ CREATE TABLE practice (
   student_id UUID,
   trial_id UUID,
   skill_id UUID NOT NULL,
-  question_id UUID, -- Nullable, added in migration V{version+1}
+  question_id UUID NOT NULL, -- Required, links to Question
+  session_id UUID, -- Polymorphic relationship with sessions
+  session_type VARCHAR(50), -- PRACTICE, PRACTICE_SESSION, MINI_TEST, etc.
+  status VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED', -- NOT_STARTED, SUBMITTED, CANCELLED (Option E)
+  student_answer TEXT, -- Response data (moved from Question)
   is_correct BOOLEAN NOT NULL,
   duration_sec INT,
+  submitted_at TIMESTAMP, -- Response data (moved from Question)
   difficulty_level INT DEFAULT 1 CHECK (difficulty_level BETWEEN 1 AND 5),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -308,11 +316,30 @@ CREATE TABLE practice (
 
   CONSTRAINT fk_practice_question
     FOREIGN KEY (question_id) REFERENCES question(id)
-    ON DELETE SET NULL,
+    ON DELETE RESTRICT, -- Changed from SET NULL to RESTRICT for data consistency
 
   CONSTRAINT check_practice_student_or_trial CHECK (
     (student_id IS NOT NULL AND trial_id IS NULL) OR
     (student_id IS NULL AND trial_id IS NOT NULL)
+  ),
+  
+  CONSTRAINT check_practice_question_id CHECK (question_id IS NOT NULL),
+  
+  CONSTRAINT check_practice_session_type CHECK (
+    session_type IN (
+      'PRACTICE', 'PRACTICE_SESSION', 'MINI_TEST',
+      'TEST_30MIN', 'TEST_45MIN', 'TEST_60MIN', 'TEST_90MIN', 'TEST_120MIN', 'TEST_180MIN',
+      'MIDTERM_EXAM', 'FINAL_EXAM'
+    )
+  ),
+  
+  CONSTRAINT check_practice_session_consistency CHECK (
+    (session_id IS NULL AND session_type IS NULL) OR
+    (session_id IS NOT NULL AND session_type IS NOT NULL)
+  ),
+  
+  CONSTRAINT check_practice_status CHECK (
+    status IN ('NOT_STARTED', 'SUBMITTED', 'CANCELLED')
   )
 );
 
@@ -320,8 +347,14 @@ CREATE INDEX idx_practice_student_id ON practice(student_id);
 CREATE INDEX idx_practice_trial_id ON practice(trial_id);
 CREATE INDEX idx_practice_skill_id ON practice(skill_id);
 CREATE INDEX idx_practice_question_id ON practice(question_id);
+CREATE INDEX idx_practice_session_id ON practice(session_id) WHERE session_id IS NOT NULL;
+CREATE INDEX idx_practice_session_type ON practice(session_type) WHERE session_type IS NOT NULL;
+CREATE INDEX idx_practice_session_id_type ON practice(session_id, session_type) WHERE session_id IS NOT NULL AND session_type IS NOT NULL;
+CREATE INDEX idx_practice_status ON practice(status);
+CREATE INDEX idx_practice_session_status ON practice(session_id, session_type, status) WHERE session_id IS NOT NULL AND session_type IS NOT NULL;
 CREATE INDEX idx_practice_created_at ON practice(created_at);
 CREATE INDEX idx_practice_is_correct ON practice(is_correct);
+CREATE INDEX idx_practice_submitted_at ON practice(submitted_at) WHERE submitted_at IS NOT NULL;
 
 ### 3.7. mini_test_result
 CREATE TABLE mini_test_result (
@@ -375,17 +408,10 @@ CREATE TABLE question (
   
   -- Assignment info
   assigned_at TIMESTAMP,
-  session_id UUID, -- Link với practice session hoặc mini test
-  
-  -- Student response (sau khi làm bài)
-  student_answer TEXT,
-  is_correct BOOLEAN,
-  time_taken_sec INT,
-  submitted_at TIMESTAMP,
   
   -- Metadata
   question_type VARCHAR(50) CHECK (question_type IN ('PRACTICE', 'MINI_TEST', 'REVIEW')),
-  status VARCHAR(50) DEFAULT 'ASSIGNED' CHECK (status IN ('ASSIGNED', 'COMPLETED', 'SKIPPED')),
+  status VARCHAR(50) DEFAULT 'ASSIGNED' CHECK (status IN ('DRAFT', 'ASSIGNED', 'SUBMITTED', 'RESUBMITTED', 'SKIPPED')),
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -403,12 +429,18 @@ CREATE TABLE question (
     ON DELETE SET NULL
 );
 
+-- Note: Response data (student_answer, is_correct, time_taken_sec, submitted_at) 
+--       đã được chuyển sang Practice table
+-- Note: Session info (session_id) đã được chuyển sang Practice table (session_id + session_type)
+
 CREATE INDEX idx_question_exercise_id ON question(exercise_id);
 CREATE INDEX idx_question_skill_id ON question(skill_id);
 CREATE INDEX idx_question_student_id ON question(assigned_to_student_id);
-CREATE INDEX idx_question_session_id ON question(session_id);
 CREATE INDEX idx_question_status ON question(status);
 CREATE INDEX idx_question_created_at ON question(created_at);
+
+-- Note: Index idx_question_session_id đã được remove (Question không có session_id nữa)
+--       Questions trong session được query qua Practice records (session_id + session_type)
 
 ### 3.10. refresh_token
 CREATE TABLE refresh_token (
@@ -466,9 +498,17 @@ CREATE INDEX idx_refresh_token_user_active ON refresh_token(user_id, revoked_at)
 
 - **Question Management**:
   - Question table lưu snapshot Exercise data tại thời điểm assign
-  - Practice table có `question_id` (nullable) để link với Question
-  - Foreign key `practice.question_id` → `question.id` với ON DELETE SET NULL (backward compatible)
-  - Question status: ASSIGNED → COMPLETED sau khi submit
+  - Question KHÔNG có response data (student_answer, is_correct, time_taken_sec, submitted_at) - đã chuyển sang Practice
+  - Question KHÔNG có session_id - được quản lý qua Practice records (session_id + session_type)
+  - Practice table có `question_id` (required, NOT NULL) để link với Question
+  - Practice table có `session_id` + `session_type` để link với sessions (polymorphic relationship)
+  - Practice table có `status` (NOT_STARTED, SUBMITTED, CANCELLED) - Option E implementation
+  - Practice table lưu response data: student_answer, is_correct, duration_sec, submitted_at
+  - **Option E**: Practice records được tạo ngay khi generate questions cho session (status = NOT_STARTED)
+  - Khi submit answer, Practice record được update (NOT_STARTED → SUBMITTED) thay vì tạo mới
+  - Foreign key `practice.question_id` → `question.id` với ON DELETE RESTRICT (data consistency)
+  - Question status: ASSIGNED → SUBMITTED (first practice) → RESUBMITTED (re-attempt)
+  - Một Question có thể có nhiều Practice records (re-attempt logic)
 
 - DDL tối ưu cho Phase 1, dễ migrate Phase 2
 
@@ -483,6 +523,16 @@ CREATE INDEX idx_refresh_token_user_active ON refresh_token(user_id, revoked_at)
 - 2025-12-15-02-05: Tạo mới ERD & DDL cho Phase 1
 - 2025-12-15-XX-XX: Cập nhật parent_account với phone_number, phone_verified, oauth fields, name. Thêm otp_session table
 - 2025-12-21-16-45: Thêm Question table và cập nhật Practice table với question_id (nullable) để link với Question
+- 2025-12-26: Refactor Question-Practice-Session model:
+  - Question: Remove session_id, response data (student_answer, is_correct, time_taken_sec, submitted_at)
+  - Question status: DRAFT, ASSIGNED, SUBMITTED, RESUBMITTED, SKIPPED (thay vì COMPLETED)
+  - Practice: question_id required (NOT NULL), add session_id + session_type (polymorphic), add response data fields
+- 2025-12-21: Option E Implementation - Practice Status:
+  - Add `status` column to Practice table (NOT_STARTED, SUBMITTED, CANCELLED)
+  - Practice records created immediately when generating questions for sessions (status = NOT_STARTED)
+  - Practice records updated (NOT_STARTED → SUBMITTED) when submitting answers
+  - Session cancellation marks Practice records as CANCELLED
+  - Practice: Support 1:N relationship với Question (re-attempt logic)
 
 
 

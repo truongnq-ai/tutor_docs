@@ -27,17 +27,14 @@ CREATE TABLE question (
   -- Assignment info
   assigned_to_student_id UUID,
   assigned_at TIMESTAMP,
-  session_id UUID,
-  
-  -- Student response (sau khi làm bài)
-  student_answer TEXT,
-  is_correct BOOLEAN,
-  time_taken_sec INT,
-  submitted_at TIMESTAMP,
   
   -- Metadata
   question_type VARCHAR(50),
-  status VARCHAR(50) DEFAULT 'ASSIGNED',
+  status VARCHAR(50) DEFAULT 'ASSIGNED', -- DRAFT, ASSIGNED, SUBMITTED, RESUBMITTED, SKIPPED
+  
+  -- Note: Student response data (student_answer, is_correct, time_taken_sec, submitted_at) 
+  --       đã được chuyển sang Practice table
+  -- Note: session_id đã được chuyển sang Practice table (session_id + session_type)
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
@@ -49,16 +46,55 @@ CREATE TABLE question (
 
 ## Practice Table Update
 
-Thêm `question_id` vào practice table:
+Practice table đã được refactor để lưu student response và session info:
 
 ```sql
+-- question_id: Bắt buộc (non-nullable)
 ALTER TABLE practice 
-ADD COLUMN question_id UUID,
-ADD CONSTRAINT fk_practice_question 
-  FOREIGN KEY (question_id) REFERENCES question(id) 
-  ON DELETE SET NULL;
+ALTER COLUMN question_id SET NOT NULL;
 
+-- session_id + session_type: Polymorphic relationship với các session types
+-- session_id UUID
+-- session_type VARCHAR(50) -- PRACTICE, PRACTICE_SESSION, MINI_TEST, etc.
+
+-- Practice Status (Option E Implementation)
+-- status VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED'
+-- Values: NOT_STARTED, SUBMITTED, CANCELLED
+ALTER TABLE practice 
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED';
+
+-- Update existing records: Set status = 'SUBMITTED' where submitted_at IS NOT NULL
+UPDATE practice 
+SET status = 'SUBMITTED' 
+WHERE submitted_at IS NOT NULL;
+
+-- Student response data (đã chuyển từ Question table)
+-- student_answer TEXT
+-- is_correct BOOLEAN
+-- duration_sec INT
+-- submitted_at TIMESTAMP
+
+-- Constraints
+ALTER TABLE practice
+ADD CONSTRAINT check_practice_question_id CHECK (question_id IS NOT NULL);
+
+ALTER TABLE practice
+ADD CONSTRAINT check_practice_session_type 
+CHECK (session_type IN (
+  'PRACTICE', 'PRACTICE_SESSION', 'MINI_TEST',
+  'TEST_30MIN', 'TEST_45MIN', 'TEST_60MIN', 'TEST_90MIN', 'TEST_120MIN', 'TEST_180MIN',
+  'MIDTERM_EXAM', 'FINAL_EXAM'
+));
+
+ALTER TABLE practice
+ADD CONSTRAINT check_practice_status 
+CHECK (status IN ('NOT_STARTED', 'SUBMITTED', 'CANCELLED'));
+
+-- Indexes
 CREATE INDEX idx_practice_question_id ON practice(question_id);
+CREATE INDEX idx_practice_session_id_type ON practice(session_id, session_type);
+CREATE INDEX idx_practice_status ON practice(status);
+CREATE INDEX idx_practice_session_status ON practice(session_id, session_type, status);
 ```
 
 [← Quay lại Overview](README.md)

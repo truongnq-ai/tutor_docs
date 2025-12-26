@@ -455,24 +455,31 @@ X-Device-Id: device-uuid (cho trial)
 
 ---
 
-#### POST /api/practice/submit
+#### POST /api/v1/practice/submit (DEPRECATED)
+
+**⚠️ DEPRECATED**: Endpoint này đã được deprecated. Sử dụng `POST /api/v1/practice/questions/{id}/submit` thay thế.
 
 Nộp kết quả bài luyện tập.
 
 **Request:**
 ```json
 {
-  "questionId": "uuid",  // Optional - link Practice với Question nếu có
+  "questionId": "uuid",  // Required - link Practice với Question
   "answer": "A",
   "durationSec": 45,
-  "skillId": "6.3.9"
+  "skillId": "6.3.9",
+  "sessionId": "uuid",  // Optional - link với session (PRACTICE_SESSION, MINI_TEST, etc.)
+  "sessionType": "PRACTICE_SESSION"  // Optional - PRACTICE, PRACTICE_SESSION, MINI_TEST, etc.
 }
 ```
 
 **Lưu ý**: 
-- `questionId` là optional để đảm bảo backward compatibility
-- Nếu có `questionId`, Practice sẽ được link với Question qua `practice.question_id`
-- Nếu không có `questionId`, Practice vẫn hoạt động bình thường (legacy flow)
+- `questionId` là required (non-nullable) để đảm bảo data consistency
+- Practice sẽ được link với Question qua `practice.question_id`
+- Practice sẽ được link với Session qua `practice.session_id` + `practice.session_type` (polymorphic relationship)
+- Response data (student_answer, is_correct, duration_sec, submitted_at) được lưu trong Practice table
+- Question status sẽ được update: ASSIGNED → SUBMITTED (first practice) hoặc SUBMITTED → RESUBMITTED (re-attempt)
+- **Option E**: Nếu Practice record đã tồn tại với `status = NOT_STARTED` (từ session generation), sẽ update thay vì tạo mới
 
 **Response (200 OK):**
 ```json
@@ -1236,7 +1243,7 @@ Authorization: Bearer <token>
 - `skillId`: (optional) Filter by skill
 - `exerciseId`: (optional) Filter by exercise
 - `studentId`: (optional) Filter by student
-- `status`: (optional) Filter by status (ASSIGNED, COMPLETED, SKIPPED)
+- `status`: (optional) Filter by status (DRAFT, ASSIGNED, SUBMITTED, RESUBMITTED, SKIPPED)
 - `questionType`: (optional) Filter by type (PRACTICE, MINI_TEST, REVIEW)
 - `fromDate`: (optional) ISO date
 - `toDate`: (optional) ISO date
@@ -1256,13 +1263,16 @@ Authorization: Bearer <token>
       "skillName": "Rút gọn phân số",
       "assignedToStudentId": "uuid",
       "problemText": "Rút gọn phân số: 12/18",
-      "status": "COMPLETED",
+      "status": "SUBMITTED",
       "questionType": "PRACTICE",
-      "isCorrect": true,
-      "timeTakenSec": 45,
       "practiceCount": 1,
+      "latestPractice": {
+        "id": "uuid",
+        "isCorrect": true,
+        "durationSec": 45,
+        "submittedAt": "2025-12-21T10:00:45Z"
+      },
       "assignedAt": "2025-12-21T10:00:00Z",
-      "submittedAt": "2025-12-21T10:00:45Z",
       "createdAt": "2025-12-21T10:00:00Z"
     }
   ],
@@ -1330,21 +1340,28 @@ Authorization: Bearer <token>
     "customizedData": null,
     "difficultyLevel": 1,
     "questionType": "PRACTICE",
-    "status": "COMPLETED",
-    "studentAnswer": "2/3",
-    "isCorrect": true,
-    "timeTakenSec": 45,
+    "status": "SUBMITTED",
     "assignedAt": "2025-12-21T10:00:00Z",
-    "submittedAt": "2025-12-21T10:00:45Z",
     "practices": [
       {
         "id": "uuid",
+        "studentAnswer": "2/3",
         "isCorrect": true,
         "durationSec": 45,
+        "submittedAt": "2025-12-21T10:00:45Z",
+        "sessionId": "uuid",
+        "sessionType": "PRACTICE_SESSION",
         "createdAt": "2025-12-21T10:00:45Z"
       }
     ],
     "practiceCount": 1,
+    "latestPractice": {
+      "id": "uuid",
+      "studentAnswer": "2/3",
+      "isCorrect": true,
+      "durationSec": 45,
+      "submittedAt": "2025-12-21T10:00:45Z"
+    },
     "createdAt": "2025-12-21T10:00:00Z"
   }
 }
@@ -1383,16 +1400,14 @@ Authorization: Bearer <token>
       {
         "id": "uuid",
         "assignedToStudentId": "uuid",
-        "status": "COMPLETED",
-        "isCorrect": true,
-        "timeTakenSec": 45,
-        "assignedAt": "2025-12-21T10:00:00Z",
-        "submittedAt": "2025-12-21T10:00:45Z"
+        "status": "SUBMITTED",
+        "practiceCount": 1,
+        "assignedAt": "2025-12-21T10:00:00Z"
       }
     ],
     "statistics": {
       "totalGenerated": 25,
-      "completed": 20,
+      "submitted": 20,
       "assigned": 3,
       "skipped": 2,
       "avgSuccessRate": 85.5,
@@ -1583,22 +1598,34 @@ Authorization: Bearer <token>
 
 ---
 
-#### POST /api/practice/questions/:id/submit
+#### POST /api/v1/practice/questions/{id}/submit (RECOMMENDED)
 
-Submit answer cho Question (tạo Practice với question_id).
+Submit answer cho Question (tạo hoặc update Practice với question_id).
 
 **Headers:**
 ```
 Authorization: Bearer <token>
 ```
 
-**Request:**
+**Path Parameters:**
+- `id`: Question ID (UUID)
+
+**Request Body:**
 ```json
 {
   "answer": "2/3",
-  "durationSec": 45
+  "durationSec": 45,
+  "sessionId": "uuid",  // Optional - link với session
+  "sessionType": "PRACTICE_SESSION"  // Optional - PRACTICE, PRACTICE_SESSION, MINI_TEST, etc.
 }
 ```
+
+**Lưu ý (Option E Implementation):**
+- Nếu Practice record đã tồn tại với `status = NOT_STARTED` (từ session generation), sẽ **update** thay vì tạo mới
+- Practice record được update: `status = NOT_STARTED → SUBMITTED`, `student_answer`, `is_correct`, `submitted_at`
+- Nếu không có Practice record (standalone practice), sẽ **tạo mới** với `status = SUBMITTED`
+- Question status sẽ được update: ASSIGNED → SUBMITTED (first practice) hoặc SUBMITTED → RESUBMITTED (re-attempt)
+- Mastery update được thực hiện trong cùng transaction với Practice update/create
 
 **Response (200 OK):**
 ```json
@@ -1610,7 +1637,7 @@ Authorization: Bearer <token>
     "isCorrect": true,
     "correctAnswer": "2/3",
     "explanation": "Giải thích...",
-    "questionStatus": "COMPLETED",
+    "questionStatus": "SUBMITTED",
     "masteryUpdate": {
       "skillId": "uuid",
       "oldMastery": 45,
@@ -1624,33 +1651,30 @@ Authorization: Bearer <token>
 
 **Error Responses:**
 - `400 VALIDATION_ERROR`: Answer không hợp lệ
-- `403 FORBIDDEN`: Question không thuộc về student này hoặc đã completed
+- `403 FORBIDDEN`: Question không thuộc về student này
 - `404 NOT_FOUND`: Question không tồn tại
-- `400 QUESTION_NOT_ASSIGNED`: Question chưa được assign
-- `400 QUESTION_ALREADY_COMPLETED`: Question đã được submit
+- `400 QUESTION_NOT_ASSIGNED`: Question chưa được assign (status != ASSIGNED)
+- `400 QUESTION_ALREADY_COMPLETED`: Deprecated - Question có thể được re-attempt (status sẽ là RESUBMITTED)
 
 ---
 
-### 7.3. Internal Learning APIs
+### 7.3. Learning APIs
 
-#### POST /api/internal/learning/generate-questions
+#### POST /api/v1/learning/generate-questions
 
-Generate Questions từ Exercises (cho Adaptive Learning Engine).
+Generate Questions từ Exercises (cho Adaptive Learning Engine và Student App).
 
 **Headers:**
 ```
-Authorization: Bearer <internal-token>
+Authorization: Bearer <token>
 ```
 
 **Request:**
 ```json
 {
-  "skillId": "uuid",
-  "studentId": "uuid",
+  "recommendedSkillId": "uuid",
   "difficultyLevel": 2,
-  "count": 5,
-  "questionType": "PRACTICE",
-  "sessionId": "uuid"
+  "count": 5
 }
 ```
 
@@ -1658,30 +1682,33 @@ Authorization: Bearer <internal-token>
 ```json
 {
   "success": true,
-  "data": {
-    "questions": [
-      {
-        "id": "uuid",
-        "exerciseId": "uuid",
-        "skillId": "uuid",
-        "problemText": "Rút gọn phân số: 12/18",
-        "problemLatex": "\\frac{12}{18}",
-        "difficultyLevel": 2,
-        "questionType": "PRACTICE",
-        "status": "ASSIGNED",
-        "assignedAt": "2025-12-21T10:00:00Z"
-      }
-    ],
-    "total": 5
-  }
+  "data": [
+    {
+      "id": "uuid",
+      "exerciseId": "uuid",
+      "skillId": "uuid",
+      "problemText": "Rút gọn phân số: 12/18",
+      "problemLatex": "\\frac{12}{18}",
+      "difficultyLevel": 2,
+      "questionType": "PRACTICE",
+      "status": "ASSIGNED",
+      "assignedAt": "2025-12-21T10:00:00Z"
+    }
+  ],
+  "message": "Questions generated successfully"
 }
 ```
 
 **Error Responses:**
-- `400 VALIDATION_ERROR`: SkillId, studentId không hợp lệ
-- `404 NOT_FOUND`: Skill hoặc Student không tồn tại
+- `400 VALIDATION_ERROR`: recommendedSkillId, difficultyLevel, count không hợp lệ
+- `404 NOT_FOUND`: Skill không tồn tại
 - `400 EXERCISE_NOT_APPROVED`: Không có Exercises APPROVED cho skill này
 - `403 PREREQUISITE_NOT_MET`: Prerequisite skills chưa đạt mastery threshold
+
+**Lưu ý:**
+- Endpoint này được gọi bởi Student App sau khi nhận learning plan
+- Questions được tạo với `status = ASSIGNED`, `assignedToStudentId = currentUserId`
+- Questions KHÔNG có `sessionId` (link với session qua Practice records khi submit)
 
 ---
 
@@ -1730,6 +1757,18 @@ X-RateLimit-Reset: 1639500000
 - 2025-12-15-03-30: Tạo mới API Specification
 - 2025-12-15: Thêm refresh token endpoints và cập nhật authentication flow
 - 2025-12-21-16-45: Thêm Question Management APIs (admin, student, internal), cập nhật practice/submit để hỗ trợ questionId
+- 2025-12-26: Refactor Question-Practice-Session model:
+  - POST /api/practice/submit: questionId required, add sessionId + sessionType
+  - POST /api/practice/questions/:id/submit: add sessionId + sessionType
+- 2025-12-21: Option E Implementation - Practice Status & Session Linking:
+  - POST /api/v1/practice/submit: DEPRECATED (use POST /api/v1/practice/questions/{id}/submit)
+  - POST /api/v1/practice/questions/{id}/submit: Update existing Practice records (NOT_STARTED → SUBMITTED) instead of always creating new
+  - Practice records created immediately when generating questions for sessions (status = NOT_STARTED)
+  - PUT /api/v1/practice/sessions/{sessionId}/cancel: Cancel session and mark Practice records as CANCELLED
+  - GET /api/v1/practice/sessions/{sessionId}/questions: Always query via Practice records (no fallback)
+  - POST /api/v1/learning/generate-questions: new endpoint (replaces /api/internal/learning/generate-questions)
+  - Question response: remove response data fields, add latestPractice + practiceCount
+  - Question status: SUBMITTED, RESUBMITTED (replaces COMPLETED)
 
 
 

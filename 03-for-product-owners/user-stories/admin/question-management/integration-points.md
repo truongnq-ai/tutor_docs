@@ -16,9 +16,10 @@
 
 ## Integration với Practice Flow
 
-- **Practice Submit**: `POST /api/practice/submit` nhận `questionId` (optional)
-- **Question Submit**: `POST /api/practice/questions/:id/submit` tạo Practice với question_id
-- **Practice History**: Hiển thị Question info nếu có question_id
+- **Practice Submit**: `POST /api/practice/submit` nhận `questionId` (required), `sessionId` + `sessionType` (optional)
+- **Question Submit**: `POST /api/practice/questions/:id/submit` tạo Practice với question_id, sessionId, sessionType
+- **Practice History**: Hiển thị Question info từ question_id
+- **Session Info**: Query Questions trong session qua Practice records (session_id + session_type)
 
 ## Integration với Skill Management
 

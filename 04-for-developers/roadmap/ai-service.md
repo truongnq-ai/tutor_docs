@@ -50,6 +50,8 @@ Tài liệu này theo dõi tiến độ triển khai của Tutor AI Service - Py
   - `POST /internal/ai/solve` - Giải bài Toán (text hoặc imageUrl)
   - `POST /internal/ai/hint` - Sinh gợi ý theo ngữ cảnh
   - `POST /internal/ai/recommend` - Đề xuất skill và độ khó
+  - `POST /internal/ai/generate-exercises` - Tạo bài tập tự động
+  - `POST /internal/ai/validate-latex` - Validate LaTeX formula
 - **Performance Requirements**: OCR <3s, Solver <2s, Hint <5s, Overall <5s
 
 ---
@@ -67,7 +69,8 @@ Tài liệu này theo dõi tiến độ triển khai của Tutor AI Service - Py
 - ✅ **Hint Generator**: Added hint generator using OpenAI
 - ✅ **Adaptive Learning Engine**: Implemented adaptive learning recommendations
 - ✅ **Redis Caching**: Added caching for OCR results
-- ✅ **API Endpoints**: Implemented all endpoints (`/internal/ai/ocr`, `/internal/ai/solve`, `/internal/ai/hint`, `/internal/ai/recommend`)
+- ✅ **API Endpoints**: Implemented all core endpoints (`/internal/ai/ocr`, `/internal/ai/solve`, `/internal/ai/hint`, `/internal/ai/recommend`)
+- ✅ **Exercise Generation**: Implemented exercise generation endpoints (`/internal/ai/generate-exercises`, `/internal/ai/validate-latex`)
 - ✅ **Dependency Injection**: Setup dependency injection
 - ✅ **Error Handling Middleware**: Added error handling middleware
 
@@ -113,7 +116,8 @@ Tài liệu này theo dõi tiến độ triển khai của Tutor AI Service - Py
 
 - Week 5: Upgrade Python/FastAPI, Add PaddleOCR, Implement OCR service
 - Week 6: Add SymPy, Implement math solver, Create step-by-step solution generator
-- Week 7: Integrate OCR + Math Solver, Add hint generator, Add adaptive learning engine, Add Redis caching, Implement all API endpoints, Setup dependency injection, Add error handling middleware
+- Week 7: Integrate OCR + Math Solver, Add hint generator, Add adaptive learning engine, Add Redis caching, Implement all core API endpoints, Setup dependency injection, Add error handling middleware
+- Week 8+: Exercise Generation endpoints (generate-exercises, validate-latex)
 
 ### Planned 📋
 
@@ -131,7 +135,7 @@ Tài liệu này theo dõi tiến độ triển khai của Tutor AI Service - Py
 
 ---
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-21 (Updated: Exercise Generation endpoints added - generate-exercises and validate-latex endpoints are now available)
 
 [← Quay lại Roadmap](README.md)
 

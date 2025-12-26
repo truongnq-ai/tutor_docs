@@ -28,6 +28,8 @@ Thư mục này chứa các tài liệu về triển khai và mapping giữa cá
 - **[API-DB Mapping](api-db-mapping.md)** - Mapping giữa API endpoints và database schema
 - **[Image Upload](image-upload.md)** - Hướng dẫn triển khai image upload
 - **[Question Integration](question-integration.md)** - Tích hợp câu hỏi vào hệ thống
+- **[Exercise-Question-Practice Flow](exercise-question-practice-flow.md)** - Phân tích toàn diện logic sinh bài tập, câu hỏi, Practice và Mini-test
+- **[Exercise-Question-Practice Flow Q&A](exercise-question-practice-flow-qa.md)** - Câu hỏi Q&A để giải quyết vấn đề conflict/chưa phù hợp
 
 ---
 

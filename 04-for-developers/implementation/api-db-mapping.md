@@ -100,9 +100,15 @@ Tài liệu này là cơ sở để:
 |-----|------|------|
 | id | UUID | |
 | student_id | UUID | |
-| skill_id | UUID | |
-| is_correct | Boolean | |
-| duration_sec | Int | |
+| trial_id | UUID | Optional (for trial users) |
+| skill_id | UUID | Required |
+| question_id | UUID | **Required, FK → question.id (NOT NULL)** |
+| session_id | UUID | Optional, polymorphic relationship with sessions |
+| session_type | VARCHAR | Optional, PRACTICE/PRACTICE_SESSION/MINI_TEST/etc. |
+| student_answer | TEXT | Response data (moved from Question) |
+| is_correct | Boolean | Response data |
+| duration_sec | Int | Response data |
+| submitted_at | Timestamp | Response data (moved from Question) |
 | created_at | Timestamp | |
 
 ---

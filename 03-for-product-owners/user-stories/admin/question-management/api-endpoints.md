@@ -28,7 +28,22 @@ POST   /api/internal/learning/generate-questions - Generate Questions from Exerc
 ## Practice API Update
 
 ```
-POST   /api/practice/submit                    - Submit practice (cập nhật: nhận questionId optional)
+POST   /api/v1/practice/questions/{id}/submit  - Submit practice answer (recommended, questionId in path)
+POST   /api/v1/practice/submit                - Submit practice (DEPRECATED - use questions/{id}/submit instead)
+POST   /api/v1/learning/generate-questions     - Generate questions from learning plan
+```
+
+## Practice Session API
+
+```
+POST   /api/v1/practice/sessions               - Create practice session (generates questions and Practice records)
+GET    /api/v1/practice/sessions/{sessionId}   - Get practice session
+GET    /api/v1/practice/sessions/{sessionId}/questions - Get questions in session (via Practice records)
+PUT    /api/v1/practice/sessions/{sessionId}/pause    - Pause session
+PUT    /api/v1/practice/sessions/{sessionId}/resume  - Resume session
+PUT    /api/v1/practice/sessions/{sessionId}/complete - Complete session
+DELETE /api/v1/practice/sessions/{sessionId}  - Cancel session (marks Practice records as CANCELLED)
+GET    /api/v1/practice/sessions/resumable    - Get resumable sessions
 ```
 
 ## Error Codes

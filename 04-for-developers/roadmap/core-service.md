@@ -68,6 +68,11 @@ Add to `pom.xml`:
 - ✅ **Mini Test APIs**: Complete mini test flow (start, submit answer, submit test, unlock check)
 - ✅ **Progress APIs**: Progress dashboard, skill detail, recommendations
 - ✅ **Learning Progress APIs**: Practice sessions, mastery tracking
+- ✅ **Learning APIs**: Today's learning plan, weak skills
+- ✅ **Practice APIs**: Submit practice, practice history, session management
+- ✅ **Profile APIs**: Get/Update profile, Upload avatar
+- ✅ **Settings APIs**: Get/Update settings (notifications, learning preferences)
+- ✅ **Password Management**: Change password with security validation
 
 ### Pending Tasks 📋
 
@@ -113,6 +118,11 @@ Add to `pom.xml`:
 - Week 10-11: Mini Test APIs (complete flow: start, submit answer, submit test, unlock check)
 - Week 10-11: Progress APIs (dashboard, skill detail, recommendations)
 - Week 10-11: Learning Progress APIs (practice sessions, mastery tracking)
+- Week 10-11: Learning APIs (today's learning plan, weak skills)
+- Week 10-11: Practice APIs (submit practice, practice history, session management)
+- Week 11-12: Profile APIs (get/update profile, upload avatar)
+- Week 11-12: Settings APIs (get/update settings)
+- Week 11-12: Password Management (change password)
 
 ### In Progress 🚧
 
@@ -134,7 +144,7 @@ Add to `pom.xml`:
 
 ---
 
-**Last Updated**: 2025-12-21 (Updated: Mini Test APIs, Progress APIs, and Learning Progress APIs completed - all backend APIs for student app progress tracking and mini test flow are ready)
+**Last Updated**: 2025-12-21 (Updated: Profile APIs, Settings APIs, and Password Management completed - all backend APIs for student app profile management are ready. Core Service now supports all student app features)
 
 [← Quay lại Roadmap](README.md)
 

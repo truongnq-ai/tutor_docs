@@ -21,10 +21,10 @@
    - Endpoint đã sẵn sàng: `/api/v1/internal/learning/generate-questions`
    - Cần: Adaptive Learning Engine gọi endpoint này
 
-2. **Practice Flow Integration (Mastery Update)**
-   - Status: CHƯA TÌM THẤY Mastery update service
-   - Logic đã có trong docs: Đúng +5~+8, Sai -5~-10
-   - Cần: Implement Mastery service trước
+2. **Practice Flow Integration (Mastery Update)** ✅ ĐÃ HOÀN THÀNH
+   - Status: ĐÃ IMPLEMENT MasteryService
+   - Logic: Đúng +5~+8, Sai -5~-10 (theo difficulty level)
+   - Mastery update đã được wrap trong transaction với Practice creation/update
 
 ---
 
@@ -52,34 +52,21 @@
 
 ---
 
-### 2. Practice Flow Integration (Mastery Update)
+### 2. Practice Flow Integration (Mastery Update) ✅ ĐÃ HOÀN THÀNH
 
-**Quyết định: LÀM SAU (Phase 2) - CẦN IMPLEMENT MASTERY SERVICE TRƯỚC**
+**Quyết định: ĐÃ IMPLEMENT**
 
-**Lý do:**
-- Mastery update service chưa tồn tại trong codebase
-- Cần implement Mastery entity/service trước
-- Scope lớn hơn: Cần thiết kế database, entity, service
-- Question → Practice flow đã hoạt động, Mastery có thể update riêng
+**Implementation:**
+- MasteryService đã được implement với SkillMastery entity
+- Logic update: Đúng +5~+8, Sai -5~-10 (theo difficulty level 1-5)
+- Mastery level được clamp trong khoảng 0-100
+- Mastery update đã được wrap trong transaction với Practice creation/update
+- Transaction đảm bảo data consistency: Nếu mastery update fail, Practice creation cũng rollback
 
-**Cần làm trước:**
-1. Thiết kế Mastery table/entity (lưu mastery của học sinh theo skill)
-2. Implement MasteryService với logic:
-   - Đúng: +5~+8 (tuỳ difficulty level)
-   - Sai: -5~-10 (tuỳ difficulty level)
-   - Giới hạn: 0-100
-3. Test Mastery update độc lập
-4. Sau đó integrate vào Question submit transaction
-
-**Khi nào làm:**
-- Khi Mastery service đã được implement
-- Khi có đủ thời gian để test transaction scenarios
-- Khi cần data consistency cao
-
-**Cần thảo luận:**
-- Mastery được lưu ở đâu? (table riêng hay trong StudentProfile?)
-- Có cần Mastery history không?
-- Logic update có phức tạp không? (có cache, async không?)
+**Option E Implementation:**
+- Practice records được tạo ngay khi generate questions cho PracticeSession/MiniTest (status = NOT_STARTED)
+- Khi submit answer, Practice record được update (NOT_STARTED → SUBMITTED) thay vì tạo mới
+- Mastery update được gọi trong cùng transaction với Practice update
 
 ---
 
@@ -91,10 +78,10 @@
 - ✅ Không ảnh hưởng đến các features khác
 - ✅ Có thời gian để implement Mastery service và Adaptive Learning Engine đúng cách
 
-### Tiêu cực:
-- ⚠️ Workflow chưa hoàn chỉnh: Questions được sinh nhưng chưa tự động trong learning flow
-- ⚠️ Mastery update phải được gọi riêng (không atomic với Question submit)
-- ⚠️ Data có thể không đồng bộ nếu Mastery update fail
+### Tiêu cực (Đã giải quyết):
+- ✅ Workflow đã hoàn chỉnh: Questions được sinh và link với session qua Practice records (Option E)
+- ✅ Mastery update đã được wrap trong transaction với Practice submit (atomic operation)
+- ✅ Data consistency đã được đảm bảo: Transaction rollback nếu mastery update fail
 
 ### Giải pháp tạm thời:
 - Questions có thể được tạo thủ công hoặc qua API
@@ -142,17 +129,18 @@
 
 **Question Management đã hoàn chỉnh và sẵn sàng sử dụng.**
 
-**2 phần integration còn lại:**
-- **Adaptive Learning Engine**: Làm sau khi Engine đã được implement
-- **Mastery Update**: Làm sau khi Mastery service đã được implement
+**Integration status:**
+- ✅ **Mastery Update**: Đã hoàn thành - MasteryService đã implement và integrate vào Practice submit transaction
+- ✅ **Option E Implementation**: Đã hoàn thành - Practice records được tạo ngay khi generate questions, đảm bảo questions link với session
+- ⚠️ **Adaptive Learning Engine**: Làm sau khi Engine đã được implement
 
-**Không cần làm ngay vì:**
-- Question Management có thể hoạt động độc lập
-- Cần thời gian để implement Mastery service và Adaptive Learning Engine đúng cách
-- Tránh breaking changes và complexity không cần thiết
+**Option E Benefits:**
+- Questions được link chính xác với session ngay từ đầu
+- Query questions trong session đơn giản (luôn qua Practice records)
+- Data consistency được đảm bảo
+- Session cancellation được hỗ trợ (mark Practice records as CANCELLED)
 
 **Cần thảo luận:**
-- Timeline implement Mastery service?
 - Timeline implement/update Adaptive Learning Engine?
 - Priority so với các features khác?
 
