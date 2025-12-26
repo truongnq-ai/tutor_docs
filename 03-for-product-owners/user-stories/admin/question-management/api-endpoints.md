@@ -37,7 +37,8 @@ POST   /api/v1/learning/generate-questions     - Generate questions from learnin
 
 ```
 POST   /api/v1/practice/sessions               - Create practice session (generates questions and Practice records)
-GET    /api/v1/practice/sessions/{sessionId}   - Get practice session
+GET    /api/v1/practice/sessions/{sessionId}   - Get practice session (session details)
+GET    /api/v1/practice/session-info/{sessionId} - Get session information (progress, mastery, timestamps)
 GET    /api/v1/practice/sessions/{sessionId}/questions - Get questions in session (via Practice records)
 PUT    /api/v1/practice/sessions/{sessionId}/pause    - Pause session
 PUT    /api/v1/practice/sessions/{sessionId}/resume  - Resume session
