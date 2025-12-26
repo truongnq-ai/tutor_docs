@@ -23,9 +23,9 @@ Tài liệu này cung cấp cái nhìn tổng quan về tiến độ triển kha
 |--------|-----------|------------|----------------------|----------------------|
 | **tutor-admin-dashboard** | ✅ Complete | ✅ Meets requirements | Firebase Admin SDK, API Client | 🚧 40% |
 | **tutor-parent-dashboard** | ✅ Complete | ✅ Meets requirements | Firebase, Phone Auth, OTP Service | 🚧 40% |
-| **tutor-core-service** | ✅ Complete | ✅ Meets requirements | SMS Gateway, AI Service Client, S3 Integration | 🚧 70% |
+| **tutor-core-service** | ✅ Complete | ✅ Meets requirements | SMS Gateway, S3 Integration | 🚧 90% |
 | **tutor-ai-service** | ✅ Complete | ✅ Meets requirements | None | 🚧 85% |
-| **tutor-student-app** | ✅ Complete | ✅ Meets requirements | image_picker, camera, OAuth packages | 🚧 35% |
+| **tutor-student-app** | ✅ Complete | ✅ Meets requirements | image_picker, camera, OAuth packages | 🚧 87% |
 
 **Legend:**
 - ✅ Complete
@@ -101,18 +101,35 @@ Tài liệu này cung cấp cái nhìn tổng quan về tiến độ triển kha
 #### Week 8: Setup & Onboarding
 - [ ] Add missing packages
 - [ ] Setup API client
-- [x] Implement onboarding flow ✅
+- [x] Implement onboarding flow ✅ (13 screens)
 
-#### Week 9: Tutor Mode
-- [ ] Implement camera integration
-- [ ] Implement image picker
-- [ ] Implement image upload
-- [ ] Implement solution display
+#### Week 8-9: Learning Flow ✅ **COMPLETED**
+- [x] Implement Today's Learning Plan (Home/Dashboard) ✅
+- [x] Implement Practice Question and Result screens ✅
+- [x] Implement Practice Session Complete ✅
+- [x] Implement Skill Selection, Practice History, Session Resume ✅
 
-#### Week 10: Practice & Progress
-- [ ] Implement practice sessions
-- [ ] Implement mini tests
-- [ ] Implement progress tracking
+#### Week 9-10: Tutor Mode - ✅ **COMPLETED**
+- [x] Add missing packages (image_picker, camera, OAuth) ✅
+- [x] Setup API client with Retrofit ✅
+- [x] Implement camera integration ✅
+- [x] Implement image picker ✅
+- [x] Implement OCR confirmation ✅
+- [x] Implement solution step-by-step display ✅ (with animations)
+- [x] Implement solution complete and recent problems ✅ (with skeleton loading)
+
+#### Week 10-11: Progress & Mini Test ✅ **COMPLETED**
+- [x] Implement progress dashboard ✅
+- [x] Implement skill detail ✅
+- [x] Implement mini test flow (start, question, result) ✅
+- [x] Implement recommendations ✅
+
+#### Week 11-12: Profile & Settings
+- [ ] Implement profile overview
+- [ ] Implement edit profile
+- [ ] Implement settings
+- [ ] Implement change password
+- [ ] Implement about/help
 
 ### Phase 5: Parent Dashboard (Week 11-12)
 
@@ -331,7 +348,7 @@ flutter run
 
 ---
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-21 (Updated: Progress & Mini Test completed - all 6 screens including Progress Dashboard, Skill Detail, Recommendations, and complete Mini Test flow. Backend APIs for mini test and progress tracking are fully implemented)
 
 [← Quay lại Roadmap](README.md)
 

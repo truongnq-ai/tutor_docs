@@ -63,28 +63,31 @@ dependencies:
 - ✅ **Tech Stack**: All core dependencies installed
 - ✅ **Architecture**: Clean Architecture structure in place
 - ✅ **Onboarding Flow**: Implemented onboarding screens (13/13 screens)
+  - Splash Screen, Welcome, Trial Start, Auth Entry, Set Username/Password, Manual Signup/Login
+  - Select Grade, Select Learning Goal, Trial Status, Trial Expiry/Paywall, OTP Verification, Linking Success
+- ✅ **Learning Flow**: Implemented learning flow screens (7/7 screens)
+  - Today's Learning Plan (Home/Dashboard), Practice Question, Practice Result
+  - Practice Session Complete, Skill Selection, Practice History, Session Resume
+- ✅ **Tutor Mode**: Implemented tutor mode screens (7/7 screens)
+  - Tutor Mode Entry, Camera Capture, Text Input, OCR Confirmation
+  - Solution Step-by-Step (with animations), Solution Complete, Recent Problems List (with skeleton loading)
+- ✅ **Progress & Mini Test**: Implemented progress tracking and mini test screens (6/6 screens)
+  - Progress Dashboard, Skill Detail, Recommendations
+  - Mini Test Start, Mini Test Question, Mini Test Result
 
 ### Pending Tasks 📋
 
-- [ ] **Missing Packages**: Add image_picker, camera, OAuth packages
-- [ ] **API Client Setup**: Setup API client with Retrofit
-- [ ] **Tutor Mode**: Implement tutor mode (camera/image picker)
-- [ ] **Solution Display**: Implement solution display
-- [ ] **Practice Sessions**: Implement practice sessions
-- [ ] **Mini Tests**: Implement mini tests
-- [ ] **Progress Tracking**: Implement progress tracking
+- [ ] **Profile & Settings**: Implement profile management (5 screens)
+  - Profile Overview, Edit Profile, Settings, Change Password, About/Help
 - [ ] **Environment Configuration**: Add environment configuration
 
 ---
 
 ## 4. NEXT STEPS PRIORITY
 
-1. **High**: Add missing packages (image_picker, camera, OAuth)
-2. **High**: Setup API client
-3. **Medium**: Implement Today's Learning Plan (Home/Dashboard)
-4. **Medium**: Implement Practice Question and Result screens
-5. **Medium**: Implement tutor mode
-6. **Low**: Practice and progress tracking
+1. **High**: Implement Profile & Settings screens (5 screens) - **NEXT PRIORITY**
+   - Profile management, settings, help
+   - Lower priority, can be done in parallel
 
 ---
 
@@ -108,16 +111,23 @@ dependencies:
 
 - Week 1: Foundation setup, Tech stack installation
 - Week 8: Onboarding flow implementation (13 screens)
+- Week 8-9: Learning Flow implementation (7 screens)
+  - Today's Learning Plan, Practice Question/Result, Session Complete
+  - Skill Selection, Practice History, Session Resume
+- Week 9-10: Tutor Mode implementation (7 screens) ✅
+  - Tutor Mode Entry, Camera Capture, Text Input, OCR Confirmation
+  - Solution Step-by-Step (with animations), Solution Complete, Recent Problems List (with skeleton loading)
+- Week 10-11: Progress & Mini Test implementation (6 screens) ✅
+  - Progress Dashboard, Skill Detail, Recommendations
+  - Mini Test Start, Mini Test Question, Mini Test Result
 
 ### In Progress 🚧
 
-- Week 8-10: Setup & Onboarding (partially complete)
+- Week 11-12: Profile & Settings implementation (5 screens) - **CURRENT FOCUS**
 
 ### Planned 📋
 
-- Week 8-9: Add missing packages, Setup API client, Implement Today's Learning Plan
-- Week 9: Tutor Mode (camera integration, image picker, solution display)
-- Week 10: Practice & Progress (practice sessions, mini tests, progress tracking)
+- Week 11-12: Profile & Settings (profile management, settings, help)
 
 ---
 
@@ -139,34 +149,34 @@ dependencies:
 - ✅ OTP Verification
 - ✅ Linking Success
 
-### Learning Flow (0/7 screens) 📋
+### Learning Flow (7/7 screens) ✅
 
-- [ ] Today's Learning Plan (Home/Dashboard) - **NEXT: Priority High**
-- [ ] Practice Question
-- [ ] Practice Result
-- [ ] Practice Session Complete
-- [ ] Skill Selection
-- [ ] Practice History
-- [ ] Session Resume
+- ✅ Today's Learning Plan (Home/Dashboard)
+- ✅ Practice Question
+- ✅ Practice Result
+- ✅ Practice Session Complete
+- ✅ Skill Selection
+- ✅ Practice History
+- ✅ Session Resume
 
-### Tutor Mode (0/7 screens) 📋
+### Tutor Mode (7/7 screens) ✅ - **COMPLETED**
 
-- [ ] Tutor Mode Entry
-- [ ] Camera Capture
-- [ ] Text Input
-- [ ] OCR Confirmation
-- [ ] Solution Step-by-Step
-- [ ] Solution Complete
-- [ ] Recent Problems List
+- ✅ Tutor Mode Entry
+- ✅ Camera Capture
+- ✅ Text Input
+- ✅ OCR Confirmation
+- ✅ Solution Step-by-Step (with animations)
+- ✅ Solution Complete
+- ✅ Recent Problems List (with skeleton loading)
 
-### Progress & Mini Test (0/6 screens) 📋
+### Progress & Mini Test (6/6 screens) ✅ - **COMPLETED**
 
-- [ ] Progress Dashboard
-- [ ] Skill Detail
-- [ ] Mini Test Start
-- [ ] Mini Test Question
-- [ ] Mini Test Result
-- [ ] Recommendations
+- ✅ Progress Dashboard
+- ✅ Skill Detail
+- ✅ Recommendations
+- ✅ Mini Test Start
+- ✅ Mini Test Question
+- ✅ Mini Test Result
 
 ### Profile & Settings (0/5 screens) 📋
 
@@ -176,7 +186,7 @@ dependencies:
 - [ ] Change Password
 - [ ] About/Help
 
-**Total**: 13/39 screens completed (33%)
+**Total**: 33/38 screens completed (87%)
 
 ---
 
@@ -190,7 +200,7 @@ dependencies:
 
 ---
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-21 (Updated: Progress & Mini Test completed - all 6 screens including Progress Dashboard, Skill Detail, Recommendations, and complete Mini Test flow)
 
 [← Quay lại Roadmap](README.md)
 

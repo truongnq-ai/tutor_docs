@@ -62,24 +62,26 @@ Add to `pom.xml`:
 - ✅ **Refresh Token**: Rotation-based refresh token implementation
 - ✅ **Image Upload**: Cloudinary integration for image storage
 - ✅ **User Management**: Student, Parent, and Admin user management
+- ✅ **AI Service Client**: HTTP client for AI Service communication (WebFlux)
+- ✅ **Tutor Mode APIs**: Solve from image/text, Recent problems, Rate limiting
+- ✅ **Database Migration**: V14 migration for solve_history schema fix
+- ✅ **Mini Test APIs**: Complete mini test flow (start, submit answer, submit test, unlock check)
+- ✅ **Progress APIs**: Progress dashboard, skill detail, recommendations
+- ✅ **Learning Progress APIs**: Practice sessions, mastery tracking
 
 ### Pending Tasks 📋
 
 - [ ] **SMS Gateway Abstraction**: Create abstraction layer (currently using Firebase directly)
-- [ ] **AI Service Client**: HTTP client for AI Service communication
-- [ ] **Learning Progress APIs**: Practice sessions, mastery tracking
-- [ ] **Reporting APIs**: Learning summary, weak skills, progress reports
+- [ ] **Reporting APIs**: Learning summary, weak skills, progress reports (for parent dashboard)
 - [ ] **Object Storage (S3) Integration**: For production image storage
 
 ---
 
 ## 4. NEXT STEPS PRIORITY
 
-1. **High**: AI Service client - HTTP client for AI Service communication
-2. **Medium**: Learning Progress APIs - Practice sessions, mastery tracking
-3. **Medium**: Reporting APIs - Learning summary, weak skills, progress reports
-4. **Low**: SMS Gateway abstraction layer
-5. **Low**: Object Storage (S3) integration
+1. **High**: Reporting APIs - Learning summary, weak skills, progress reports (for parent dashboard)
+2. **Medium**: SMS Gateway abstraction layer
+3. **Low**: Object Storage (S3) integration
 
 ---
 
@@ -105,15 +107,20 @@ Add to `pom.xml`:
 
 - Week 2-3: Firebase Admin SDK integration, OTP service, Phone authentication
 - Week 3-4: OAuth providers (Google/Apple), Rate limiting
+- Week 9-10: AI Service client integration (WebFlux HTTP client)
+- Week 9-10: Tutor Mode APIs (solve from image/text, recent problems, rate limiting)
+- Week 9-10: Database migration V14 (solve_history schema fix)
+- Week 10-11: Mini Test APIs (complete flow: start, submit answer, submit test, unlock check)
+- Week 10-11: Progress APIs (dashboard, skill detail, recommendations)
+- Week 10-11: Learning Progress APIs (practice sessions, mastery tracking)
 
 ### In Progress 🚧
 
-- Week 8-10: AI Service client integration
-- Week 8-10: Learning Progress APIs
+- Week 11-12: Reporting APIs (for parent dashboard)
 
 ### Planned 📋
 
-- Week 11-12: Reporting APIs
+- Week 11-12: Reporting APIs (learning summary, weak skills, progress reports)
 - Future: SMS Gateway abstraction, S3 integration
 
 ---
@@ -127,7 +134,7 @@ Add to `pom.xml`:
 
 ---
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-21 (Updated: Mini Test APIs, Progress APIs, and Learning Progress APIs completed - all backend APIs for student app progress tracking and mini test flow are ready)
 
 [← Quay lại Roadmap](README.md)
 
