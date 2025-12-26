@@ -34,33 +34,35 @@ Sử dụng key dạng semantic (theo ý nghĩa), **KHÔNG** dùng key theo nộ
 
 **Tốt:**
 ```json
-"auth.login.button": "Đăng nhập"
-"auth.forgot_password.link": "Quên mật khẩu?"
+"auth_login_button": "Đăng nhập"
+"auth_forgot_password_link": "Quên mật khẩu?"
 ```
 
 **Tránh:**
 ```json
-"button.login_now": "Đăng nhập"
-"link.forgot": "Quên mật khẩu?"
+"button_login_now": "Đăng nhập"
+"link_forgot": "Quên mật khẩu?"
 ```
 
 ### 3.2. Quy ước phân cấp key
 
-Key phải được tổ chức theo domain/chức năng, sử dụng dấu chấm (`.`) để phân cấp:
+Key phải được tổ chức theo domain/chức năng, sử dụng dấu gạch dưới (`_`) để phân cấp:
+
+**Lưu ý quan trọng:** Flutter gen-l10n không hỗ trợ dấu chấm (`.`) trong ARB keys. Phải sử dụng underscore (`_`) để Flutter có thể generate getter methods hợp lệ.
 
 **Cấu trúc:**
 ```
-<domain>.<feature>.<element>
+<domain>_<feature>_<element>
 ```
 
 **Ví dụ:**
-- `auth.login.title` - Tiêu đề màn hình đăng nhập
-- `auth.login.phone_placeholder` - Placeholder cho trường số điện thoại
-- `auth.forgot_password.button` - Nút trong màn hình quên mật khẩu
-- `validation.email.invalid` - Thông báo lỗi email không hợp lệ
-- `error.network.timeout` - Thông báo lỗi timeout
-- `common.button.ok` - Nút OK dùng chung
-- `common.button.cancel` - Nút Huỷ dùng chung
+- `auth_login_title` - Tiêu đề màn hình đăng nhập (conceptually: `auth.login.title`)
+- `auth_login_phone_placeholder` - Placeholder cho trường số điện thoại
+- `auth_forgot_password_button` - Nút trong màn hình quên mật khẩu
+- `validation_email_invalid` - Thông báo lỗi email không hợp lệ
+- `error_network_timeout` - Thông báo lỗi timeout
+- `common_button_ok` - Nút OK dùng chung
+- `common_button_cancel` - Nút Huỷ dùng chung
 
 ### 3.3. Các domain chính
 
@@ -79,7 +81,7 @@ Key phải ổn định lâu dài, cho phép thay đổi text mà không đổi 
 
 **Ví dụ:**
 ```json
-"auth.login.button": "Đăng nhập"
+"auth_login_button": "Đăng nhập"
 ```
 
 Có thể thay đổi text thành "Đăng nhập ngay" mà không cần đổi key.
@@ -108,8 +110,8 @@ Cấu trúc file giữa các ngôn ngữ phải giống nhau 100% (same keys).
 Sử dụng placeholder cho nội dung động:
 
 ```json
-"practice.question.counter": "Câu {current}/{total}",
-"@practice.question.counter": {
+"practice_question_counter": "Câu {current}/{total}",
+"@practice_question_counter": {
     "description": "Question counter with current and total",
     "placeholders": {
         "current": {
@@ -126,8 +128,10 @@ Sử dụng placeholder cho nội dung động:
 
 **Sử dụng trong code:**
 ```dart
-Text(context.locale.practiceQuestionCounter(1, 10))
+Text(context.locale.practice_question_counter(1, 10))
 ```
+
+**Lưu ý:** Flutter gen-l10n giữ nguyên underscore format trong getter names, không convert sang camelCase.
 
 ## 5. Quy tắc fallback & an toàn hiển thị
 
@@ -153,13 +157,15 @@ UI layer chỉ được gọi key, không được xử lý text.
 
 **Tốt:**
 ```dart
-Text(context.locale.authLoginButton)
+Text(context.locale.auth_login_button)
 ```
 
 **Tránh:**
 ```dart
 Text("Đăng nhập")  // Hardcode
 ```
+
+**Lưu ý:** Flutter gen-l10n giữ nguyên underscore format trong getter names (ví dụ: `auth_login_button` thay vì `authLoginButton`).
 
 ### 6.2. Không concat string
 
@@ -172,11 +178,11 @@ Text("Bạn đã làm đúng " + count + " bài")
 
 **Chuẩn:**
 ```json
-"practice.result.correct_count": "Bạn đã làm đúng {count} bài"
+"practice_result_correct_count": "Bạn đã làm đúng {count} bài"
 ```
 
 ```dart
-Text(context.locale.practiceResultCorrectCount(count))
+Text(context.locale.practice_result_correct_count(count))
 ```
 
 ### 6.3. Code review checklist
@@ -308,9 +314,9 @@ Không thay đổi ngôn ngữ tự động trong quá trình sử dụng.
 
 **Bước 1:** Thêm vào `intl_vi.arb`:
 ```json
-"practice.question.title": "Câu hỏi",
-"practice.question.counter": "Câu {current}/{total}",
-"@practice.question.counter": {
+"practice_question_title": "Câu hỏi",
+"practice_question_counter": "Câu {current}/{total}",
+"@practice_question_counter": {
     "description": "Question counter",
     "placeholders": {
         "current": {"type": "int", "example": "1"},
@@ -321,9 +327,9 @@ Không thay đổi ngôn ngữ tự động trong quá trình sử dụng.
 
 **Bước 2:** Thêm vào `intl_en.arb`:
 ```json
-"practice.question.title": "Question",
-"practice.question.counter": "Question {current}/{total}",
-"@practice.question.counter": {
+"practice_question_title": "Question",
+"practice_question_counter": "Question {current}/{total}",
+"@practice_question_counter": {
     "description": "Question counter",
     "placeholders": {
         "current": {"type": "int", "example": "1"},
@@ -339,9 +345,11 @@ flutter gen-l10n
 
 **Bước 4:** Sử dụng trong code:
 ```dart
-Text(context.locale.practiceQuestionTitle)
-Text(context.locale.practiceQuestionCounter(1, 10))
+Text(context.locale.practice_question_title)
+Text(context.locale.practice_question_counter(1, 10))
 ```
+
+**Lưu ý:** Flutter gen-l10n giữ nguyên underscore format trong getter names. Key `practice_question_counter` sẽ tạo getter `practice_question_counter`, không phải `practiceQuestionCounter`.
 
 ### 11.2. Refactor hardcode text
 
@@ -352,7 +360,7 @@ Text('Câu ${questionNumber}/${totalQuestions}')
 
 **Sau:**
 ```dart
-Text(context.locale.practiceQuestionCounter(questionNumber, totalQuestions))
+Text(context.locale.practice_question_counter(questionNumber, totalQuestions))
 ```
 
 ## 12. Checklist cho Developer
@@ -361,7 +369,7 @@ Khi thêm màn hình/feature mới:
 
 - [ ] Tất cả text đã được chuyển thành i18n keys
 - [ ] Đã thêm keys vào cả `intl_vi.arb` và `intl_en.arb`
-- [ ] Keys sử dụng semantic naming (domain.feature.element)
+- [ ] Keys sử dụng semantic naming (domain_feature_element với underscore)
 - [ ] Đã chạy `flutter gen-l10n` sau khi thêm keys
 - [ ] Đã test với cả 2 ngôn ngữ (vi và en)
 - [ ] Không có hardcode text trong code
