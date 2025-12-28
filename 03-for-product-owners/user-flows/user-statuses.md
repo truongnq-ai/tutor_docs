@@ -5,8 +5,8 @@
 
 | Trạng thái | Mô tả |
 |-----------|------|
-| Trial | Đang sử dụng ở chế độ dùng thử |
-| Linked | Đã liên kết với phụ huynh |
+| ACTIVE | Tài khoản đã được kích hoạt và có thể sử dụng đầy đủ tính năng |
+| INACTIVE | Tài khoản chưa được kích hoạt hoặc bị tạm khóa |
 
 ## Phụ huynh
 

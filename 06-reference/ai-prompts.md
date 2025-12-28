@@ -140,19 +140,22 @@ KHÔNG lặp lại bài toán cũ.
 
 ```
 
-## 9. PROMPT – Mini Test đánh giá skill
+## 9. PROMPT – Mini Test đánh giá Chapter
 
 ```text
 Hãy tạo một mini test gồm {N} câu hỏi để đánh giá
-mức độ thành thạo skill sau:
+kiến thức trong Chapter sau:
 
-- Skill ID: {SKILL_ID}
+- Chapter ID: {CHAPTER_ID}
+- Chapter Name: {CHAPTER_NAME}
 - Lớp: {GRADE}
 
 Yêu cầu:
-- Có ít nhất 1 câu kiểm tra prerequisite
-- Có giới hạn thời gian
+- Câu hỏi được chọn từ các Skills trong Chapter
+- Có ít nhất 1 câu kiểm tra prerequisite skill
+- Có giới hạn thời gian (cấu hình ở Chapter level)
 - Không cung cấp lời giải ngay
+- Phân tích kết quả theo Skill (chi tiết các skill làm đúng/sai)
 
 ```
 

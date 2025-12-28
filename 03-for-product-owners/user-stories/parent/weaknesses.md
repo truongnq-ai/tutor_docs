@@ -7,9 +7,10 @@
 Là một phụ huynh, tôi muốn biết con đang yếu ở những phần kiến thức nào.
 
 **Acceptance criteria**
-- [ ] Hiển thị danh sách các chương/dạng còn yếu
+- [ ] Hiển thị danh sách các Chapter còn yếu (hiển thị theo Chapter, không dùng thuật ngữ Skill)
 - [ ] Không dùng thuật ngữ Toán học quá chuyên sâu
 - [ ] Sắp xếp theo mức độ yếu (ưu tiên cao → thấp)
+- [ ] Chi tiết Skill được ẩn, chỉ hiển thị ở mức Chapter để dễ hiểu
 
 ## PU-07: Nhận gợi ý cải thiện
 

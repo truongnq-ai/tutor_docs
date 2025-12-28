@@ -268,8 +268,7 @@ Tạo trial profile cho học sinh mới.
 ```json
 {
   "grade": 6,
-  "deviceId": "device-uuid-here",
-  "anonymousId": "anonymous-id-here"
+  "deviceId": "device-uuid-here"
 }
 ```
 
@@ -299,7 +298,6 @@ Kiểm tra trạng thái trial.
 **Headers:**
 ```
 X-Device-Id: device-uuid
-X-Anonymous-Id: anonymous-id
 ```
 
 **Response (200 OK):**

@@ -18,9 +18,8 @@
 - Học sinh nhập OTP (hỏi phụ huynh lấy OTP)
 - Hệ thống verify OTP với Firebase
 - Nếu đúng:
-  - Nếu phụ huynh đã có tài khoản: Liên kết StudentTrialProfile → StudentProfile
-  - Nếu phụ huynh chưa có: Tạo ParentAccount (status: pending_activation, phone_verified: true) → Tạo StudentProfile → Liên kết
-  - Merge dữ liệu học tập từ trial
+  - Nếu phụ huynh đã có tài khoản: Liên kết StudentProfile với ParentAccount
+  - Nếu phụ huynh chưa có: Tạo ParentAccount (status: pending_activation, phone_verified: true) → Liên kết với StudentProfile
   - Gửi SMS kích hoạt dashboard (nếu tài khoản mới)
   - Hiển thị thông tin đăng nhập cho phụ huynh
 
@@ -37,9 +36,8 @@
 - Chưa được sử dụng trước đó
 
 **Sau khi liên kết thành công:**
-- StudentTrialProfile được chuyển thành StudentProfile
-- Dữ liệu học tập trong thời gian dùng thử được giữ lại
-- Học sinh được cấp quyền sử dụng đầy đủ
+- StudentProfile được liên kết với ParentAccount
+- Phụ huynh có thể theo dõi tiến độ học tập của học sinh
 
 ## Quy tắc liên kết (Phase 1)
 

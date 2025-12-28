@@ -18,27 +18,125 @@
 - JPA/Hibernate map `String` type sang `TEXT` một cách an toàn
 
 **Quy tắc áp dụng**:
-- ✓ **Dùng TEXT**: Các cột string được dùng trong `@Query` với `LOWER()`, `UPPER()`, `LIKE`, pattern matching
+- ✓ **Dùng TEXT**: Các cột string được dùng trong `@Query` với `LIKE`, pattern matching
 - ✓ **Có thể dùng VARCHAR**: Các cột string chỉ dùng cho exact match, không dùng string functions
 - ✓ **Luôn dùng TEXT**: Các cột string có thể cần search/filter trong tương lai
+- ✓ **Match Entity với Database**: Đảm bảo `columnDefinition = "TEXT"` trong Entity match với type trong database schema
 
 **Ví dụ**:
 
 ```java
-// ✓ ĐÚNG: Dùng TEXT cho cột dùng trong LOWER() query
+// ✓ ĐÚNG: Dùng TEXT cho cột dùng trong LIKE query
 @Column(name = "username", nullable = false, unique = true, columnDefinition = "TEXT")
 private String username;
 
 @Column(name = "email", unique = true, columnDefinition = "TEXT")
 private String email;
 
-// ✗ SAI: Dùng VARCHAR cho cột dùng trong LOWER() query
+// ✗ SAI: Dùng VARCHAR cho cột dùng trong LIKE query
 @Column(name = "username", nullable = false, unique = true, length = 255)
 private String username;  // Có thể gây lỗi "function lower(bytea) does not exist"
 
 // ✓ ĐÚNG: Dùng VARCHAR cho cột không dùng string functions
 @Column(name = "status", length = 20)
 private String status;  // OK vì chỉ dùng exact match
+```
+
+### String Normalization Standards
+
+**QUAN TRỌNG**: Các trường string đặc thù cần được normalize (lowercase/uppercase) để đảm bảo consistency và tránh lỗi khi query.
+
+**Quy tắc normalization**:
+- **Username**: Luôn lowercase, trim
+- **Email**: Luôn lowercase, trim
+- **Phone**: Luôn uppercase, trim
+- **Name**: Trim only, giữ nguyên case
+
+**Implementation**:
+- **Entity Level**: Sử dụng `@PrePersist` và `@PreUpdate` trong Entity cho automatic normalization khi save/update
+- **Service Level**: Sử dụng `StringCommon` utility class cho search queries và authentication queries (normalize input trước khi query)
+
+**Ví dụ Entity Normalization**:
+
+```java
+@Entity
+@Table(name = "users")
+public class User extends BaseEntity {
+    
+    @Column(name = "username", nullable = false, unique = true, columnDefinition = "TEXT")
+    private String username;
+    
+    @Column(name = "email", unique = true, columnDefinition = "TEXT")
+    private String email;
+    
+    @Column(name = "phone_number", length = 20, unique = true)
+    private String phoneNumber;
+    
+    @PrePersist
+    @PreUpdate
+    protected void normalizeFields() {
+        if (this.getId() == null) {
+            super.onCreate();
+        }
+        
+        // Username: lowercase
+        if (this.username != null) {
+            this.username = this.username.trim().toLowerCase();
+        }
+        
+        // Email: lowercase
+        if (this.email != null && !this.email.isEmpty()) {
+            this.email = this.email.trim().toLowerCase();
+        }
+        
+        // Phone: uppercase
+        if (this.phoneNumber != null && !this.phoneNumber.isEmpty()) {
+            this.phoneNumber = this.phoneNumber.trim().toUpperCase();
+        }
+        
+        // Name: trim only (giữ nguyên case)
+        if (this.name != null) {
+            this.name = this.name.trim();
+        }
+    }
+}
+```
+
+**Ví dụ Service Level Normalization**:
+
+```java
+// Normalize input cho authentication queries
+String normalizedUsername = StringCommon.normalizeUsername(username);
+Optional<User> user = userRepository.findByUsername(normalizedUsername);
+```
+
+### Query Parameter Processing Standards
+
+**QUAN TRỌNG**: Xử lý wildcards và case normalization ở Service Layer, không ở Repository.
+
+**Quy tắc**:
+- **Wildcards**: Xử lý ở Service Layer, không ở Repository
+- **Case normalization**: Normalize ở Service Layer trước khi query
+- **Pattern**: Sử dụng `StringCommon.addLikeRightAndLeft()` và `StringCommon.trimAndLowercase()`
+- **Repository**: Nhận parameters đã được normalize và format sẵn (có wildcards `%`)
+- **JPQL Query**: Đơn giản, không dùng `LOWER()/UPPER()` trong query, chỉ dùng `LIKE` với parameter đã normalize
+
+**Ví dụ**:
+
+```java
+// ✓ ĐÚNG: Service xử lý wildcards và normalization
+String searchText = null;
+if (!StringCommon.isNullOrBlank(request.searchText())) {
+    String normalized = StringCommon.trimAndLowercase(request.searchText());
+    searchText = StringCommon.addLikeRightAndLeft(normalized);
+}
+Page<User> users = userRepository.searchStudents(userType, status, searchText, pageable);
+
+// Repository query đơn giản
+@Query("SELECT u FROM User u WHERE u.username LIKE :searchText")
+
+// ✗ SAI: Repository xử lý wildcards hoặc dùng LOWER()
+@Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%'))")
 ```
 
 ## Entity

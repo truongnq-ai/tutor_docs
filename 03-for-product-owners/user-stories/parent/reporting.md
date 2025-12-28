@@ -8,7 +8,7 @@ Là một phụ huynh, tôi muốn nhận báo cáo học tập hằng tuần đ
 
 **Acceptance criteria**
 - [ ] Gửi báo cáo qua: Email hoặc Zalo OA
-- [ ] Nội dung báo cáo gồm: Thời gian học, Kết quả học tập, Điểm yếu chính
+- [ ] Nội dung báo cáo gồm: Thời gian học, Kết quả học tập theo Chapter, Điểm yếu chính (hiển thị theo Chapter)
 
 ## PU-09: Nội dung báo cáo dễ hiểu
 

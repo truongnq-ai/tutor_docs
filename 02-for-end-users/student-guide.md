@@ -21,7 +21,7 @@ Hướng dẫn sử dụng ứng dụng Tutor Student App.
 ## Sử dụng ứng dụng
 
 ### Lộ trình học hằng ngày
-- Mỗi ngày ứng dụng sẽ đề xuất 1-2 skill trọng tâm
+- Mỗi ngày ứng dụng sẽ đề xuất 1 Chapter trọng tâm và các Skills cần luyện tập trong Chapter đó
 - Tổng số bài luyện tập: 5-10 bài
 - Thời lượng học gợi ý: 15-30 phút
 
@@ -37,12 +37,13 @@ Hướng dẫn sử dụng ứng dụng Tutor Student App.
 - Làm sai nhiều bài → giảm độ khó
 
 ### Mini Test
-- Làm test 5-7 câu để kiểm tra kiến thức
-- Xem kết quả và nhận gợi ý cải thiện
+- Làm test 5-7 câu để kiểm tra kiến thức trong một Chapter
+- Mini Test được mở khóa sau khi hoàn thành đủ số bài practice trong Chapter
+- Xem kết quả theo Chapter và nhận gợi ý cải thiện theo từng Skill
 
 ## Liên kết với phụ huynh
 
-Để tiếp tục sử dụng sau thời gian dùng thử:
+Để phụ huynh có thể theo dõi tiến độ học tập của bạn:
 1. Nhập số điện thoại phụ huynh
 2. Nhập mã OTP được gửi qua SMS
 3. Hoàn tất liên kết

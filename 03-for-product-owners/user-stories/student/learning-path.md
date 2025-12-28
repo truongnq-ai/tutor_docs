@@ -7,7 +7,8 @@
 Là một học sinh, tôi muốn biết hôm nay mình nên học những nội dung gì để không học lan man, mất định hướng.
 
 **Acceptance criteria**
-- [ ] Hiển thị 1–2 skill trọng tâm trong ngày
+- [ ] Hiển thị 1 Chapter trọng tâm trong ngày
+- [ ] Hiển thị các Skills cần luyện tập trong Chapter đó
 - [ ] Tổng số bài luyện tập: 5–10 bài
 - [ ] Thời lượng học gợi ý: 15–30 phút
 

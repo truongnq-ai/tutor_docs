@@ -10,18 +10,17 @@ ParentAccount
 
 - **ParentAccount** là tài khoản gốc.
 - Mỗi ParentAccount gắn với **1 StudentProfile** trong Phase 1.
+- StudentProfile có thể được tạo độc lập (student-first flow) và sau đó liên kết với ParentAccount.
 
-## Hồ sơ học sinh dùng thử (Trial)
+## Trạng thái tài khoản
 
-**StudentTrialProfile**
-- `anonymous_id`
-- `device_id`
-- `trial_started_at`
+**StudentProfile**
+- Có thể hoạt động độc lập (chưa liên kết với phụ huynh)
+- Khi liên kết với ParentAccount, phụ huynh có thể theo dõi tiến độ học tập
 
-**Lưu ý:**
-- StudentTrialProfile chỉ tồn tại trong thời gian dùng thử
-- Sẽ bị xoá hoặc chuyển đổi khi liên kết phụ huynh
-- Dữ liệu học tập trong thời gian dùng thử được giữ lại khi liên kết
+**ParentAccount**
+- Status: `pending_activation`, `inactive`, `active`
+- Khi `active`: Có thể đăng nhập dashboard và xem tiến độ học sinh
 
 [← Quay lại Overview](README.md)
 

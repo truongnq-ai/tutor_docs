@@ -8,11 +8,14 @@
 **Đặc điểm**:
 - Entity trong database, có CRUD và review workflow
 - Liên kết với Skill qua `skill_id` (bắt buộc)
+- Liên kết với Chapter qua `chapter_id` (lấy từ Skill để dễ query và filter)
 - Có review status: `PENDING`, `APPROVED`, `REJECTED`, `NEEDS_REVISION`
 - Chỉ bài tập `APPROVED` mới được sử dụng để sinh Questions
 - Các trường: `problem_text`, `solution_steps`, `difficulty_level`, `final_answer`, `common_mistakes`, `hints`
 
 **Vai trò**: Template/Blueprint cho Questions
+
+**Lưu ý**: Exercise gắn với Skill (skill_id, bắt buộc). Chapter được lấy từ Skill (skill.chapter_id) và lưu vào Exercise (chapter_id) để dễ query và filter theo Chapter.
 
 ## Question (Câu hỏi)
 
@@ -23,11 +26,14 @@
 - Được sinh từ Exercise (snapshot Exercise data tại thời điểm assign)
 - Có thể customize (thay số liệu) nhưng giữ nguyên logic
 - Liên kết với Exercise qua `exercise_id`
-- Liên kết với Skill qua `skill_id`
+- Liên kết với Skill qua `skill_id` (bắt buộc)
+- Liên kết với Chapter qua `chapter_id` (lấy từ Skill để dễ query)
 - Liên kết với Student qua `assigned_to_student_id`
 - Có status: `DRAFT`, `ASSIGNED`, `SUBMITTED`, `RESUBMITTED`, `SKIPPED`
 - **KHÔNG** lưu student response data (đã chuyển sang Practice)
 - **KHÔNG** có sessionId (được quản lý qua Practice records)
+
+**Lưu ý**: Question gắn với Skill (skill_id, bắt buộc). Chapter được lấy từ Skill (skill.chapter_id) và lưu vào Question (chapter_id) để dễ query và filter theo Chapter.
 
 **Vai trò**: Bài tập thực tế được assign cho học sinh, chứa nội dung câu hỏi (snapshot của Exercise). Response data và session info được lưu trong Practice records.
 
@@ -45,7 +51,7 @@
 - Lưu student response: `student_answer`, `is_correct`, `duration_sec`, `submitted_at`
 - Liên kết với session qua `session_id` + `session_type` (polymorphic relationship)
 - Session types: `PRACTICE`, `PRACTICE_SESSION`, `MINI_TEST`, `TEST_30MIN`, etc.
-- Liên kết với Student/Trial qua `student_id`/`trial_id`
+- Liên kết với Student qua `student_id`
 - Một Question có thể có nhiều Practice records (re-attempt logic)
 
 **Option E Implementation**:

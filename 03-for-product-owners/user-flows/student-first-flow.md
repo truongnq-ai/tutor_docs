@@ -11,37 +11,17 @@
 ```
 Mở ứng dụng lần đầu
 → Màn hình giới thiệu
-→ Chọn "Dùng thử ngay" (hoặc Login/Signup bằng Google/Apple/Manual)
-→ Tạo StudentTrialProfile
+→ Chọn "Đăng ký" (hoặc Login/Signup bằng Google/Apple/Manual)
+→ Tạo StudentProfile
 → Chọn lớp (6 hoặc 7)
-→ Bắt đầu học với quyền hạn giới hạn
-→ Gặp paywall
-→ Yêu cầu liên kết phụ huynh
+→ Chọn mục tiêu học tập
+→ Bắt đầu học
+→ Có thể liên kết với phụ huynh để phụ huynh theo dõi tiến độ
 ```
-
-## Quyền hạn của StudentTrialProfile
-
-### Được phép:
-- Giải bài Toán với số lượng giới hạn
-- Học theo lộ trình trong 1–2 ngày
-- Luyện tập các bài cơ bản
-
-### Không được phép:
-- Xem báo cáo học tập dài hạn
-- Lưu tiến độ học vĩnh viễn
-- Sử dụng ứng dụng không giới hạn
-
-## Paywall và yêu cầu liên kết phụ huynh
-
-Paywall được hiển thị khi:
-- Hết số lượt sử dụng miễn phí
-- Hoặc hết thời gian dùng thử
-
-Thông điệp hiển thị yêu cầu học sinh nhờ phụ huynh xác nhận tài khoản.
 
 ## Cách liên kết phụ huynh
 
-Học sinh có thể:
+Học sinh có thể liên kết với phụ huynh để phụ huynh theo dõi tiến độ học tập:
 - Nhập số điện thoại phụ huynh
 - Gửi OTP xác thực
 - Nhập OTP để liên kết
@@ -53,7 +33,7 @@ Học sinh có thể:
 4. Học sinh nhập OTP (hỏi phụ huynh lấy OTP)
 5. Xác thực OTP thành công
 6. Nếu phụ huynh chưa có tài khoản → Tự động tạo tài khoản
-7. Liên kết StudentTrialProfile → StudentProfile
+7. Liên kết StudentProfile với ParentAccount
 8. Hiển thị thông tin đăng nhập (username: số điện thoại, password: số điện thoại) và link dashboard
 
 **Lưu ý:**

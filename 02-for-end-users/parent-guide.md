@@ -29,7 +29,7 @@ Hướng dẫn sử dụng Parent Dashboard để theo dõi việc học của c
 - Xem tiến bộ theo thời gian (tuần này vs tuần trước)
 
 ### Điểm yếu
-- Xem danh sách các phần kiến thức con đang yếu
+- Xem danh sách các Chapter con đang yếu (hiển thị theo Chapter, không dùng thuật ngữ Skill)
 - Nhận gợi ý cải thiện bằng ngôn ngữ dễ hiểu
 
 ### Báo cáo định kỳ

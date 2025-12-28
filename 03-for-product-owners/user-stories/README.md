@@ -40,6 +40,12 @@ Xem [Overview Parent Stories](parent/README.md) để biết chi tiết.
 ### Admin User Stories
 - [Exercise và Question Management](admin/README.md)
 
+### Trial & Licence Management
+**Lưu ý**: Trial chưa được triển khai trong Phase 1. Các tài liệu trong folder này là tài liệu tham khảo cho các phase sau.
+- [Trial & Licence Overview](trial-licence/README.md) - Logic quản lý trial và licence (chưa triển khai)
+- [Trial & Device Management](trial-licence/trial-and-device.md) - Logic trial, device tracking (chưa triển khai)
+- [Licence Management](trial-licence/licence.md) - Logic licence, lifecycle, multi-device (chưa triển khai)
+
 ## QUY TẮC ƯU TIÊN
 
 ### Must-have (Phase 1)
