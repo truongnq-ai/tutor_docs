@@ -27,10 +27,11 @@ Xem chi tiết: [Trải nghiệm báo cáo - Phụ huynh](../04-user-experience/
 
 ## Cho Developers
 
-1. **Hiểu kiến trúc**: Đọc [System Architecture](../07-architecture-and-data/system-architecture.md)
-2. **Database**: Xem [Database Schema](../07-architecture-and-data/database-schema.md)
-3. **API Contracts**: Tham khảo [API Contracts](../08-api-contracts/)
-4. **Coding Standards**: Xem [Coding Standards](../09-coding-standards/)
+1. **Setup môi trường**: Xem [Development Setup](./development-setup.md)
+2. **Hiểu kiến trúc**: Đọc [System Architecture](../07-architecture-and-data/system-architecture.md)
+3. **Database**: Xem [Database Schema](../07-architecture-and-data/database-schema.md)
+4. **API Contracts**: Tham khảo [API Contracts](../08-api-contracts/)
+5. **Coding Standards**: Xem [Coding Standards](../09-coding-standards/)
 
 ## Cho AI Service
 
@@ -40,9 +41,9 @@ Xem chi tiết: [Trải nghiệm báo cáo - Phụ huynh](../04-user-experience/
 
 ## Cho DevOps
 
-1. Xem [Deployment Guide](../05-for-devops/deployment.md) để triển khai hệ thống
-2. Tham khảo [Infrastructure](../05-for-devops/infrastructure.md) để hiểu cấu trúc hạ tầng
-3. Xem [Migration Notes](../07-architecture-and-data/flyway-migration-notes.md) cho database migrations
+1. Xem [Deployment Guide](../07-architecture-and-data/deployment.md) để triển khai hệ thống
+2. Xem [Migration Notes](../07-architecture-and-data/flyway-migration-notes.md) cho database migrations
+3. Tham khảo [System Architecture](../07-architecture-and-data/system-architecture.md) để hiểu cấu trúc hạ tầng
 
 ---
 

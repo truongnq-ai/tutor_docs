@@ -103,6 +103,7 @@ Provide:
 
 - [Python Standards](./python.md)
 - [AI Integration](./ai-integration.md)
+- [AI Prompts](./prompts.md) - Prompt templates chuẩn
 
 ---
 

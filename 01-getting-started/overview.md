@@ -49,6 +49,14 @@ Sản phẩm **LÀ**:
 ### Độ chính xác
 - Bài Toán đúng ≥ 95% (chương trình phổ thông)
 
+## Tài liệu liên quan
+
+- [Product Overview](./product-overview.md) - Chi tiết về sản phẩm
+- [KPIs & Metrics](./kpis-metrics.md) - Chỉ số thành công
+- [Roadmap](./roadmap.md) - Lộ trình phát triển
+- [Core Concepts](../00-core-concepts/glossary.md) - Thuật ngữ
+- [Chapter vs Skill](../00-core-concepts/chapter-vs-skill.md) - Phân vai rõ ràng
+
 ---
 
 ← Quay lại: [README.md](../README.md)

@@ -65,6 +65,7 @@ Tất cả API trả về response với cấu trúc:
 
 - [Prompt Structure](./prompt-structure.md) - Prompt versioning, safety
 - [AI Integration](./ai-integration.md) - Core ↔ AI contract, retry, timeout
+- [AI Prompts](./prompts.md) - Prompt templates chuẩn
 - [General Principles](../general-principles.md) - Nguyên tắc chung
 
 ---

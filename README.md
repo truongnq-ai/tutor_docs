@@ -14,13 +14,18 @@ Hướng dẫn bắt đầu nhanh cho tất cả người đọc.
 - [Trải nghiệm báo cáo - Phụ huynh](./04-user-experience/parent/reporting-experience.md)
 
 ### 📋 [Cho Product Owners](./03-product-rules/)
+- [Product Overview](./01-getting-started/product-overview.md) - Tổng quan sản phẩm
+- [KPIs & Metrics](./01-getting-started/kpis-metrics.md) - Chỉ số thành công
+- [Roadmap](./01-getting-started/roadmap.md) - Lộ trình phát triển
 - [Domain Model](./02-domain-model/) - Trái tim của dự án
 - [Product Rules](./03-product-rules/) - Quy tắc nghiệp vụ
 - [User Stories](./06-user-stories/) - User stories chuẩn hoá
 - [User Flows](./05-user-flows/) - Luồng người dùng
 
 ### 💻 [Cho Developers](./07-architecture-and-data/)
+- **Setup**: [Development Setup](./01-getting-started/development-setup.md) - Thiết lập môi trường phát triển
 - **Architecture**: [System Architecture](./07-architecture-and-data/system-architecture.md), [Database Schema](./07-architecture-and-data/database-schema.md), [Chapter-Skill ERD](./07-architecture-and-data/chapter-skill-erd.md)
+- **Deployment**: [Deployment Guide](./07-architecture-and-data/deployment.md) - Hướng dẫn triển khai
 - **API Contracts**: [Learning Plan](./08-api-contracts/core-service/learning-plan.md), [Mini Test](./08-api-contracts/core-service/mini-test.md)
 - **Coding Standards**: [Coding Standards](./09-coding-standards/README.md)
 - **Migration**: [Chapter Migration](./10-release-and-migration/chapter-migration.md), [Backward Compatibility](./10-release-and-migration/backward-compatibility.md)
@@ -28,7 +33,8 @@ Hướng dẫn bắt đầu nhanh cho tất cả người đọc.
 ### 🤖 [Cho AI Service](./03-product-rules/)
 - [Domain Model](./02-domain-model/) - Chapter, Skill, Learning Plan
 - [Product Rules](./03-product-rules/) - Learning Plan Rules, Mastery Calculation
-- [API Contracts - AI Service](./08-api-contracts/ai-service/)
+- [API Contracts - AI Service](./08-api-contracts/ai-service/) - Recommendation, Analysis
+- [AI Prompts](./09-coding-standards/ai-service/prompts.md) - Prompt templates chuẩn
 
 ---
 
@@ -118,7 +124,11 @@ tutor_docs/
 │   └── learning-philosophy.md
 ├── 01-getting-started/         # Bắt đầu nhanh
 │   ├── overview.md
-│   └── quick-start.md
+│   ├── quick-start.md
+│   ├── product-overview.md
+│   ├── kpis-metrics.md
+│   ├── roadmap.md
+│   └── development-setup.md
 ├── 02-domain-model/            # Domain model - trái tim của dự án
 │   ├── chapter.md
 │   ├── skill.md
@@ -146,13 +156,15 @@ tutor_docs/
 │   ├── system-architecture.md
 │   ├── database-schema.md
 │   ├── chapter-skill-erd.md
-│   └── flyway-migration-notes.md
+│   ├── flyway-migration-notes.md
+│   └── deployment.md
 ├── 08-api-contracts/           # API contracts
 │   ├── core-service/
 │   └── ai-service/
 ├── 09-coding-standards/        # Coding standards
+│   ├── general-principles.md
 │   ├── backend/
-│   ├── ai-service/
+│   ├── ai-service/             # Python, Prompt Structure, AI Integration, Prompts
 │   ├── frontend/
 │   └── api/
 ├── 10-release-and-migration/   # Release và migration
