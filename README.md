@@ -9,35 +9,26 @@
 ### 🚀 [Bắt đầu nhanh](./01-getting-started/quick-start.md)
 Hướng dẫn bắt đầu nhanh cho tất cả người đọc.
 
-### 👥 [Cho End Users](./02-for-end-users/user-guide.md)
-- [Hướng dẫn cho Học sinh](./02-for-end-users/student-guide.md)
-- [Hướng dẫn cho Phụ huynh](./02-for-end-users/parent-guide.md)
+### 👥 [Cho End Users](./04-user-experience/)
+- [Trải nghiệm học tập - Học sinh](./04-user-experience/student/learning-experience.md)
+- [Trải nghiệm báo cáo - Phụ huynh](./04-user-experience/parent/reporting-experience.md)
 
-### 📋 [Cho Product Owners](./03-for-product-owners/product-overview.md)
-- [Tổng quan Sản phẩm](./03-for-product-owners/product-overview.md)
-- [User Stories](./03-for-product-owners/user-stories/README.md)
-- [User Flows](./03-for-product-owners/user-flows/README.md)
-- [KPIs & Metrics](./03-for-product-owners/kpis-metrics.md)
-- [Roadmap](./03-for-product-owners/roadmap.md)
+### 📋 [Cho Product Owners](./03-product-rules/)
+- [Domain Model](./02-domain-model/) - Trái tim của dự án
+- [Product Rules](./03-product-rules/) - Quy tắc nghiệp vụ
+- [User Stories](./06-user-stories/) - User stories chuẩn hoá
+- [User Flows](./05-user-flows/) - Luồng người dùng
 
-### 💻 [Cho Developers](./04-for-developers/setup/development-setup.md)
-- **Architecture**: [System Architecture](./04-for-developers/architecture/system-architecture.md), [API Specification](./04-for-developers/architecture/api-specification.md), [Database Design](./04-for-developers/architecture/database-design.md)
-- **Setup**: [Development Setup](./04-for-developers/setup/development-setup.md), [Environment Config](./04-for-developers/setup/environment-config.md), [Project Structure](./04-for-developers/setup/project-structure.md)
-- **Roadmap**: [Roadmap Overview](./04-for-developers/roadmap/overview.md), [Roadmap by Module](./04-for-developers/roadmap/README.md)
-- **Implementation**: [API-DB Mapping](./04-for-developers/implementation/api-db-mapping.md)
-- **Education Logic**: [Adaptive Learning](./04-for-developers/education-logic/adaptive-learning.md), [Skill Graph](./04-for-developers/education-logic/skill-graph.md)
-- **Coding Standards**: [Java](./04-for-developers/coding-standards/java/README.md), [Python](./04-for-developers/coding-standards/python/README.md), [Next.js](./04-for-developers/coding-standards/nextjs/README.md), [Flutter](./04-for-developers/coding-standards/flutter/README.md)
-- **Testing**: [Testing Strategy](./04-for-developers/testing/testing-strategy.md)
+### 💻 [Cho Developers](./07-architecture-and-data/)
+- **Architecture**: [System Architecture](./07-architecture-and-data/system-architecture.md), [Database Schema](./07-architecture-and-data/database-schema.md), [Chapter-Skill ERD](./07-architecture-and-data/chapter-skill-erd.md)
+- **API Contracts**: [Learning Plan](./08-api-contracts/core-service/learning-plan.md), [Mini Test](./08-api-contracts/core-service/mini-test.md)
+- **Coding Standards**: [Coding Standards](./09-coding-standards/README.md)
+- **Migration**: [Chapter Migration](./10-release-and-migration/chapter-migration.md), [Backward Compatibility](./10-release-and-migration/backward-compatibility.md)
 
-### 🔧 [Cho DevOps](./05-for-devops/deployment.md)
-- [Deployment Guide](./05-for-devops/deployment.md)
-- [Infrastructure](./05-for-devops/infrastructure.md)
-- [Monitoring](./05-for-devops/monitoring.md)
-
-### 📖 [Tài liệu Tham khảo](./06-reference/api-reference.md)
-- [API Reference](./06-reference/api-reference.md)
-- [Database Schema](./06-reference/database-schema.md)
-- [AI Prompts](./06-reference/ai-prompts.md)
+### 🤖 [Cho AI Service](./03-product-rules/)
+- [Domain Model](./02-domain-model/) - Chapter, Skill, Learning Plan
+- [Product Rules](./03-product-rules/) - Learning Plan Rules, Mastery Calculation
+- [API Contracts - AI Service](./08-api-contracts/ai-service/)
 
 ---
 
@@ -74,29 +65,45 @@ Xem chi tiết: [Tổng quan Dự án](./01-getting-started/overview.md)
 
 ### Tài liệu quan trọng nhất
 
-- 📋 [Product Overview](./03-for-product-owners/product-overview.md) - Bắt đầu từ đây
-- 🏗️ [System Architecture](./04-for-developers/architecture/system-architecture.md) - Kiến trúc hệ thống
-- 🔌 [API Specification](./04-for-developers/architecture/api-specification.md) - API reference
-- 🛠️ [Development Setup](./04-for-developers/setup/development-setup.md) - Setup môi trường
-- 📊 [Database Design](./04-for-developers/architecture/database-design.md) - Database schema
+- 📋 [Core Concepts](./00-core-concepts/glossary.md) - Thuật ngữ và khái niệm cốt lõi
+- 🏗️ [Domain Model](./02-domain-model/) - Chapter, Skill, Exercise, Practice, Mini Test, Learning Plan
+- 📐 [Product Rules](./03-product-rules/) - Mini Test Rules, Learning Plan Rules, Mastery Calculation
+- 🏛️ [System Architecture](./07-architecture-and-data/system-architecture.md) - Kiến trúc hệ thống
+- 📊 [Database Schema](./07-architecture-and-data/database-schema.md) - Database schema
 
 ### Tài liệu theo chủ đề
 
-**Onboarding & User Management:**
-- [User Flows](./03-for-product-owners/user-flows/README.md)
-- [User Stories](./03-for-product-owners/user-stories/README.md)
+**Core Concepts:**
+- [Glossary](./00-core-concepts/glossary.md) - Thuật ngữ
+- [Chapter vs Skill](./00-core-concepts/chapter-vs-skill.md) - Phân vai rõ ràng
+- [Learning Philosophy](./00-core-concepts/learning-philosophy.md) - Vì sao chọn Chapter
 
-**Education & Learning:**
-- [Adaptive Learning](./04-for-developers/education-logic/adaptive-learning.md)
-- [Skill Graph](./04-for-developers/education-logic/skill-graph.md)
+**Domain Model:**
+- [Chapter](./02-domain-model/chapter.md) - Trục sư phạm / UX
+- [Skill](./02-domain-model/skill.md) - Trục AI / luyện tập
+- [Learning Plan](./02-domain-model/learning-plan.md) - Lộ trình học tập
 
-**Development:**
-- [Project Structure](./04-for-developers/setup/project-structure.md)
-- [Testing Strategy](./04-for-developers/testing/testing-strategy.md)
+**Product Rules:**
+- [Mini Test Rules](./03-product-rules/mini-test-rules.md) - Quy tắc Mini Test
+- [Learning Plan Rules](./03-product-rules/learning-plan-rules.md) - Quy tắc Learning Plan
+- [Mastery Calculation](./03-product-rules/mastery-calculation.md) - Công thức Mastery
 
-**Deployment:**
-- [Deployment Guide](./05-for-devops/deployment.md)
-- [Environment Configuration](./04-for-developers/setup/environment-config.md)
+**User Experience:**
+- [Student Learning Experience](./04-user-experience/student/learning-experience.md)
+- [Parent Reporting Experience](./04-user-experience/parent/reporting-experience.md)
+
+**Architecture & Data:**
+- [System Architecture](./07-architecture-and-data/system-architecture.md)
+- [Database Schema](./07-architecture-and-data/database-schema.md)
+- [Chapter-Skill ERD](./07-architecture-and-data/chapter-skill-erd.md)
+
+**API Contracts:**
+- [Learning Plan API](./08-api-contracts/core-service/learning-plan.md)
+- [Mini Test API](./08-api-contracts/core-service/mini-test.md)
+
+**Coding Standards:**
+- [Coding Standards](./09-coding-standards/README.md)
+- [General Principles](./09-coding-standards/general-principles.md)
 
 ---
 
@@ -104,20 +111,62 @@ Xem chi tiết: [Tổng quan Dự án](./01-getting-started/overview.md)
 
 ```
 tutor_docs/
-├── 01-getting-started/          # Bắt đầu nhanh
-├── 02-for-end-users/            # Hướng dẫn người dùng
-├── 03-for-product-owners/       # Tài liệu sản phẩm
-├── 04-for-developers/           # Tài liệu kỹ thuật
-│   ├── architecture/
-│   ├── setup/
-│   ├── implementation/
-│   ├── education-logic/
-│   ├── coding-standards/
-│   └── testing/
-├── 05-for-devops/               # Deployment & Infrastructure
-├── 06-reference/                # Tài liệu tham khảo
-├── _archive/                    # Archive (file cũ)
-└── _templates/                  # Templates
+├── README.md (root entry point)
+├── 00-core-concepts/          # Thuật ngữ và khái niệm cốt lõi
+│   ├── glossary.md
+│   ├── chapter-vs-skill.md
+│   └── learning-philosophy.md
+├── 01-getting-started/         # Bắt đầu nhanh
+│   ├── overview.md
+│   └── quick-start.md
+├── 02-domain-model/            # Domain model - trái tim của dự án
+│   ├── chapter.md
+│   ├── skill.md
+│   ├── exercise.md
+│   ├── practice.md
+│   ├── mini-test.md
+│   └── learning-plan.md
+├── 03-product-rules/           # Quy tắc nghiệp vụ
+│   ├── mini-test-rules.md
+│   ├── learning-plan-rules.md
+│   ├── chapter-progress-rules.md
+│   └── mastery-calculation.md
+├── 04-user-experience/         # Trải nghiệm người dùng
+│   ├── student/
+│   └── parent/
+├── 05-user-flows/              # Luồng người dùng
+│   ├── student-learning-flow.md
+│   ├── mini-test-flow.md
+│   └── parent-view-flow.md
+├── 06-user-stories/            # User stories (chuẩn hoá)
+│   ├── student/
+│   ├── parent/
+│   └── admin/
+├── 07-architecture-and-data/   # Kiến trúc và dữ liệu
+│   ├── system-architecture.md
+│   ├── database-schema.md
+│   ├── chapter-skill-erd.md
+│   └── flyway-migration-notes.md
+├── 08-api-contracts/           # API contracts
+│   ├── core-service/
+│   └── ai-service/
+├── 09-coding-standards/        # Coding standards
+│   ├── backend/
+│   ├── ai-service/
+│   ├── frontend/
+│   └── api/
+├── 10-release-and-migration/   # Release và migration
+│   ├── chapter-migration.md
+│   └── backward-compatibility.md
+├── _templates/                 # Templates
+│   ├── domain-doc.md
+│   ├── product-rule.md
+│   ├── user-flow.md
+│   ├── api-contract.md
+│   ├── migration-doc.md
+│   ├── qna_guidelines.md
+│   └── role_presets.md
+└── _archive/                   # Archive (file cũ)
 ```
 
 ---
@@ -127,12 +176,15 @@ tutor_docs/
 - Tất cả file dùng Markdown
 - Tên file không có timestamps (ví dụ: `system-architecture.md`)
 - Tất cả tài liệu có link quay về README.md ở đầu và cuối file
+- Templates bắt buộc dùng khi thêm file mới
 
 ---
 
 ## 🔄 CẬP NHẬT
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-01-XX
+
+**Cấu trúc mới**: Tái cấu trúc từ tổ chức theo vai trò sang tổ chức theo domain/lifecycle/decision logic.
 
 ---
 

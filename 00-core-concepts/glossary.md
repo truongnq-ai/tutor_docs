@@ -1,10 +1,6 @@
 # GLOSSARY - THUẬT NGỮ
 
-⚠️ **DEPRECATED**: File này đã được di chuyển đến [00-core-concepts/glossary.md](../00-core-concepts/glossary.md)
-
-Vui lòng sử dụng file mới.
-
----
+← Quay lại: [README.md](../README.md)
 
 ## Thuật ngữ chung
 
@@ -32,6 +28,8 @@ Vui lòng sử dụng file mới.
 - **Skill**: Trục AI - đơn vị năng lực atomic, dùng cho practice và adaptive logic
 - Một Chapter chứa nhiều Skills
 - Mini Test được tổ chức theo Chapter (scope), nhưng phân tích kết quả theo Skill (detail)
+
+Xem chi tiết: [Chapter vs Skill](./chapter-vs-skill.md)
 
 **Skill Graph**: Đồ thị biểu diễn mối quan hệ giữa các skills (prerequisites)
 

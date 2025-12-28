@@ -10,6 +10,8 @@
 
 - **Nền tảng web/mobile**: Student App (Flutter) + Parent Dashboard (Next.js)
 - **Adaptive Learning Engine**: Hệ thống học tập thích ứng dựa trên Chapter (lộ trình) và Skill (năng lực atomic), với skill graph và mastery tracking
+
+Xem thêm: [Core Concepts](../00-core-concepts/glossary.md), [Chapter vs Skill](../00-core-concepts/chapter-vs-skill.md)
 - **Tính năng hỗ trợ phụ huynh**: Dashboard báo cáo theo Chapter, theo dõi điểm yếu, báo cáo tuần
 
 ## Định vị sản phẩm
