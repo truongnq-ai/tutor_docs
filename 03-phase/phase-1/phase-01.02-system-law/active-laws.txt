@@ -1,0 +1,56 @@
+# Phase 1 – Active System Laws
+
+**Location:** `03-phase/phase-1/phase-01.02-system-law/active-laws.md`  
+**Status:** FROZEN  
+**Applies to:** Phase 1 only
+
+---
+
+## 1. Active Laws (ENFORCED)
+
+Các luật sau **đang được ENFORCE đầy đủ** trong Phase 1:
+
+### 1.1 Student Lifecycle – System Law
+- Lifecycle là **source of truth duy nhất** cho quyền học
+- Chỉ sử dụng lifecycle tối giản theo Phase 1
+- Không suy luận quyền từ trial / license
+
+### 1.2 Chapter Progression – System Law
+- Chapter là **đơn vị tiến độ duy nhất**
+- Chapter có state rõ ràng
+- Không có trạng thái ngầm
+- Progression chỉ thay đổi theo flow hợp lệ
+
+### 1.3 Skill & Mastery Rules – System Law (Simplified)
+- Skill là đơn vị năng lực, không phải tiến độ
+- Mastery tồn tại nhưng **không triển khai nâng cao**
+- Không decay, không suy luận ngoài luật
+
+### 1.4 AI Scoring & Practice Generation Contract
+- AI là service hỗ trợ
+- AI KHÔNG quyết định:
+  - quyền
+  - progression
+  - completion
+- System Core luôn override AI
+
+### 1.5 Permission Rules (Hard-coded)
+- Permission không động
+- Không Permission Matrix đầy đủ
+- Quyền được kiểm soát trực tiếp trong code theo Phase 1 scope
+
+---
+
+## 2. Interpretation Rules
+
+- Luật được áp dụng **đúng như System Law gốc**
+- Không mở rộng
+- Không tối giản lại để “dễ code”
+- Không chuẩn bị sẵn cho Phase sau
+
+---
+
+## 3. Non-negotiable
+
+Nếu code mâu thuẫn với file này:
+> **CODE SAI – không được sửa luật**

@@ -1,0 +1,136 @@
+USER FLOW: STUDENT – START LEARNING FLOW
+Phase: Phase 1
+Actor: Student
+Purpose: Student bắt đầu học một Chapter hợp lệ
+
+Preconditions (Điều kiện trước)
+
+Student đã đăng nhập hợp lệ
+
+Student có role = STUDENT
+
+Student có StudentProfile tồn tại
+
+Student.lifecycle_state cho phép học
+
+Chapter đã được admin gán cho Student (assignment tồn tại)
+
+ChapterProgress cho Chapter này đang ở trạng thái LOCKED
+
+Không tồn tại:
+
+Trial
+
+License
+
+Payment
+
+Device restriction
+
+Trigger (Hành động kích hoạt)
+
+Student chọn một Chapter trong danh sách Chapter được phép học
+
+Student nhấn hành động “Bắt đầu học” (Start Learning)
+
+Step-by-step Flow
+
+Step 1
+Student gửi request “start learning chapter” đến backend.
+
+Step 2
+Backend Controller (ChapterProgressController):
+
+Xác thực JWT
+
+Xác định actor là STUDENT
+
+Chuyển request vào ChapterProgressService
+
+Step 3
+ChapterProgressService thực hiện các guard bắt buộc:
+
+RoleGuard: chỉ STUDENT được phép
+
+LifecycleGuard: kiểm tra Student.lifecycle_state
+
+ChapterAccessGuard: Student chỉ truy cập Chapter của mình
+
+Nếu guard FAIL → trả về lỗi, flow kết thúc.
+
+Step 4
+ChapterProgressService gọi ChapterProgressDomainLogic.startChapter()
+
+Step 5
+ChapterProgressDomainLogic kiểm tra invariant:
+
+ChapterProgress hiện tại phải ở trạng thái LOCKED
+
+Student không có Chapter nào khác đang IN_PROGRESS
+
+Nếu invariant FAIL → reject, flow kết thúc.
+
+Step 6
+ChapterProgressDomainLogic:
+
+Chuyển chapter_state từ LOCKED → IN_PROGRESS
+
+Persist trạng thái mới
+
+KHÔNG emit event ở bước này.
+
+Step 7
+ChapterProgressService trả kết quả thành công cho Controller.
+
+Step 8
+Controller trả response cho Student:
+
+Chapter đã ở trạng thái IN_PROGRESS
+
+Student có thể bắt đầu Practice
+
+Domain Ownership & Authority
+
+ChapterProgress là owner duy nhất của chapter_state
+
+Chỉ ChapterProgressDomainLogic được phép đổi state
+
+Không class nào khác được phép can thiệp
+
+Events
+
+Không emit domain event trong flow này
+
+Lý do:
+
+Start learning không phải completion
+
+Không có side-effect hệ thống
+
+Forbidden Paths (Đường cấm)
+
+Flow này TUYỆT ĐỐI KHÔNG cho phép:
+
+Student bắt đầu học khi lifecycle không cho phép
+
+Student có 2 Chapter cùng lúc ở trạng thái IN_PROGRESS
+
+Admin gọi API này thay Student
+
+AI gọi API này
+
+Cron hoặc background job kích hoạt flow
+
+Bypass guard vì mục đích test
+
+Postconditions (Trạng thái sau)
+
+ChapterProgress.chapter_state = IN_PROGRESS
+
+Student vẫn giữ nguyên lifecycle_state
+
+Không có Chapter nào khác IN_PROGRESS
+
+System sẵn sàng cho Practice Flow
+
+END OF USER FLOW: STUDENT – START LEARNING FLOW

@@ -1,0 +1,128 @@
+USER FLOW: ADMIN – ASSIGN CHAPTER FLOW
+Phase: Phase 1
+Actor: Admin
+Purpose: Admin gán Chapter ban đầu cho Student (assignment only)
+
+Preconditions (Điều kiện trước)
+
+Admin đã đăng nhập hợp lệ
+
+Admin có role = ADMIN
+
+Student tồn tại hợp lệ
+
+Chapter tồn tại hợp lệ
+
+Student chưa có ChapterProgress cho Chapter này
+
+Trigger (Hành động kích hoạt)
+
+Admin chọn Student
+
+Admin chọn Chapter
+
+Admin thực hiện hành động “Assign Chapter”
+
+Step-by-step Flow
+
+Step 1
+Admin gửi request “assign chapter to student”.
+
+Step 2
+AdminController:
+
+Xác thực JWT
+
+Xác định actor là ADMIN
+
+Forward request vào AdminService
+
+Step 3
+AdminService thực hiện guard:
+
+RoleGuard: chỉ ADMIN
+
+Validate Student tồn tại
+
+Validate Chapter tồn tại
+
+Nếu guard FAIL → reject.
+
+Step 4
+AdminService:
+
+Tạo ChapterProgress mới
+
+chapter_state = LOCKED
+
+Persist ChapterProgress
+
+Lưu ý quan trọng:
+
+Admin KHÔNG được đặt IN_PROGRESS
+
+Admin KHÔNG được đặt COMPLETED
+
+Admin chỉ được assign Chapter cho Student khi:
+
+Student CHƯA tồn tại ChapterProgress cho Chapter đó
+
+Nếu ChapterProgress đã tồn tại (ở bất kỳ trạng thái nào):
+
+Reject request
+
+KHÔNG overwrite
+
+KHÔNG update trạng thái
+
+KHÔNG tạo mới
+
+Admin Assignment chỉ là hành động khởi tạo ban đầu,
+không phải công cụ sửa progression.
+
+Step 5
+AdminService trả kết quả thành công.
+
+Domain Ownership & Authority
+
+Admin CHỈ có authority:
+
+tạo ChapterProgress ban đầu
+
+với trạng thái LOCKED
+
+Admin KHÔNG:
+
+sở hữu progression
+
+can thiệp ChapterProgress sau khi tạo
+
+Events
+
+Không emit domain event
+
+Assignment KHÔNG phải progression
+
+Forbidden Paths (Đường cấm)
+
+Flow này TUYỆT ĐỐI KHÔNG cho phép:
+
+Admin set chapter_state = IN_PROGRESS
+
+Admin set chapter_state = COMPLETED
+
+Admin sửa ChapterProgress sau khi tạo
+
+Admin bypass lifecycle
+
+Admin trigger Practice
+
+Postconditions (Trạng thái sau)
+
+ChapterProgress được tạo với trạng thái LOCKED
+
+Student chưa bắt đầu học Chapter này
+
+Chỉ Student mới có thể kích hoạt Start Learning Flow
+
+END OF USER FLOW: ADMIN – ASSIGN CHAPTER FLOW

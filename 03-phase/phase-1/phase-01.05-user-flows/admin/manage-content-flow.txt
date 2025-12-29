@@ -1,0 +1,99 @@
+USER FLOW: ADMIN – MANAGE CONTENT FLOW
+Phase: Phase 1
+Actor: Admin
+Purpose: Admin quản lý nội dung học tập (Chapter, Skill, Exercise)
+
+Preconditions (Điều kiện trước)
+
+Admin đã đăng nhập hợp lệ
+
+Admin có role = ADMIN
+
+Trigger (Hành động kích hoạt)
+
+Admin thực hiện một trong các hành động:
+
+Tạo / sửa / xóa Chapter
+
+Tạo / sửa / xóa Skill
+
+Tạo / sửa / xóa Exercise
+
+Step-by-step Flow
+
+Step 1
+Admin gửi request quản lý content đến backend.
+
+Step 2
+AdminController:
+
+Xác thực JWT
+
+Xác định actor là ADMIN
+
+Forward request vào AdminService
+
+Step 3
+AdminService thực hiện guard:
+
+RoleGuard: chỉ ADMIN
+
+Nếu guard FAIL → reject.
+
+Step 4
+AdminService thực hiện CRUD content:
+
+Chapter
+
+Skill
+
+Exercise
+
+Step 5
+Persist thay đổi content.
+
+Domain Ownership & Authority
+
+Admin sở hữu CONTENT
+
+Admin KHÔNG sở hữu PROGRESSION
+
+Admin:
+
+Được sửa content
+
+Không được sửa trạng thái học tập
+
+Events
+
+Không emit domain event
+
+Content change KHÔNG được:
+
+thay đổi ChapterProgress
+
+ảnh hưởng Student đang học
+
+Forbidden Paths (Đường cấm)
+
+Flow này TUYỆT ĐỐI KHÔNG cho phép:
+
+Admin chỉnh chapter_state
+
+Admin chỉnh Practice
+
+Admin chỉnh SkillMastery
+
+Admin ảnh hưởng Student đang học
+
+Admin trigger learning flow
+
+Postconditions (Trạng thái sau)
+
+Content được cập nhật
+
+Domain học tập giữ nguyên trạng thái
+
+Không có side-effect lên Student
+
+END OF USER FLOW: ADMIN – MANAGE CONTENT FLOW

@@ -1,0 +1,238 @@
+USER FLOW: STUDENT – DO PRACTICE FLOW
+Phase: Phase 1
+Actor: Student
+Purpose: Student thực hiện một Practice trong Chapter đang học
+
+Preconditions (Điều kiện trước)
+
+Student đã đăng nhập hợp lệ
+
+Student có role = STUDENT
+
+Student.lifecycle_state cho phép học
+
+Student có đúng 1 ChapterProgress ở trạng thái IN_PROGRESS
+
+ChapterProgress tương ứng đã được khởi tạo hợp lệ
+
+Không tồn tại trial, license, payment, device restriction
+
+Trigger (Hành động kích hoạt)
+
+Student chọn hành động “Làm bài tập” (Do Practice)
+
+Student yêu cầu hệ thống tạo một Practice mới cho Chapter đang IN_PROGRESS
+
+Step-by-step Flow
+
+Step 1
+Student gửi request “request practice” đến backend.
+
+Step 2
+PracticeController nhận request:
+
+Xác thực JWT
+
+Xác định actor là STUDENT
+
+Chuyển request vào ChapterProgressService
+(KHÔNG gọi PracticeService trực tiếp)
+
+Step 3
+ChapterProgressService thực hiện guard bắt buộc:
+
+RoleGuard: chỉ STUDENT
+
+LifecycleGuard: kiểm tra Student.lifecycle_state
+
+ChapterAccessGuard: chỉ Chapter của Student
+
+Invariant check: chỉ tồn tại 1 Chapter IN_PROGRESS
+
+Nếu guard FAIL → trả lỗi, flow kết thúc.
+
+Step 4
+ChapterProgressService gọi ChapterProgressDomainLogic.createPractice()
+
+Step 5
+ChapterProgressDomainLogic kiểm tra invariant:
+
+ChapterProgress.chapter_state phải là IN_PROGRESS
+
+Practice chỉ được tạo trong Chapter đang học
+
+Nếu invariant FAIL → reject, flow kết thúc.
+
+Step 6
+ChapterProgressDomainLogic yêu cầu AIServiceClient sinh bài tập:
+
+Truyền vào thông tin kỹ thuật (skill_id, difficulty, count)
+
+KHÔNG truyền lifecycle, chapter_state, user permission
+
+Step 7
+AIServiceClient gọi tutor-ai-service:
+
+Nhận nội dung bài tập (exercise snapshot)
+
+Không có quyết định nghiệp vụ
+
+Nếu AIServiceClient gọi tutor-ai-service FAIL (timeout, error, invalid response):
+
+Practice KHÔNG được tạo
+
+ChapterProgress KHÔNG thay đổi trạng thái
+
+Không emit domain event
+
+Không retry phức tạp
+
+Không fallback thủ công
+
+Backend trả lỗi phù hợp cho Student.
+Student có thể retry hành động Do Practice sau đó.
+
+Phase 1 KHÔNG xử lý:
+
+retry policy nâng cao
+
+circuit breaker
+
+offline generation
+
+Step 8
+ChapterProgressDomainLogic:
+
+Tạo PracticeEntity
+
+Gắn Practice với ChapterProgress
+
+Persist Practice
+
+KHÔNG emit domain event ở bước này.
+
+Step 9
+ChapterProgressService trả Practice cho Controller.
+
+Step 10
+Controller trả response cho Student:
+
+Nội dung bài tập
+
+Thông tin Practice (practice_id)
+
+Practice Submission Flow (Submit Practice)
+
+Step 11
+Student làm bài và gửi đáp án (submit practice).
+
+Step 12
+PracticeController nhận request submit:
+
+Xác thực JWT
+
+Xác định actor là STUDENT
+
+Forward request vào ChapterProgressService
+
+Step 13
+ChapterProgressService thực hiện guard:
+
+LifecycleGuard
+
+ChapterAccessGuard
+
+ChapterProgress.chapter_state == IN_PROGRESS
+
+Nếu guard FAIL → reject.
+
+Step 14
+ChapterProgressService gọi ChapterProgressDomainLogic.submitPractice()
+
+Step 15
+ChapterProgressDomainLogic:
+
+Validate submission
+
+Lưu kết quả Practice (student_answer, is_correct, submitted_at)
+
+Emit domain event PRACTICE_SUBMITTED
+
+Step 16
+ChapterProgressDomainLogic xử lý hậu PRACTICE_SUBMITTED:
+
+Cập nhật SkillMastery (Value Object) nếu cần
+
+KHÔNG đổi chapter_state ở bước này
+
+KHÔNG emit CHAPTER_COMPLETED trực tiếp
+
+Domain Ownership & Authority
+
+ChapterProgressDomainLogic:
+
+Là owner duy nhất tạo Practice
+
+Là owner duy nhất xử lý submit Practice
+
+PracticeService chỉ persist/query, không quyết định nghiệp vụ
+
+AI KHÔNG có authority
+
+Events
+
+Event: PRACTICE_SUBMITTED
+
+Emitted by:
+
+ChapterProgressDomainLogic
+
+Purpose:
+
+Thông báo Practice đã được submit hợp lệ
+
+Cho phép domain đánh giá điều kiện hoàn thành Chapter
+
+Event này KHÔNG được:
+
+Đổi lifecycle
+
+Unlock Chapter khác
+
+Emit CHAPTER_COMPLETED trực tiếp
+
+Gọi AI
+
+Forbidden Paths (Đường cấm)
+
+Flow này TUYỆT ĐỐI KHÔNG cho phép:
+
+Tạo Practice khi Chapter không ở IN_PROGRESS
+
+Submit Practice cho Chapter khác
+
+Student có nhiều Chapter IN_PROGRESS
+
+AI tự tạo Practice
+
+Practice tự unlock Chapter
+
+Admin submit Practice thay Student
+
+Cron / background job kích hoạt Practice
+
+Postconditions (Trạng thái sau)
+
+Practice được lưu thành công
+
+ChapterProgress.chapter_state vẫn là IN_PROGRESS
+
+SkillMastery có thể được cập nhật (nếu có)
+
+Hệ thống sẵn sàng:
+
+tạo Practice tiếp
+
+hoặc đánh giá điều kiện hoàn thành Chapter (ở flow tiếp theo)
+
+END OF USER FLOW: STUDENT – DO PRACTICE FLOW
