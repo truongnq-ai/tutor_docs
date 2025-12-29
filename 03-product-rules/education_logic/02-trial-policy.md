@@ -138,7 +138,7 @@ Hệ thống phải kiểm tra các giới hạn này trước khi cho phép h�
 
 ### 5.1. Mastery được tính và hiển thị
 
-Hệ thống vẫn tính toán và hiển thị mastery level của học sinh trong trial. Mastery được tính dựa trên kết quả của các practice và câu hỏi mà học sinh đã làm trong trial, theo cùng logic tính mastery như trong License.
+Hệ thống vẫn tính toán và hiển thị mastery level của học sinh trong trial. Mastery được tính dựa trên kết quả của các practice và câu hỏi mà học sinh đã làm trong trial, theo cùng logic tính mastery như trong License, nhưng bị chặn trần theo quy định của Trial Policy.
 
 ### 5.2. Mastery chỉ mang tính tham chiếu
 
@@ -225,7 +225,7 @@ Học sinh không được phép thực hiện bất kỳ hành động nào tha
 
 ### 7.6. Không có grace period
 
-Hệ thống không cung cấp grace period (thời gian gia hạn) sau khi trial hết hạn. Khi trial hết hạn, mọi quyền học tập mới bị chấm dứt ngay lập tức, không có thời gian chờ đợi hoặc cảnh báo trước.
+Hệ thống không cung cấp grace period (thời gian gia hạn) sau khi trial hết hạn. Khi trial hết hạn, mọi quyền học tập mới bị chấm dứt ngay lập tức, không có thời gian chờ đợi hoặc cảnh báo trước. UI, client hoặc bất kỳ thành phần frontend nào KHÔNG được tự ý cho phép học sinh tiếp tục học hoặc thực hiện hành động học tập sau khi trial đã hết hạn.
 
 ---
 
@@ -310,6 +310,7 @@ Việc tạo nhiều Student hoặc nhiều ParentAccount trên cùng một thi�
 Khi học sinh sử dụng trial trong chế độ offline (không có kết nối internet):
 
 - Hệ thống có thể cho phép học sinh tiếp tục làm practice đã tải xuống trước đó
+- Các practice đã tải xuống trước đó vẫn phải được tính vào toàn bộ các giới hạn của trial (số practice và số câu hỏi), giống như khi học sinh sử dụng trial ở chế độ online.
 - Hệ thống không được phép sinh câu hỏi mới nếu không có kết nối internet
 - Khi kết nối lại internet, hệ thống phải đồng bộ dữ liệu và kiểm tra lại thời gian trial
 - Nếu trial đã hết hạn trong thời gian offline, khi kết nối lại, hệ thống phải chấm dứt trial ngay lập tức
