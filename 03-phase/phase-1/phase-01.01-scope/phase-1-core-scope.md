@@ -1,13 +1,23 @@
-PHASE 1 – CORE SCOPE DEFINITION
-Project: Gia sư Toán AI
-Status: ACTIVE – TO BE FROZEN
-Depends on: Phase 0 – Deployment Scope & Intent Definition
-Owner: Project Architect / PM
-Purpose: Define EXACTLY what is implemented in Phase 1 and nothing more
+# Phase 1 – Core Scope Definition
 
-==================================================
-1. MỤC TIÊU CỦA PHASE 1
-==================================================
+**Project:** Tutor  
+**Document type:** Phase Definition  
+**Audience:** Developer | Product | Tech  
+**Status:** ACTIVE – TO BE FROZEN  
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](../../README.md)
+
+---
+
+## 1. MỤC ĐÍCH TÀI LIỆU
+
+Tài liệu này định nghĩa chính xác những gì được triển khai trong Phase 1 và không gì hơn. Đây là tài liệu phạm vi cốt lõi cho Phase 1 của dự án Tutor.
+
+---
+
+## 2. MỤC TIÊU CỦA PHASE 1
 
 Phase 1 nhằm xây dựng một hệ thống:
 - Dùng được ngay cho gia đình (phụ huynh – học sinh)
@@ -21,9 +31,9 @@ Phase 1 KHÔNG nhằm:
 - Chứng minh scale
 - Chuẩn bị cho thương mại hóa
 
-==================================================
-2. ĐỐI TƯỢNG SỬ DỤNG & QUY MÔ
-==================================================
+---
+
+## 3. ĐỐI TƯỢNG SỬ DỤNG & QUY MÔ
 
 - Số lượng user:
   - 1 phụ huynh
@@ -34,13 +44,11 @@ Phase 1 KHÔNG nhằm:
   - Không có user lạ
   - Không có multi-tenant
 
-==================================================
-3. PHẠM VI CHỨC NĂNG ĐƯỢC TRIỂN KHAI
-==================================================
+---
 
---------------------------------------------------
-3.1. USER & ROLE (TĨNH)
---------------------------------------------------
+## 4. PHẠM VI CHỨC NĂNG ĐƯỢC TRIỂN KHAI
+
+### 4.1. USER & ROLE (TĨNH)
 
 - User được tạo bởi:
   - Super admin đầu tiên: seed data
@@ -68,9 +76,7 @@ Phase 1 KHÔNG nhằm:
   - Hard-coded theo role
   - Không dùng permission matrix động
 
---------------------------------------------------
-3.2. CHAPTER
---------------------------------------------------
+### 4.2. CHAPTER
 
 - Chapter được:
   - tạo thủ công
@@ -81,9 +87,7 @@ Phase 1 KHÔNG nhằm:
   - chỉ nhìn thấy chapter được gán
   - không truy cập chapter khác
 
---------------------------------------------------
-3.3. SKILL
---------------------------------------------------
+### 4.3. SKILL
 
 - Skill:
   - thuộc về một chapter
@@ -93,9 +97,7 @@ Phase 1 KHÔNG nhằm:
   - không được học skill nếu prerequisite chưa hoàn thành
   - completion ở mức đơn giản (boolean)
 
---------------------------------------------------
-3.4. PRACTICE / BÀI TẬP
---------------------------------------------------
+### 4.4. PRACTICE / BÀI TẬP
 
 - Cho phép:
   - sinh bài tập theo skill
@@ -111,9 +113,7 @@ Phase 1 KHÔNG nhằm:
   - leaderboard
   - gamification
 
---------------------------------------------------
-3.5. AI (GIỚI HẠN NGHIÊM NGẶT)
---------------------------------------------------
+### 4.5. AI (GIỚI HẠN NGHIÊM NGẶT)
 
 AI trong Phase 1 chỉ được phép:
 
@@ -130,9 +130,7 @@ AI KHÔNG được phép:
 - Biết khái niệm trial
 - Biết khái niệm license
 
---------------------------------------------------
-3.6. FRONTEND APPLICATIONS
---------------------------------------------------
+### 4.6. FRONTEND APPLICATIONS
 
 - Admin Dashboard (tutor-admin-dashboard):
   - Technology: Next.js
@@ -160,9 +158,9 @@ AI KHÔNG được phép:
     - Xem lời giải
     - Xem tiến độ học tập
 
-==================================================
-4. NHỮNG GÌ BỊ CẤM TRIỂN KHAI
-==================================================
+---
+
+## 5. NHỮNG GÌ BỊ CẤM TRIỂN KHAI
 
 BỊ CẤM TUYỆT ĐỐI trong Phase 1:
 
@@ -176,9 +174,9 @@ BỊ CẤM TUYỆT ĐỐI trong Phase 1:
 - Recommendation engine
 - AI tự đánh giá mastery
 
-==================================================
-5. SYSTEM LAW – TRẠNG THÁI ÁP DỤNG
-==================================================
+---
+
+## 6. SYSTEM LAW – TRẠNG THÁI ÁP DỤNG
 
 ACTIVE:
 - Lifecycle Law (tối giản)
@@ -193,9 +191,9 @@ DORMANT:
 
 Không có logic trung gian / stub / fake cho law dormant.
 
-==================================================
-6. KIẾN TRÚC BACKEND PHASE 1
-==================================================
+---
+
+## 7. KIẾN TRÚC BACKEND PHASE 1
 
 - Không microservice phức tạp
 - Core service đơn giản
@@ -213,21 +211,21 @@ Mỗi module:
 - Logic đọc được
 - Không magic behavior
 
-==================================================
-7. DATABASE – NGUYÊN TẮC THIẾT KẾ
-==================================================
+---
+
+## 8. DATABASE – NGUYÊN TẮC THIẾT KẾ
 
 - DB chỉ phục vụ Phase 1
 - Schema tối giản
-- Không field “chuẩn bị cho tương lai”
+- Không field "chuẩn bị cho tương lai"
 
 Cho phép:
 - seed data thủ công
 - migrate đơn giản
 
-==================================================
-8. ĐIỀU KIỆN HOÀN THÀNH & ĐÓNG BĂNG
-==================================================
+---
+
+## 9. ĐIỀU KIỆN HOÀN THÀNH & ĐÓNG BĂNG
 
 Phase 1 được coi là HOÀN THÀNH khi:
 
@@ -253,9 +251,9 @@ Sau khi hoàn thành:
 - Không thêm feature
 - Chuyển focus sang công việc khác
 
-==================================================
-9. QUY TẮC THAY ĐỔI PHẠM VI
-==================================================
+---
+
+## 10. QUY TẮC THAY ĐỔI PHẠM VI
 
 Mọi yêu cầu ngoài scope Phase 1:
 - Bị từ chối
@@ -263,6 +261,16 @@ Mọi yêu cầu ngoài scope Phase 1:
 
 Không có ngoại lệ.
 
-==================================================
-END OF PHASE 1
-==================================================
+---
+
+## 11. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Phase 0 – Scope Definition](../../phase-0-scope-definition.md)
+  - [System Law Constraints](../phase-01.02-system-law/)
+  - [Backend Skeleton](../phase-01.03-architecture/phase-1-backend-skeleton.md)
+  - [User Flows](../phase-01.05-user-flows/)
+
+---
+
+[← Quay lại Overview](../../README.md)

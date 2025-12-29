@@ -1,20 +1,24 @@
 # Phase 1 – Law Constraints & Code Guards
 
-**Location:** `03-phase/phase-1/phase-01.02-system-law/phase-1-law-constraints.md`  
+**Project:** Tutor  
+**Document type:** Phase Definition  
+**Audience:** Backend / AI / Architecture Reviewer  
 **Status:** ENFORCED  
-**Applies to:** Phase 1 only  
-**Audience:** Backend / AI / Architecture Reviewer
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](README.md)
 
 ---
 
-## 0. Purpose of this file
+## 1. MỤC ĐÍCH TÀI LIỆU
 
 File này là **bộ rào chắn pháp lý & kỹ thuật cuối cùng** cho Phase 1.
 
-Mục tiêu:
+**Mục tiêu:**
 - Ép code **không được vượt luật**
 - Ép kiến trúc **không được vượt scope**
-- Ngăn mọi hành vi “chuẩn bị sẵn cho tương lai”
+- Ngăn mọi hành vi "chuẩn bị sẵn cho tương lai"
 
 👉 Nếu có mâu thuẫn giữa:
 - Code
@@ -25,9 +29,9 @@ Mục tiêu:
 
 ---
 
-## 1. Forbidden by System Law (ABSOLUTE PROHIBITION)
+## 2. FORBIDDEN BY SYSTEM LAW (ABSOLUTE PROHIBITION)
 
-### ❌ Trial (NOT EXISTING IN PHASE 1)
+### 2.1. ❌ Trial (NOT EXISTING IN PHASE 1)
 
 TUYỆT ĐỐI KHÔNG:
 - Trial state
@@ -42,11 +46,9 @@ Không được:
 - Check trial
 - Infer trial
 - Mock trial
-- Comment “future trial”
+- Comment "future trial"
 
----
-
-### ❌ License (NOT EXISTING IN PHASE 1)
+### 2.2. ❌ License (NOT EXISTING IN PHASE 1)
 
 TUYỆT ĐỐI KHÔNG:
 - License entity
@@ -61,9 +63,7 @@ Không được:
 - Infer license
 - Chuẩn bị bảng license trong DB
 
----
-
-### ❌ Permission Matrix / Commercial Permission
+### 2.3. ❌ Permission Matrix / Commercial Permission
 
 TUYỆT ĐỐI KHÔNG:
 - Dynamic permission
@@ -74,70 +74,65 @@ TUYỆT ĐỐI KHÔNG:
 
 ---
 
-## 2. Forbidden by Architecture (ANTI-PATTERNS)
+## 3. FORBIDDEN BY ARCHITECTURE (ANTI-PATTERNS)
 
-### ❌ Chuẩn bị cho tương lai (STRICTLY FORBIDDEN)
+### 3.1. ❌ Chuẩn bị cho tương lai (STRICTLY FORBIDDEN)
 
 Không được tồn tại trong code:
 - Flag `enable_trial`
 - Flag `enable_license`
 - Config `future_*`
-- Comment “for phase 2”
-- TODO “activate later”
+- Comment "for phase 2"
+- TODO "activate later"
 
 👉 Phase 1 **KHÔNG chuẩn bị Phase 2**
 
----
-
-### ❌ Over-engineering
+### 3.2. ❌ Over-engineering
 
 Không được:
 - Generic engine
 - Policy engine
 - Rule engine
 - FSM engine dùng chung
-- Abstraction “cho đẹp”
+- Abstraction "cho đẹp"
 
 Code Phase 1:
 > **Ưu tiên đọc được – rõ ràng – trực tiếp**
 
 ---
 
-## 3. Mandatory Domain Invariants (MUST HOLD)
+## 4. MANDATORY DOMAIN INVARIANTS (MUST HOLD)
 
 Code Phase 1 **BẮT BUỘC đảm bảo** các bất biến sau:
 
-### 3.1 Lifecycle is the Source of Truth
+### 4.1. Lifecycle is the Source of Truth
+
 - Quyền học **CHỈ** dựa trên lifecycle
 - Không suy luận quyền từ dữ liệu khác
 - Không bypass lifecycle check
 
----
+### 4.2. Chapter is the Only Progress Unit
 
-### 3.2 Chapter is the Only Progress Unit
 - Chapter là **đơn vị tiến độ duy nhất**
 - Skill **KHÔNG** được dùng làm tiến độ
 - Không có trạng thái Chapter ngầm
 
----
+### 4.3. One Active Chapter Rule
 
-### 3.3 One Active Chapter Rule
 - Tại một thời điểm:
   - Chỉ **1 Chapter IN_PROGRESS**
 - Vi phạm → code sai
 
----
+### 4.4. Practice is the Only Trigger
 
-### 3.4 Practice is the Only Trigger
 - Progression chỉ thay đổi qua practice flow
 - Không update state bằng:
   - thời gian
   - số câu hỏi
   - hành động tay
 
----
+### 4.5. AI Has NO Business Authority
 
-### 3.5 AI Has NO Business Authority
 - AI không:
   - update mastery
   - đổi state
@@ -147,9 +142,9 @@ Code Phase 1 **BẮT BUỘC đảm bảo** các bất biến sau:
 
 ---
 
-## 4. Coding Guards (MUST IMPLEMENT)
+## 5. CODING GUARDS (MUST IMPLEMENT)
 
-### 4.1 Guard at API Boundary
+### 5.1. Guard at API Boundary
 
 Mọi API liên quan đến học tập **PHẢI**:
 - Check lifecycle
@@ -160,27 +155,23 @@ Không được:
 - Rely vào frontend
 - Rely vào AI response
 
----
-
-### 4.2 Guard at Service Layer
+### 5.2. Guard at Service Layer
 
 Service:
-- Không nhận input “bẩn”
+- Không nhận input "bẩn"
 - Không suy luận state
 - Không tự sửa state
 
----
-
-### 4.3 Guard at Persistence Layer
+### 5.3. Guard at Persistence Layer
 
 DB:
 - Không schema cho trial / license
-- Không FK “để sau”
+- Không FK "để sau"
 - Không cột `future_*`
 
 ---
 
-## 5. Explicitly Forbidden Coding Patterns
+## 6. EXPLICITLY FORBIDDEN CODING PATTERNS
 
 Code Phase 1 **KHÔNG ĐƯỢC CÓ**:
 
@@ -193,7 +184,7 @@ Code Phase 1 **KHÔNG ĐƯỢC CÓ**:
 
 ---
 
-## 6. Review Checklist (FAIL FAST)
+## 7. REVIEW CHECKLIST (FAIL FAST)
 
 Khi review code, chỉ cần hỏi:
 
@@ -205,12 +196,12 @@ Khi review code, chỉ cần hỏi:
 
 ---
 
-## 7. Final Authority Rule
+## 8. FINAL AUTHORITY RULE
 
 Nếu:
-- Code cần “phá” constraint
-- Kiến trúc thấy “bị gò bó”
-- Dev thấy “khó chịu”
+- Code cần "phá" constraint
+- Kiến trúc thấy "bị gò bó"
+- Dev thấy "khó chịu"
 
 → **DỪNG NGAY**
 
@@ -222,4 +213,14 @@ BẮT BUỘC:
 
 ---
 
-**END OF PHASE 1 LAW CONSTRAINTS**
+## 9. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [System Law](../../../01-system-law/README.md)
+  - [Active Laws](active-laws.md)
+  - [Dormant Laws](dormant-laws.md)
+
+---
+
+[← Quay lại Overview](README.md)
+

@@ -1,13 +1,19 @@
 # Skill & Mastery Rules – Luật hệ thống
 
-**Dự án:** Gia sư Toán AI  
-**Phụ thuộc:**
-- Student Lifecycle – System Law
-- Trial Policy – System Law
-- Chapter Progression – System Law
-- License Rules – System Law  
-**Trạng thái:** Frozen – System Law  
-**Mục đích:** Định nghĩa Skill là gì, Mastery được tính – cập nhật – sử dụng như thế nào
+**Project:** Tutor  
+**Document type:** System Law  
+**Audience:** Developer | Product | Tech  
+**Status:** Frozen – System Law  
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](README.md)
+
+---
+
+## 1. MỤC ĐÍCH TÀI LIỆU
+
+Tài liệu này định nghĩa Skill là gì, Mastery được tính – cập nhật – sử dụng như thế nào trong hệ thống Tutor. Đây là luật hệ thống nghiêm ngặt, bất biến, và là nguồn sự thật duy nhất (Source of Truth) cho logic Skill và Mastery.
 
 ---
 
@@ -331,7 +337,18 @@ Tài liệu này phụ thuộc trực tiếp vào Student Lifecycle – System L
 
 ---
 
-**Phiên bản tài liệu:** 1.0  
-**Ngày tạo:** 2025-01-27  
-**Trạng thái:** Frozen – System Law
+---
+
+## 6. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Student Lifecycle](01-student-lifecycle.md)
+  - [Trial Policy](02-trial-policy.md)
+  - [Chapter Progression](03-chapter-progression.md)
+  - [License Rules](04-license-rules.md)
+  - [Permission Matrix](06-permission-matrix.md)
+
+---
+
+[← Quay lại Overview](README.md)
 

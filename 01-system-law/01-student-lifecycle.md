@@ -1,8 +1,19 @@
 # Student Lifecycle – Luật hệ thống
 
-**Dự án:** Gia sư Toán AI  
-**Trạng thái:** Frozen – System Law  
-**Mục đích:** Định nghĩa vòng đời học sinh trong hệ thống
+**Project:** Tutor  
+**Document type:** System Law  
+**Audience:** Developer | Product | Tech  
+**Status:** Frozen – System Law  
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](README.md)
+
+---
+
+## 1. MỤC ĐÍCH TÀI LIỆU
+
+Tài liệu này định nghĩa vòng đời học sinh (Student Lifecycle) trong hệ thống Tutor. Đây là luật hệ thống nghiêm ngặt, bất biến, và là nguồn sự thật duy nhất (Source of Truth) cho logic vòng đời học sinh.
 
 ---
 
@@ -456,7 +467,15 @@ Tài liệu này là nguồn sự thật duy nhất (Source of Truth) cho Studen
 
 ---
 
-**Phiên bản tài liệu:** 1.0  
-**Ngày tạo:** 2025-01-27  
-**Trạng thái:** Frozen – System Law
+## 6. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Trial Policy](02-trial-policy.md)
+  - [Chapter Progression](03-chapter-progression.md)
+  - [License Rules](04-license-rules.md)
+  - [Permission Matrix](06-permission-matrix.md)
+
+---
+
+[← Quay lại Overview](README.md)
 

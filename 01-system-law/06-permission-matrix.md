@@ -1,14 +1,19 @@
 # Permission Matrix – Luật hệ thống (API-level Guard)
 
-**Dự án:** Gia sư Toán AI  
-**Phụ thuộc:**
-- Student Lifecycle – System Law
-- Trial Policy – System Law
-- Chapter Progression – System Law
-- Skill & Mastery Rules – System Law
-- License Rules – System Law  
-**Trạng thái:** Frozen – System Law  
-**Mục đích:** Map Lifecycle × Chapter State × Action → Quyền API
+**Project:** Tutor  
+**Document type:** System Law  
+**Audience:** Developer | Product | Tech  
+**Status:** Frozen – System Law  
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](README.md)
+
+---
+
+## 1. MỤC ĐÍCH TÀI LIỆU
+
+Tài liệu này định nghĩa ma trận quyền API-level (Permission Matrix) trong hệ thống Tutor, map Lifecycle × Chapter State × Action → Quyền API. Đây là luật hệ thống nghiêm ngặt, bất biến, và là nguồn sự thật duy nhất (Source of Truth) cho logic quyền API.
 
 ---
 
@@ -320,7 +325,19 @@ Tài liệu này phụ thuộc trực tiếp vào Student Lifecycle – System L
 
 ---
 
-**Phiên bản tài liệu:** 1.0  
-**Ngày tạo:** 2025-01-27  
-**Trạng thái:** Frozen – System Law
+---
+
+## 6. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Student Lifecycle](01-student-lifecycle.md)
+  - [Trial Policy](02-trial-policy.md)
+  - [Chapter Progression](03-chapter-progression.md)
+  - [License Rules](04-license-rules.md)
+  - [Skill & Mastery Rules](05-skill-mastery-rules.md)
+  - [AI Scoring & Practice Generation Contract](07-ai-scoring-practice-generation-contract.md)
+
+---
+
+[← Quay lại Overview](README.md)
 

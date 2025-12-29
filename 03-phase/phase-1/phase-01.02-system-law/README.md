@@ -1,16 +1,21 @@
 # Phase 1 – System Law Snapshot
 
-**Location:** `03-phase/phase-1/phase-01.02-system-law/`  
+**Project:** Tutor  
+**Document type:** Phase Definition  
+**Audience:** Developer | Product | Tech  
 **Status:** FROZEN (after approval)  
-**Scope:** Phase 1 only
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](../../README.md)
 
 ---
 
-## 1. Purpose of this folder
+## 1. MỤC ĐÍCH TÀI LIỆU
 
-Thư mục này chứa **ảnh chụp (snapshot) luật hệ thống** được áp dụng cho **Phase 1** của dự án *Gia sư Toán AI*.
+Thư mục này chứa **ảnh chụp (snapshot) luật hệ thống** được áp dụng cho **Phase 1** của dự án Tutor.
 
-Mục tiêu:
+**Mục tiêu:**
 - Chỉ rõ **luật nào đang ACTIVE**
 - Chỉ rõ **luật nào tồn tại nhưng đang DORMANT**
 - Ép code, kiến trúc và Domain Model **không được diễn giải lại luật**
@@ -23,7 +28,7 @@ Nó chỉ làm một việc:
 
 ---
 
-## 2. Relationship to Phase 0 & Global System Law
+## 2. QUAN HỆ VỚI PHASE 0 & SYSTEM LAW TOÀN CỤC
 
 - Phase 0 định nghĩa **deployment intent & scope**
 - Thư mục `01-system-law/` định nghĩa **luật toàn cục**
@@ -32,14 +37,14 @@ Nó chỉ làm một việc:
   - Đóng băng cách hiểu luật
   - Áp dụng riêng cho Phase 1
 
-Nếu có mâu thuẫn:
+**Nếu có mâu thuẫn:**
 > **Phase 0 → ưu tiên cao nhất**  
 > **System Law gốc → không được sửa**  
 > **File trong thư mục này → hướng dẫn áp dụng**
 
 ---
 
-## 3. Single Source of Truth (IMPORTANT)
+## 3. SINGLE SOURCE OF TRUTH (QUAN TRỌNG)
 
 Trong Phase 1:
 - Mọi quyết định kiến trúc
@@ -52,17 +57,17 @@ Trong Phase 1:
 
 ---
 
-## 4. File overview
+## 4. CẤU TRÚC TÀI LIỆU
 
 | File | Purpose |
-|----|----|
-| `active-laws.md` | Danh sách luật đang ACTIVE trong Phase 1 |
-| `dormant-laws.md` | Danh sách luật tồn tại nhưng bị khóa |
-| `phase-1-law-constraints.md` | Checklist ép code & cấm triển khai |
+|------|---------|
+| [Active Laws](active-laws.md) | Danh sách luật đang ACTIVE trong Phase 1 |
+| [Dormant Laws](dormant-laws.md) | Danh sách luật tồn tại nhưng bị khóa |
+| [Phase 1 Law Constraints](phase-1-law-constraints.md) | Checklist ép code & cấm triển khai |
 
 ---
 
-## 5. Freeze rule
+## 5. QUY TẮC ĐÓNG BĂNG (FREEZE RULE)
 
 Sau khi Phase 1 được đánh dấu hoàn thành:
 - Thư mục này được coi là **FROZEN**
@@ -71,3 +76,15 @@ Sau khi Phase 1 được đánh dấu hoàn thành:
   - BẮT BUỘC cập nhật lại snapshot này
 
 ---
+
+## 6. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Phase 0 – Scope Definition](../../phase-0-scope-definition.md)
+  - [System Law](../../../01-system-law/README.md)
+  - [Phase 1 Core Scope](../phase-01.01-scope/phase-1-core-scope.md)
+
+---
+
+[← Quay lại Overview](../../README.md)
+

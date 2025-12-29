@@ -1,9 +1,19 @@
 # Trial Policy – Luật hệ thống
 
-**Dự án:** Gia sư Toán AI  
-**Phụ thuộc:** Student Lifecycle – System Law  
-**Trạng thái:** Frozen – System Law  
-**Mục đích:** Định nghĩa phạm vi, giới hạn và hành vi của trial
+**Project:** Tutor  
+**Document type:** System Law  
+**Audience:** Developer | Product | Tech  
+**Status:** Frozen – System Law  
+**Version:** 1.0  
+**Author:** Human
+
+[← Quay lại Overview](README.md)
+
+---
+
+## 1. MỤC ĐÍCH TÀI LIỆU
+
+Tài liệu này định nghĩa phạm vi, giới hạn và hành vi của trial trong hệ thống Tutor. Đây là luật hệ thống nghiêm ngặt, bất biến, và là nguồn sự thật duy nhất (Source of Truth) cho logic trial.
 
 ---
 
@@ -402,7 +412,17 @@ Tài liệu này phụ thuộc trực tiếp vào Student Lifecycle – System L
 
 ---
 
-**Phiên bản tài liệu:** 1.0  
-**Ngày tạo:** 2025-01-27  
-**Trạng thái:** Frozen – System Law
+---
+
+## 6. PHỤ THUỘC / LIÊN KẾT
+
+- → Tài liệu liên quan:
+  - [Student Lifecycle](01-student-lifecycle.md)
+  - [Chapter Progression](03-chapter-progression.md)
+  - [License Rules](04-license-rules.md)
+  - [Permission Matrix](06-permission-matrix.md)
+
+---
+
+[← Quay lại Overview](README.md)
 
