@@ -1,0 +1,244 @@
+---
+
+PHASE 1 – IMPLEMENTATION ROADMAP & EXECUTION ORDER
+
+Mục đích tài liệu
+Tài liệu này mô tả đầy đủ thứ tự triển khai Phase 1 của dự án “Gia sư Toán AI”, từ backend core service đến frontend, theo đúng System Law, Domain Model và Phase 0 Intent.
+
+Tài liệu này KHÔNG:
+
+* Định nghĩa luật mới
+* Mở rộng scope
+* Chuẩn bị Phase 2
+
+Tài liệu này CÓ:
+
+* Khóa thứ tự triển khai
+* Chỉ rõ mục tiêu từng bước
+* Chỉ rõ những gì được làm và không được làm
+* Ngăn việc đảo thứ tự gây sai kiến trúc
+
+Nếu có mâu thuẫn giữa:
+
+* Tiện lợi khi code
+* Thói quen cá nhân
+* Áp lực UI
+
+→ Tài liệu này thắng.
+
+---
+
+TỔNG QUAN THỨ TỰ TRIỂN KHAI PHASE 1
+
+A1. Auth & Identity
+↓
+A2. Admin – Parent/Student Relation
+↓
+B1. Chapter / Skill (Content)
+↓
+B2. Exercise Domain (Content Asset)
+↓
+C1. Learning Domain (ChapterProgress)
+↓
+C2. Practice + AI
+↓
+D. Frontend
+D1. Web Admin Dashboard
+D2. Web Parent Dashboard
+D3. App Student
+
+Frontend chỉ được triển khai khi backend đã khóa xong domain tương ứng.
+
+---
+
+A1. AUTH & IDENTITY
+
+Mục tiêu
+Thiết lập nền móng xác thực và danh tính người dùng cho Phase 1.
+
+Phạm vi
+
+* Login cho ADMIN, PARENT, STUDENT
+* JWT + refresh token
+* Admin tạo user
+* Admin reset mật khẩu cho user
+
+Không bao gồm
+
+* Trial
+* License
+* Lifecycle học tập
+* Chapter, Skill
+* Learning logic
+
+Bản chất
+Auth & Identity là tầng thấp nhất, không phụ thuộc domain học tập.
+Nếu bước này sai, toàn bộ hệ thống phía trên sẽ sai.
+
+---
+
+A2. ADMIN – PARENT / STUDENT RELATION
+
+Mục tiêu
+Thiết lập quan hệ sở hữu giữa Parent và Student.
+
+Phạm vi
+
+* Bảng parent_student
+* Admin gán và hủy quan hệ parent–student
+
+Không bao gồm
+
+* student_profile
+* lifecycle_state
+* learning domain
+
+Bản chất
+Đây là Identity Ownership, không phải Learning Domain.
+Quan hệ này chỉ xác định “ai quản lý ai”, không xác định “ai được học”.
+
+---
+
+B1. CHAPTER / SKILL (CONTENT DOMAIN)
+
+Mục tiêu
+Xây dựng nội dung chương và kỹ năng như tài sản tri thức thuần.
+
+Phạm vi
+
+* Chapter
+* Skill
+* Mapping Chapter–Skill
+* Skill Prerequisite
+
+Không bao gồm
+
+* Student
+* Progression
+* Mastery
+* Learning state
+
+Bản chất
+Chapter và Skill là content asset, không phải runtime học tập.
+Không có khái niệm “đã học” ở bước này.
+
+---
+
+B2. EXERCISE DOMAIN (CONTENT ASSET)
+
+Mục tiêu
+Xây dựng ngân hàng bài tập và lời giải như tài sản tri thức.
+
+Phạm vi
+
+* Exercise
+* ExerciseSolution
+* ExerciseTag
+* ExerciseReviewLog
+
+Không bao gồm
+
+* Practice runtime
+* Student answer
+* Mastery
+* AI decision
+
+Bản chất
+Exercise Domain phục vụ:
+
+* Nhập liệu nội dung
+* Review nội dung
+* Làm nguồn cho Practice ở C2
+
+Exercise KHÔNG phải là hành vi học tập.
+
+---
+
+C1. LEARNING DOMAIN – CHAPTER PROGRESS
+
+Mục tiêu
+Đưa trạng thái học tập runtime đầu tiên vào hệ thống.
+
+Phạm vi
+
+* student_profile (lifecycle_state)
+* chapter_progress (Aggregate Root)
+* FSM: LOCKED → IN_PROGRESS → COMPLETED
+* Completion Rule Phase 1 (temporary)
+
+Không bao gồm
+
+* Practice runtime
+* AI
+* Mastery decision
+
+Bản chất
+ChapterProgress là Aggregate Root duy nhất của tiến độ học.
+Mọi logic “đang học đến đâu” đều đi qua đây.
+
+---
+
+C2. PRACTICE + AI
+
+Mục tiêu
+Cho phép học sinh làm bài và tương tác với AI trong phạm vi luật Phase 1.
+
+Phạm vi
+
+* Practice runtime
+* Submit practice
+* Update mastery (reference only)
+* AI generate bài
+* AI giải thích bài
+
+Không bao gồm
+
+* Recommendation engine
+* Adaptive learning nâng cao
+* Unlock logic
+* Mastery-based completion
+
+Bản chất
+AI là công cụ hỗ trợ, không có authority.
+System Core luôn override AI.
+
+---
+
+D. FRONTEND (CHƯA TRIỂN KHAI Ở THỜI ĐIỂM VIẾT TÀI LIỆU NÀY)
+
+Frontend chỉ được triển khai khi backend domain tương ứng đã hoàn tất.
+
+D1. Web Admin Dashboard
+
+* Quản lý user
+* Quản lý content (chapter, skill, exercise)
+* Review nội dung
+
+D2. Web Parent Dashboard
+
+* Xem tiến độ học tập
+* Xem báo cáo
+
+D3. App Student
+
+* Học skill
+* Làm bài
+* Xem lời giải
+
+Các bước D1, D2, D3 sẽ được chia nhỏ tiếp (D1.1, D1.2, …) trong tài liệu frontend riêng.
+
+---
+
+KẾT LUẬN
+
+Phase 1 phải được triển khai:
+
+* Theo đúng thứ tự
+* Không đảo bước
+* Không shortcut vì UI
+* Không chuẩn bị Phase 2
+
+Nếu một bước chưa xong:
+→ Không được phép triển khai bước tiếp theo.
+
+---
