@@ -30,7 +30,7 @@ Student Lifecycle được thiết kế như một Finite State Machine (Máy tr
 
 ### 1.5. Lifecycle state là nguồn sự thật duy nhất quyết định quyền học
 
-Trạng thái lifecycle của Student là nguồn sự thật duy nhất và duy nhất để xác định quyền học tập của Student. Mọi logic kiểm tra quyền học tập, quyền truy cập nội dung, quyền thực hiện hành động học tập đều phải dựa vào lifecycle state, không được suy luận từ các dữ liệu khác như trial_id, license_id, hay các trường dữ liệu khác.
+Trạng thái lifecycle của Student là nguồn sự thật duy nhất để xác định quyền học tập của Student. Mọi logic kiểm tra quyền học tập, quyền truy cập nội dung, quyền thực hiện hành động học tập đều phải dựa vào lifecycle state, không được suy luận từ các dữ liệu khác như trial_id, license_id, hay các trường dữ liệu khác.
 
 ---
 
@@ -44,13 +44,13 @@ Hệ thống chỉ sử dụng các trạng thái lifecycle sau đây. Không đ
 Student đang trong thời gian trial (dùng thử) và trial vẫn còn hiệu lực. Student có thể thực hiện các hoạt động học tập trong phạm vi trial được phép.
 
 **Tình trạng liên kết phụ huynh:**  
-Student có thể chưa được liên kết với ParentAccount hoặc đã được liên kết. Việc liên kết không làm thay đổi trạng thái TRIAL_ACTIVE ngay lập tức.
+Student có thể chưa được liên kết với ParentAccount hoặc đã được liên kết. Khi event PARENT_LINKED được kích hoạt, Student sẽ chuyển sang trạng thái LINKED_NO_LICENSE theo quy định của Student Lifecycle.
 
 **Tình trạng license:**  
 Student không có License đang hoạt động trong trạng thái này.
 
 **Quyền học tập ở mức cao:**  
-Student được phép bắt đầu luyện tập mới, sinh câu hỏi, cập nhật mastery, xem lịch sử học, và xem tiến độ/báo cáo.
+Student được phép bắt đầu luyện tập mới, sinh câu hỏi, cập nhật mastery, xem lịch sử học, và xem tiến độ/báo cáo (theo phạm vi cho phép của trial).
 
 ### 2.2. TRIAL_EXPIRED
 
@@ -188,6 +188,8 @@ Bảng sau đây mô tả quyền học tập của Student theo từng trạng 
 | **LICENSE_EXPIRED** | ❌ Không được | ❌ Không được | ❌ Không được | ✅ Được phép | ✅ Được phép |
 | **SUSPENDED** | ❌ Không được | ❌ Không được | ❌ Không được | ❌ Không được | ❌ Không được |
 
+Khi kiểm tra quyền học tập, hệ thống PHẢI kiểm tra trạng thái SUSPENDED trước tiên. Nếu Student ở trạng thái SUSPENDED, mọi quyền đều bị từ chối và không cần xét các trạng thái lifecycle khác.
+
 ### 4.1. Luật bắt buộc về quyền học tập
 
 #### 4.1.1. Chỉ TRIAL_ACTIVE và LICENSE_ACTIVE được học mới
@@ -320,7 +322,7 @@ Event được kích hoạt khi quản trị viên hủy tạm ngưng (unsuspend
 - `SUSPENDED` → `LICENSE_ACTIVE` (nếu trước khi suspend là LICENSE_ACTIVE)
 - `SUSPENDED` → `LICENSE_EXPIRED` (nếu trước khi suspend là LICENSE_EXPIRED)
 
-**Lưu ý:** Hệ thống phải lưu trữ trạng thái trước khi suspend để có thể khôi phục chính xác khi unsuspend.
+**Lưu ý:** Hệ thống phải lưu trữ trạng thái trước khi suspend để có thể khôi phục chính xác khi unsuspend. Việc khôi phục trạng thái sau khi unsuspend KHÔNG làm thay đổi hiệu lực thời gian của trial hoặc license. Nếu trial hoặc license đã hết hạn trong thời gian Student bị suspend, Student phải quay về trạng thái phù hợp với thực tế tại thời điểm unsuspend.
 
 ---
 
