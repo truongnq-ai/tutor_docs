@@ -42,16 +42,27 @@ Phase 1 KHÔNG nhằm:
 3.1. USER & ROLE (TĨNH)
 --------------------------------------------------
 
-- User được tạo thủ công (seed DB)
+- User được tạo bởi:
+  - Super admin đầu tiên: seed data
+  - Admin khác: tạo trên web admin (tutor-admin-dashboard)
+  - Parent/Student: tạo bởi Admin trên web admin
+
 - Không có:
-  - đăng ký
-  - đăng nhập xã hội
+  - đăng ký công khai
+  - đăng nhập xã hội (OAuth Google/Apple)
   - OTP
   - reset mật khẩu
 
 - Role:
-  - PARENT
-  - STUDENT
+  - ADMIN (quản trị viên)
+  - PARENT (phụ huynh)
+  - STUDENT (học sinh)
+
+- Authentication:
+  - Username + Password (không OAuth)
+  - Admin đăng nhập: tutor-admin-dashboard (Next.js)
+  - Parent đăng nhập: tutor-parent-dashboard (Next.js)
+  - Student đăng nhập: tutor-student-app (Flutter)
 
 - Permission:
   - Hard-coded theo role
@@ -119,6 +130,36 @@ AI KHÔNG được phép:
 - Biết khái niệm trial
 - Biết khái niệm license
 
+--------------------------------------------------
+3.6. FRONTEND APPLICATIONS
+--------------------------------------------------
+
+- Admin Dashboard (tutor-admin-dashboard):
+  - Technology: Next.js
+  - Dành cho: ADMIN role
+  - Chức năng:
+    - Quản lý user (tạo parent/student/admin)
+    - Quản lý content (chapter, skill)
+    - Xem system metrics
+    - Gán chapter cho student
+
+- Parent Dashboard (tutor-parent-dashboard):
+  - Technology: Next.js
+  - Dành cho: PARENT role
+  - Chức năng:
+    - Gán chapter cho học sinh (con của mình)
+    - Xem tiến trình học sinh
+    - Xem báo cáo học tập
+
+- Student App (tutor-student-app):
+  - Technology: Flutter
+  - Dành cho: STUDENT role
+  - Chức năng:
+    - Học skill
+    - Làm bài tập (practice)
+    - Xem lời giải
+    - Xem tiến độ học tập
+
 ==================================================
 4. NHỮNG GÌ BỊ CẤM TRIỂN KHAI
 ==================================================
@@ -161,6 +202,7 @@ Không có logic trung gian / stub / fake cho law dormant.
 
 Module tối thiểu:
 - User
+- Admin
 - Chapter
 - Skill
 - Practice
@@ -189,12 +231,17 @@ Cho phép:
 
 Phase 1 được coi là HOÀN THÀNH khi:
 
+- Admin:
+  - tạo user (parent/student/admin) được
+  - quản lý content (chapter, skill) được
+  - gán chapter cho student được
 - Phụ huynh:
   - gán chapter cho học sinh được
+  - xem tiến trình học sinh được
 - Học sinh:
-  - học skill
-  - làm bài tập
-  - xem lời giải
+  - học skill được
+  - làm bài tập được
+  - xem lời giải được
 
 - Hệ thống:
   - ổn định

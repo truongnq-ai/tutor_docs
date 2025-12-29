@@ -93,20 +93,29 @@ Không tồn tại:
 
 6.1. Role
 
+- ADMIN
 - PARENT
 - STUDENT
 
 6.2. Quyền
 
+- ADMIN:
+  - tạo / sửa / xóa user (parent, student, admin)
+  - tạo / sửa / xóa chapter
+  - tạo / sửa / xóa skill
+  - gán chapter cho học sinh (bất kỳ học sinh nào)
+  - xem tất cả tiến trình
+  - xem system metrics
+
 - PARENT:
-  - tạo / sửa chapter
-  - gán chapter cho học sinh
-  - xem tiến trình
+  - gán chapter cho học sinh (chỉ con của mình)
+  - xem tiến trình học sinh (chỉ con của mình)
 
 - STUDENT:
   - học skill
   - làm bài tập
   - xem lời giải
+  - xem tiến độ của chính mình
 
 6.3. Nguyên tắc
 
