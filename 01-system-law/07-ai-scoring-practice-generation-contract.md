@@ -331,7 +331,75 @@ Tài liệu này phụ thuộc trực tiếp vào Student Lifecycle – System L
 
 ---
 
-## 6. PHỤ THUỘC / LIÊN KẾT
+## PHẦN 10 – PHASE 1 USAGE SUBSET
+
+### 10.1. Phase 1 chỉ dùng subset cực nhỏ
+
+**⚠️ QUAN TRỌNG:**
+
+Tài liệu này mô tả AI Contract đầy đủ cho toàn hệ thống, nhưng Phase 1 chỉ sử dụng subset cực nhỏ.
+
+**Phase 1 AI Usage:**
+
+- **Generate questions:** Sinh câu hỏi dựa trên chapter_id và skill_id
+- **Explain solutions:** Giải thích bài tập
+- **KHÔNG dùng:**
+  - Mastery bucket (LOW / MEDIUM / HIGH) - Phase 1 không có mastery decision
+  - Cache rules phức tạp - Phase 1 AI stateless
+  - Trial boundary - Phase 1 không có trial
+  - Permission snapshot - Phase 1 permission hard-coded
+
+**Phase 1 AI = Generate bài + Giải thích, không hơn.**
+
+### 10.2. Phase 1 KHÔNG dùng các phần sau
+
+**Các phần của AI Contract KHÔNG áp dụng trong Phase 1:**
+
+- **PHẦN 3.2 – Mastery bucket:** Phase 1 không truyền mastery bucket cho AI
+- **PHẦN 5 – Cache Rules:** Phase 1 AI stateless, không cache
+- **PHẦN 6 – Trial Boundary:** Phase 1 không có trial
+- **PHẦN 3.3 – Permission snapshot:** Phase 1 permission hard-coded
+
+**Lưu ý:**
+- System Law gốc (AI Contract đầy đủ) vẫn là nguồn sự thật cho Phase 2
+- Phase 1 chỉ implement subset cực nhỏ
+- Không được hiểu nhầm Phase 1 là "chuẩn bị sẵn" các phần không dùng
+
+### 10.3. Phase 1 AI Input Contract (Simplified)
+
+**Phase 1 AI chỉ nhận:**
+
+- Student ID (chỉ để tracking)
+- Chapter ID
+- Skill IDs
+- Question count
+- Difficulty range (nếu có)
+
+**Phase 1 AI KHÔNG nhận:**
+
+- Mastery bucket
+- Permission snapshot
+- Trial context
+- Cache hints
+
+### 10.4. Phase 1 AI Output Contract (Simplified)
+
+**Phase 1 AI chỉ trả về:**
+
+- Questions (nội dung câu hỏi, đáp án, options)
+- Solution explanation (khi giải thích bài)
+
+**Phase 1 AI KHÔNG trả về:**
+
+- Mastery percentage
+- Unlock suggestion
+- Completion suggestion
+- Progression state change
+- Permission override
+
+---
+
+## 11. PHỤ THUỘC / LIÊN KẾT
 
 - → Tài liệu liên quan:
   - [Student Lifecycle](01-student-lifecycle.md)

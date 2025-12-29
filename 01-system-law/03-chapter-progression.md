@@ -79,6 +79,17 @@ Chapter ở trạng thái UNLOCKED khi:
 - Chapter trước đó (Chapter N-1) đã được hoàn thành (COMPLETED)
 - Và học sinh chưa bắt đầu học Chapter này (chưa chuyển sang IN_PROGRESS)
 
+**⚠️ PHASE 1 OVERRIDE:**
+
+Trong Phase 1, trạng thái UNLOCKED bị LOẠI BỎ CÓ CHỦ ĐÍCH. Phase 1 chỉ sử dụng FSM tối giản: LOCKED → IN_PROGRESS → COMPLETED.
+
+**Lưu ý quan trọng:**
+- Phase 1 KHÔNG có trạng thái UNLOCKED trong database và domain model
+- Phase 1 KHÔNG có logic chuyển trạng thái LOCKED → UNLOCKED → IN_PROGRESS
+- Chapter trong Phase 1 chuyển trực tiếp từ LOCKED sang IN_PROGRESS khi bắt đầu học
+- Không được ám chỉ UNLOCKED tồn tại ngầm trong Phase 1
+- System Law gốc (có UNLOCKED) vẫn là nguồn sự thật cho Phase 2 và các phase sau
+
 ### 3.3. IN_PROGRESS
 
 **Ý nghĩa nghiệp vụ:**  
@@ -126,6 +137,8 @@ Hệ thống chỉ cho phép các chuyển trạng thái sau đây:
 **Cơ chế:**  
 Chuyển trạng thái này xảy ra tự động khi điều kiện được thỏa mãn. Không cần hành động thủ công từ học sinh.
 
+**⚠️ PHASE 1 OVERRIDE:** Chuyển trạng thái LOCKED → UNLOCKED KHÔNG tồn tại trong Phase 1. Phase 1 bỏ qua UNLOCKED và chuyển trực tiếp LOCKED → IN_PROGRESS.
+
 #### 4.1.2. UNLOCKED → IN_PROGRESS
 
 **Điều kiện:**  
@@ -136,6 +149,8 @@ Chuyển trạng thái này xảy ra tự động khi điều kiện được th
 
 **Cơ chế:**  
 Chuyển trạng thái này xảy ra khi học sinh thực hiện hành động bắt đầu học Chapter. Chapter chỉ được chuyển sang trạng thái IN_PROGRESS khi practice đầu tiên được tạo thành công. Việc chọn Chapter để học trên UI, nếu không tạo practice, KHÔNG được phép làm thay đổi trạng thái Chapter.
+
+**⚠️ PHASE 1 OVERRIDE:** Trong Phase 1, chuyển trạng thái này được thay thế bằng LOCKED → IN_PROGRESS (bỏ qua UNLOCKED). Phase 1 không có logic UNLOCKED → IN_PROGRESS.
 
 #### 4.1.3. IN_PROGRESS → COMPLETED
 

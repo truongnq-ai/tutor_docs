@@ -240,6 +240,8 @@ SkillMastery là Value Object đại diện cho mức độ thành thạo của 
 - Không cascade mutation
 - Không gọi AI
 
+**⚠️ PHASE 1 COMPLETION RULE (TẠM THỜI) – OVERRIDE SYSTEM LAW:**
+
 **Trong Phase 1, điều kiện hoàn thành Chapter được chốt như sau:**
 
 Chapter được coi là COMPLETED khi:
@@ -247,10 +249,12 @@ Chapter được coi là COMPLETED khi:
 - Có ít nhất MỘT Practice được submit hợp lệ (PRACTICE_SUBMITTED)
 - Tất cả invariant của ChapterProgress vẫn được thỏa mãn
 
+**⚠️ QUAN TRỌNG: Đây là OVERRIDE TẠM THỜI, KHÔNG phải System Law gốc.**
+
 **Phase 1 KHÔNG áp dụng:**
 
 - Ngưỡng số lượng practice cố định
-- Ngưỡng mastery phức tạp
+- **Mastery threshold (System Law gốc yêu cầu 100% skill REQUIRED đạt threshold)**
 - Điều kiện dựa trên thời gian
 - Quyết định từ AI
 
@@ -259,7 +263,15 @@ Chapter được coi là COMPLETED khi:
 - Đơn giản
 - Dễ test
 - Không mở scope
-- Làm nền cho Phase sau mở rộng logic completion
+- **KHÔNG chuẩn bị Phase 2**
+
+**⚠️ LƯU Ý NGHIÊM TRỌNG:**
+
+- **Completion Phase 1 KHÔNG được hiểu là completion học thuật đầy đủ**
+- **Completion Phase 1 chỉ là đánh dấu tiến độ tối giản**
+- **System Law gốc (mastery threshold) vẫn là nguồn sự thật cho completion học thuật đầy đủ**
+- **Khi Phase 2 triển khai, completion rule sẽ quay về System Law gốc (mastery threshold)**
+- **Không được diễn đạt mâu thuẫn với System Law gốc về completion**
 
 ---
 

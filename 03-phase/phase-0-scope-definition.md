@@ -58,6 +58,28 @@ Tài liệu này định nghĩa deployment intent và phạm vi Phase 1 của d�
   - ACTIVE
   - DORMANT (chưa kích hoạt)
 
+### 3.4. Override có kiểm soát (Phase 1 only)
+
+Phase 1 được phép override một phần System Law, nhưng phải tuân thủ nghiêm ngặt:
+
+**Nguyên tắc override:**
+- Mọi override PHẢI được ghi rõ là "Phase 1 only"
+- Mọi override PHẢI được liệt kê trong Phase 1 Law Constraints
+- System Law gốc KHÔNG được sửa đổi, chỉ được ghi chú override
+- Override chỉ áp dụng cho Phase 1, không ảnh hưởng System Law gốc
+- Khi Phase 2 triển khai, override sẽ được loại bỏ và quay về System Law gốc
+
+**Các override được phép trong Phase 1:**
+- Completion Rule: Phase 1 sử dụng rule tạm thời (practice hợp lệ), không dựa mastery threshold
+- Chapter State: Phase 1 loại bỏ UNLOCKED, chỉ dùng LOCKED → IN_PROGRESS → COMPLETED
+- Lifecycle: Phase 1 dùng snapshot tối giản (ACTIVE | SUSPENDED | INACTIVE), không ánh xạ license/trial
+
+**KHÔNG được phép:**
+- Override mà không ghi rõ
+- Override mà không liệt kê trong Phase 1 Law Constraints
+- Sửa đổi System Law gốc để hợp thức hóa override
+- Override để chuẩn bị Phase 2
+
 ---
 
 ## 4. PHẠM VI PHASE 1 (ĐƯỢC PHÉP LÀM)

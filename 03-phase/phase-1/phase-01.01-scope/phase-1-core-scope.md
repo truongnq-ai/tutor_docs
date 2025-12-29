@@ -95,7 +95,15 @@ Phase 1 KHÔNG nhằm:
 
 - Enforcement:
   - không được học skill nếu prerequisite chưa hoàn thành
-  - completion ở mức đơn giản (boolean)
+  - **LÀM RÕ:** Prerequisite chỉ là điều kiện CHO PHÉP PRACTICE, không phải completion của skill
+
+**⚠️ LÀM RÕ QUAN TRỌNG:**
+
+- **Skill KHÔNG có completion riêng:** Skill không có trạng thái completion, không có boolean completion, không có logic hoàn thành độc lập
+- **Skill KHÔNG là đơn vị tiến độ:** Skill chỉ là đơn vị năng lực, không được dùng để đo lường tiến độ học tập
+- **Prerequisite ≠ Skill Completion:** Prerequisite chỉ kiểm tra điều kiện cho phép tạo practice, không phải đánh dấu skill đã hoàn thành
+- **Chapter là đơn vị tiến độ duy nhất:** Mọi logic xác định "học đến đâu" đều phải quy chiếu về Chapter, không phải Skill
+- **Không có "completion đơn giản (boolean)" cho Skill:** Cụm từ này dễ gây hiểu nhầm. Phase 1 KHÔNG có skill completion boolean, chỉ có prerequisite check để cho phép practice
 
 ### 4.4. PRACTICE / BÀI TẬP
 

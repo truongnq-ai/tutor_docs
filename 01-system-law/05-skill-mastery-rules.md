@@ -206,6 +206,16 @@ Chapter được coi là COMPLETED khi và chỉ khi:
 
 Không có ngoại lệ. Nếu chỉ một skill REQUIRED chưa đạt threshold, Chapter không thể được đánh dấu là COMPLETED.
 
+**⚠️ PHASE 1 OVERRIDE (TẠM THỜI):**
+
+Trong Phase 1, hệ thống sử dụng Completion Rule tạm thời, KHÔNG dựa trên mastery threshold. Phase 1 cho phép Chapter COMPLETED dựa trên practice hợp lệ được submit, không yêu cầu mastery threshold.
+
+**Lưu ý quan trọng:**
+- Completion trong Phase 1 KHÔNG được hiểu là completion học thuật đầy đủ theo System Law gốc
+- Completion Phase 1 chỉ là đánh dấu tiến độ tối giản, không phản ánh mức độ thành thạo thực tế
+- Khi Phase 2 triển khai, completion rule sẽ quay về System Law gốc (mastery threshold)
+- System Law gốc (mastery threshold) vẫn là nguồn sự thật duy nhất cho completion học thuật đầy đủ
+
 ### 7.3. OPTIONAL mastery không được xét
 
 Mastery của skill OPTIONAL không được xét trong việc đánh giá hoàn thành Chapter. Dù học sinh có đạt được mastery 100% trong tất cả skill OPTIONAL, nếu còn skill REQUIRED chưa đạt threshold, Chapter vẫn không được đánh dấu là COMPLETED.

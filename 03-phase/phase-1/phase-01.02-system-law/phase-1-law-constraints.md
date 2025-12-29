@@ -140,6 +140,45 @@ Code Phase 1 **BẮT BUỘC đảm bảo** các bất biến sau:
   - complete chapter
 - System Core **luôn override AI**
 
+### 4.6. Completion Rule Phase 1 (Temporary Override)
+
+**⚠️ CONSTRAINT NGHIÊM TRỌNG:**
+
+Phase 1 sử dụng Completion Rule TẠM THỜI, KHÔNG dựa trên mastery threshold.
+
+**Completion Rule Phase 1:**
+- Chapter COMPLETED khi có ít nhất MỘT Practice được submit hợp lệ
+- KHÔNG yêu cầu mastery threshold
+- KHÔNG yêu cầu 100% skill REQUIRED đạt threshold
+
+**KHÔNG được phép:**
+- Dùng mastery để quyết định completion trong Phase 1
+- Dùng mastery threshold để unlock / complete / decision
+- Ám chỉ completion Phase 1 là completion học thuật đầy đủ
+- Chuẩn bị logic mastery threshold "cho tương lai"
+
+**System Law gốc (mastery threshold) vẫn là nguồn sự thật cho Phase 2.**
+
+### 4.7. Mastery Phase 1 (Reference Data Only)
+
+**⚠️ CONSTRAINT NGHIÊM NGẶT:**
+
+Mastery trong Phase 1 CHỈ là dữ liệu tham chiếu, KHÔNG dùng cho decision.
+
+**Mastery Phase 1:**
+- Được lưu trữ trong bảng skill_mastery (0-100)
+- Được cập nhật qua practice hợp lệ
+- CHỈ mang tính tham khảo, không dùng để quyết định
+
+**KHÔNG được phép:**
+- Dùng mastery để unlock Chapter
+- Dùng mastery để complete Chapter
+- Dùng mastery để quyết định progression
+- Dùng mastery để quyết định quyền học tập
+- Ám chỉ mastery Phase 1 là "chuẩn bị cho Phase 2"
+
+**Mastery Phase 1 = Reference data, NOT decision data.**
+
 ---
 
 ## 5. CODING GUARDS (MUST IMPLEMENT)

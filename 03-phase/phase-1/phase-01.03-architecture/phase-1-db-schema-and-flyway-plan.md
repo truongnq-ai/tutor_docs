@@ -331,9 +331,25 @@ WHERE chapter_state = 'IN_PROGRESS'
 
 - mastery_value BETWEEN 0 AND 100
 
-**Notes:**
+**⚠️ VAI TRÒ MASTERY TRONG PHASE 1 (QUAN TRỌNG):**
 
+**Mastery Phase 1 CHỈ là dữ liệu tham chiếu, KHÔNG dùng cho decision:**
+
+- Mastery được lưu trữ đầy đủ (0-100) trong bảng skill_mastery
+- Mastery được cập nhật qua practice hợp lệ
+- **Mastery KHÔNG được dùng để:**
+  - Unlock Chapter
+  - Complete Chapter
+  - Quyết định progression
+  - Quyết định quyền học tập
+  - Bất kỳ logic decision nào
+
+**Lưu ý:**
 - SkillMastery KHÔNG unlock Chapter
+- SkillMastery KHÔNG complete Chapter
+- SkillMastery chỉ là reference data, NOT decision data
+- **KHÔNG được hiểu nhầm mastery Phase 1 là "chuẩn bị cho Phase 2"**
+- System Law gốc (mastery threshold cho completion) vẫn là nguồn sự thật cho Phase 2
 
 ---
 
