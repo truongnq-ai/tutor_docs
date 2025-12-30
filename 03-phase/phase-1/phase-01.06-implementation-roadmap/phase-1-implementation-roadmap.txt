@@ -2526,175 +2526,1305 @@ I. NGUYÊN TẮC KIẾN TRÚC CHUNG CHO D1
 
 ---
 
-II. D1.1 AUTH & ACCESS CONTROL
+II. # D1.1 – ADMIN DASHBOARD: OVERVIEW / DASHBOARD HOME
 
-Mục tiêu
-Đảm bảo chỉ ADMIN truy cập được Admin Dashboard.
-
-Chức năng
-
-* Admin Login
-* Token refresh
-* Logout
-
-Logic
-
-* Sau login, frontend đọc role từ token
-* Nếu role ≠ ADMIN → redirect / forbidden
-* Mọi route admin đều được guard
-
-Không làm
-
-* Không tự lưu role cứng
-* Không hardcode quyền theo UI
-* Không bypass backend guard
+*(PHASE 1 – OPERATIONAL OVERVIEW ONLY)*
 
 ---
 
-III. D1.2 USER MANAGEMENT (A1)
+## 1. MỤC TIÊU
 
-Mục tiêu
-Quản lý danh tính người dùng trong hệ thống.
+D1.1 định nghĩa **trang tổng quan (Dashboard Home)** cho Admin trong Phase 1.
 
-Chức năng
+Trang này **chỉ có vai trò cung cấp bức tranh vận hành tổng thể**, giúp admin:
 
-* Tạo user:
+* biết hệ thống **đã có những gì**
+* biết **tình trạng nội dung**
+* không đưa ra **bất kỳ quyết định học tập nào**
 
-  * ADMIN
-  * PARENT
-  * STUDENT
-* Xem danh sách user
-* Filter theo role
-* Reset mật khẩu user
-
-Luồng tạo user
-
-1. Admin nhập thông tin
-2. Gửi API create user
-3. Nhận response
-4. Hiển thị thông báo thành công
-
-Luồng reset mật khẩu
-
-1. Admin chọn user
-2. Gọi API reset password
-3. Backend trả plaintext password
-4. Frontend hiển thị đúng 1 lần
-
-Logic ẩn
-
-* Không hiển thị lại password sau khi đóng modal
-* Không lưu password ở local storage
-* Không cho admin đổi role của chính mình
+> **Dashboard Home ≠ Control Panel**
+> **Dashboard Home ≠ Analytics / Decision Board**
 
 ---
 
-IV. D1.3 PARENT – STUDENT RELATION (A2)
+## 2. BẢN CHẤT CỦA DASHBOARD HOME (PHASE 1)
 
-Mục tiêu
-Thiết lập quan hệ sở hữu.
+Dashboard Home trong Phase 1 là:
 
-Chức năng
+* **Read-only**
+* **Summary-only**
+* **Non-actionable**
 
-* Gán Parent ↔ Student
-* Hủy gán
-* Xem danh sách quan hệ
+Nó trả lời các câu hỏi:
 
-Luồng gán
+* Hệ thống hiện có bao nhiêu nội dung?
+* Bao nhiêu bài tập đã được phê duyệt?
+* Có bao nhiêu user trong hệ thống?
 
-1. Admin chọn Parent
-2. Admin chọn Student
-3. Gửi API link
-4. Backend xác nhận
+👉 Nó **KHÔNG trả lời**:
 
-Luồng hủy
-
-* Gọi API unlink
-* Refresh danh sách
-
-Logic ẩn
-
-* Không cho gán sai role
-* Không tạo student_profile
-* Không hiển thị logic học tập
+* nội dung nào “tốt / kém”
+* học sinh nào “yếu / mạnh”
+* cần can thiệp học tập ở đâu
 
 ---
 
-V. D1.4 CONTENT MANAGEMENT – CHAPTER / SKILL (B1)
+## 3. NỘI DUNG ĐƯỢC PHÉP HIỂN THỊ (ALLOWED DISPLAY)
 
-Mục tiêu
-Xây dựng cấu trúc kiến thức.
+### 3.1 Thống kê tổng hợp (Aggregated Counts)
 
-Chức năng
+Dashboard Home **được phép hiển thị** các chỉ số **đếm đơn giản**:
 
-* CRUD Chapter
-* CRUD Skill
-* Gán Skill vào Chapter
-* Định nghĩa Skill Prerequisite
+* Tổng số:
 
-Luồng làm việc
+  * Chapters
+  * Skills
+  * Questions
+  * Exercises
+* Trạng thái Exercise:
 
-* Admin tạo Chapter
-* Admin tạo Skill
-* Admin gán Skill vào Chapter
-* Admin khai báo prerequisite
+  * DRAFT
+  * APPROVED
+* Tổng số:
 
-Logic ẩn
+  * Students
+  * Parents
+  * Admins
 
-* Không hiển thị trạng thái học
-* Không hiển thị tiến độ
-* Không enforce thứ tự học ở UI
+📌 **Ràng buộc**
 
----
-
-VI. D1.5 CONTENT MANAGEMENT – EXERCISE (B2)
-
-Mục tiêu
-Xây dựng và kiểm soát chất lượng ngân hàng bài tập.
-
-Chức năng
-
-* CRUD Exercise
-* CRUD ExerciseSolution
-* Quản lý ExerciseTag
-* Review Exercise
-* Xem ReviewLog
-
-Workflow UI
-
-* Exercise ở trạng thái DRAFT
-* Admin review → APPROVED / REJECTED
-* Mọi thay đổi đều ghi log
-
-Logic ẩn
-
-* Không hiển thị student answer
-* Không hiển thị practice runtime
-* Không cho sửa Exercise đã APPROVED nếu không quay về REVIEWED
+* Chỉ là số đếm
+* Không có biểu đồ phân tích sâu
+* Không có trend / forecast
 
 ---
 
-VII. D1.6 LEARNING SETUP (C1 – ADMIN SCOPE HẸP)
+### 3.2 Trạng thái hệ thống (Operational Status)
 
-Mục tiêu
-Thiết lập điều kiện học ban đầu.
+Có thể hiển thị:
 
-Chức năng
+* “Hệ thống đang hoạt động bình thường”
+* “Không có lỗi hệ thống nghiêm trọng”
 
-* Gán Chapter ban đầu cho Student
-* Xem ChapterProgress (read-only)
+📌 Mục đích:
 
-Luồng gán chapter
+* giúp admin **biết hệ thống sống**
+* không phải để debug hay monitor
 
-1. Admin chọn Student
-2. Admin chọn Chapter
-3. Gọi API assign
+---
 
-Logic ẩn
+## 4. NHỮNG GÌ TUYỆT ĐỐI KHÔNG ĐƯỢC HIỂN THỊ (EXPLICIT NON-GOALS)
 
-* Admin không được đổi chapter_state
-* Không có nút “complete”
-* Không reset tiến độ
+Dashboard Home **KHÔNG ĐƯỢC** hiển thị:
+
+### 4.1 Learning / Student Analytics
+
+* tiến độ học sinh
+* mastery
+* completion rate
+* so sánh học sinh
+
+### 4.2 Decision-oriented Metrics
+
+* “Bài tập khó / dễ”
+* “Bài tập tốt / kém”
+* “AI performance”
+* “Nên cải thiện nội dung nào”
+
+### 4.3 Action Triggers
+
+* Không có nút:
+
+  * “Can thiệp”
+  * “Điều chỉnh”
+  * “Đánh giá”
+* Không gợi ý workflow tiếp theo
+
+---
+
+## 5. HÀNH VI UI ĐƯỢC PHÉP
+
+* Click từ Dashboard Home chỉ được:
+
+  * điều hướng đến **màn hình quản lý danh sách**
+
+    * Chapters
+    * Skills
+    * Exercises
+    * Users
+* KHÔNG có:
+
+  * shortcut hành động
+  * quick-approve
+  * inline edit
+
+---
+
+## 6. RÀNG BUỘC PHASE 1 (BẮT BUỘC)
+
+* Dashboard Home:
+
+  * không chứa business logic
+  * không gọi API học tập
+  * không suy luận dữ liệu
+* Tất cả dữ liệu:
+
+  * đến từ backend
+  * ở dạng summary
+  * không xử lý thêm ở frontend
+
+---
+
+## 7. CHECKLIST D1.1 (CHO DEV & REVIEW)
+
+* [ ] Chỉ hiển thị số đếm tổng hợp
+* [ ] Không hiển thị dữ liệu học sinh chi tiết
+* [ ] Không có biểu đồ phân tích nâng cao
+* [ ] Không có action button nghiệp vụ
+* [ ] Click chỉ dẫn đến trang list
+* [ ] Không có wording mang tính đánh giá
+
+---
+
+## 8. TÓM TẮT 1 CÂU (ANTI-CONFUSION)
+
+> **D1.1 = Trang “xem hệ thống có gì”,
+> KHÔNG phải trang “quyết định làm gì”.**
+
+---
+
+III. # D1.2 – USER MANAGEMENT (ADMIN / PARENT / STUDENT)
+
+*(PHASE 1 – OPERATIONAL USER SETUP ONLY)*
+
+---
+
+## 1. MỤC TIÊU
+
+D1.2 định nghĩa **chức năng quản lý người dùng** trong Admin Dashboard Phase 1.
+
+Mục tiêu duy nhất:
+
+* giúp admin **quản trị tài khoản ở mức vận hành hệ thống**
+* đảm bảo **đúng vai trò, đúng trạng thái truy cập**
+* **KHÔNG can thiệp** vào hoạt động học tập của người dùng
+
+> **User Management ≠ Learning Management**
+> **User Management ≠ Student Progress Control**
+
+---
+
+## 2. CÁC LOẠI USER TRONG PHASE 1
+
+Admin Dashboard Phase 1 quản lý **3 loại user**:
+
+| User Type | Vai trò                          |
+| --------- | -------------------------------- |
+| ADMIN     | Quản trị hệ thống                |
+| PARENT    | Theo dõi tiến độ học (read-only) |
+| STUDENT   | Người học                        |
+
+📌 **Lưu ý quan trọng**
+
+* D1.2 **chỉ quản lý account & access**
+* **KHÔNG quản lý** hành vi học tập
+
+---
+
+## 3. CÁC CHỨC NĂNG ĐƯỢC PHÉP (ALLOWED ACTIONS)
+
+### 3.1 Danh sách user (List)
+
+Admin được phép:
+
+* xem danh sách user theo từng loại:
+
+  * Students
+  * Parents
+  * Admins
+* lọc theo:
+
+  * role
+  * trạng thái account (active / disabled)
+
+📌 **Giới hạn**
+
+* Không hiển thị dữ liệu học tập
+* Không hiển thị mastery / progress
+
+---
+
+### 3.2 Xem chi tiết user (View Details)
+
+Admin được phép xem **thông tin hồ sơ cơ bản**:
+
+* ID
+* Tên
+* Email / Username
+* Role
+* Trạng thái account
+* Ngày tạo
+
+📌 **Chỉ read-only**
+
+---
+
+### 3.3 Enable / Disable User Account
+
+Admin được phép:
+
+* disable account (khóa đăng nhập)
+* enable account (mở lại đăng nhập)
+
+📌 **Ý nghĩa**
+
+* Đây là **access control**
+* Không phải hình phạt học tập
+* Không ảnh hưởng dữ liệu học đã có
+
+---
+
+### 3.4 Quản lý quan hệ Parent – Student (Read-only)
+
+Admin **được phép xem**:
+
+* Parent nào gắn với Student nào
+
+Admin **KHÔNG được**:
+
+* gán / tháo quan hệ Parent–Student (Phase 1)
+* can thiệp vào mối quan hệ gia đình
+
+📌 **Lý do**
+
+* Quan hệ này thuộc domain khác
+* Không phải nhiệm vụ vận hành admin Phase 1
+
+---
+
+## 4. NHỮNG GÌ TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP (EXPLICIT NON-GOALS)
+
+### 4.1 Không can thiệp học tập
+
+Admin **KHÔNG được**:
+
+* xem tiến độ học tập chi tiết
+* xem kết quả bài làm
+* xem mastery
+* xem lịch sử practice
+
+---
+
+### 4.2 Không có hành động học tập
+
+KHÔNG có nút:
+
+* “Giao bài”
+* “Reset tiến độ”
+* “Can thiệp học tập”
+* “Đánh giá học sinh”
+
+---
+
+### 4.3 Không quản lý Trial / License / Device
+
+Admin **KHÔNG**:
+
+* tạo / reset trial
+* gán license
+* quản lý thiết bị đăng nhập
+
+👉 Các nội dung này **không tồn tại trong Phase 1**.
+
+---
+
+## 5. HÀNH VI UI ĐƯỢC PHÉP
+
+* UI:
+
+  * bảng danh sách
+  * filter đơn giản
+  * pagination
+* Điều hướng:
+
+  * List → Detail
+* Không có:
+
+  * inline edit phức tạp
+  * bulk action nguy hiểm
+
+---
+
+## 6. RÀNG BUỘC PHASE 1 (BẮT BUỘC)
+
+* User Management:
+
+  * **không gọi API học tập**
+  * **không gọi API practice**
+  * **không gọi API mastery**
+* Tất cả hành vi:
+
+  * chỉ liên quan auth / access
+  * không tạo domain event học tập
+
+---
+
+## 7. CHECKLIST D1.2 (CHO DEV & REVIEW)
+
+* [ ] Chỉ hiển thị thông tin account
+* [ ] Không hiển thị progress / mastery
+* [ ] Enable / Disable chỉ ảnh hưởng login
+* [ ] Không có nút can thiệp học tập
+* [ ] Quan hệ Parent–Student chỉ read-only
+* [ ] Không có Trial / License / Device
+
+---
+
+## 8. TÓM TẮT 1 CÂU (ANTI-CONFUSION)
+
+> **D1.2 = Quản lý “ai được vào hệ thống”,
+> KHÔNG phải “ai học thế nào”.**
+
+---
+
+## 9. NOTE CHO DEV (CỰC QUAN TRỌNG)
+
+Nếu trong lúc làm UI có cảm giác:
+
+> “Tiện thêm nút này cho admin đỡ phải…”
+
+→ **DỪNG LẠI.**
+→ Kiểm tra lại Phase 1 scope.
+→ Rất có khả năng đó là Phase 2.
+
+---
+
+IV. # D1.3 – CONTENT MANAGEMENT: CHAPTER & SKILL
+
+*(PHASE 1 – CONTENT STRUCTURE SETUP ONLY)*
+
+---
+
+## 1. MỤC TIÊU
+
+D1.3 định nghĩa **chức năng quản lý cấu trúc nội dung học tập** gồm **Chapter** và **Skill** trong Admin Dashboard Phase 1.
+
+Mục tiêu duy nhất:
+
+* xây dựng **khung nội dung tĩnh, chuẩn hóa**
+* làm nền cho việc tạo **Exercise** ở D1.5
+* **KHÔNG can thiệp** vào tiến trình học tập của học sinh
+
+> **Chapter & Skill Management ≠ Curriculum Decision**
+> **Chapter & Skill Management ≠ Learning Progress Control**
+
+---
+
+## 2. KHÁI NIỆM CỐT LÕI (PHẢI HIỂU ĐÚNG)
+
+### 2.1 Chapter là gì trong Phase 1?
+
+* Chapter = **đơn vị nội dung cấp cao**
+* đại diện cho chương/chủ đề trong chương trình
+* **KHÔNG chứa** tiến độ học, completion, hay điều kiện mở khóa
+
+### 2.2 Skill là gì trong Phase 1?
+
+* Skill = **đơn vị kỹ năng con**, gắn với Chapter
+* dùng để:
+
+  * phân loại Exercise
+  * tổ chức nội dung
+* **KHÔNG dùng** để quyết định học tập trong Phase 1
+
+📌 **Lưu ý quan trọng**
+
+* Chapter & Skill **chỉ là taxonomy nội dung**
+* mọi logic học tập (unlock, mastery, progression) **KHÔNG tồn tại ở đây**
+
+---
+
+## 3. CÁC CHỨC NĂNG ĐƯỢC PHÉP (ALLOWED ACTIONS)
+
+### 3.1 Quản lý Chapter (CRUD)
+
+Admin được phép:
+
+* tạo Chapter mới
+* chỉnh sửa:
+
+  * tên
+  * mô tả
+  * grade / level
+* xem danh sách Chapter
+* xoá Chapter (khi chưa được dùng)
+
+📌 **Ràng buộc**
+
+* Không có trạng thái học tập (completed / in-progress)
+* Không có logic mở khóa
+
+---
+
+### 3.2 Quản lý Skill (CRUD)
+
+Admin được phép:
+
+* tạo Skill mới
+* gán Skill vào **1 Chapter**
+* chỉnh sửa:
+
+  * tên
+  * mô tả
+* xem danh sách Skill theo Chapter
+* xoá Skill (khi chưa được dùng)
+
+📌 **Ràng buộc**
+
+* Skill **bắt buộc thuộc về 1 Chapter**
+* Không có trạng thái mastery
+* Không có threshold / score
+
+---
+
+### 3.3 Quan hệ Chapter – Skill (STRUCTURE ONLY)
+
+Admin được phép:
+
+* xem:
+
+  * Chapter có những Skill nào
+* sắp xếp hiển thị (order) cho mục đích **UX**
+
+Admin **KHÔNG được**:
+
+* thiết lập prerequisite học tập
+* thiết lập điều kiện unlock
+* gắn logic học sinh
+
+---
+
+## 4. NHỮNG GÌ TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP (EXPLICIT NON-GOALS)
+
+### 4.1 Không có logic học tập
+
+Admin **KHÔNG**:
+
+* xem học sinh đang học Chapter nào
+* xem Skill đã đạt hay chưa
+* xem mastery / progress
+
+---
+
+### 4.2 Không có curriculum decision
+
+KHÔNG có:
+
+* “Skill bắt buộc”
+* “Skill nâng cao”
+* “Điều kiện hoàn thành Chapter”
+
+👉 Những khái niệm này **thuộc Phase sau**.
+
+---
+
+### 4.3 Không có hành động runtime
+
+KHÔNG có nút:
+
+* “Mở Chapter cho học sinh”
+* “Reset Chapter”
+* “Áp dụng cho học sinh”
+
+---
+
+## 5. HÀNH VI UI ĐƯỢC PHÉP
+
+* UI:
+
+  * List Chapter
+  * Detail Chapter → list Skill
+* Filter:
+
+  * theo grade
+  * theo Chapter
+* Điều hướng:
+
+  * Chapter list → Chapter detail
+  * Chapter detail → Skill list
+* Không có:
+
+  * bulk action nguy hiểm
+  * inline logic phức tạp
+
+---
+
+## 6. RÀNG BUỘC PHASE 1 (BẮT BUỘC)
+
+* Chapter & Skill:
+
+  * không gọi API practice
+  * không gọi API mastery
+  * không gọi API student progress
+* Frontend:
+
+  * chỉ submit CRUD intent
+  * không suy luận dữ liệu
+
+---
+
+## 7. CHECKLIST D1.3 (CHO DEV & REVIEW)
+
+* [ ] Chapter CRUD hoạt động độc lập
+* [ ] Skill luôn thuộc đúng 1 Chapter
+* [ ] Không có progress / mastery UI
+* [ ] Không có unlock / prerequisite
+* [ ] UI chỉ phản ánh cấu trúc nội dung
+* [ ] Không có hành động runtime
+
+---
+
+## 8. TÓM TẮT 1 CÂU (ANTI-CONFUSION)
+
+> **D1.3 = Dựng “khung chương trình”,
+> KHÔNG phải “điều khiển học tập”.**
+
+---
+
+## 9. NOTE CHO DEV (CỰC QUAN TRỌNG)
+
+Nếu trong quá trình làm UI nảy sinh ý tưởng:
+
+> “Gắn thêm điều kiện này cho Chapter/Skill cho tiện…”
+
+→ **DỪNG NGAY.**
+→ Điều đó **không thuộc Phase 1**.
+
+---
+
+V. # D1.4 – CONTENT MANAGEMENT: QUESTION
+
+*(PHASE 1 – CONTENT ASSET ONLY)*
+
+---
+
+## 1. MỤC TIÊU
+
+D1.4 định nghĩa **chức năng quản lý QUESTION** trong Admin Dashboard Phase 1.
+
+Mục tiêu duy nhất:
+
+* xây dựng **ngân hàng câu hỏi chuẩn hóa** (content asset)
+* phục vụ cho việc **tạo Exercise** (ở D1.5)
+* **KHÔNG can thiệp** vào hoạt động học tập của học sinh
+
+> **Question Management ≠ Practice Management**
+> **Question Management ≠ Student Assessment**
+
+---
+
+## 2. KHÁI NIỆM CỐT LÕI (PHẢI HIỂU ĐÚNG)
+
+### 2.1 Question là gì trong Phase 1?
+
+* Question = **đơn vị nội dung nhỏ nhất** (atomic content)
+* có thể là:
+
+  * trắc nghiệm
+  * tự luận
+  * câu hỏi đơn
+* được dùng để:
+
+  * cấu thành Exercise
+  * tái sử dụng trong nhiều Exercise khác nhau
+
+📌 **Quan trọng**
+
+* Question **không gắn Student**
+* Question **không gắn Practice**
+* Question **không có đúng/sai ở runtime**
+
+---
+
+### 2.2 Question KHÔNG phải là gì?
+
+Question **KHÔNG**:
+
+* là bài làm của học sinh
+* là attempt
+* là kết quả đánh giá
+* là unit để tính mastery
+
+---
+
+## 3. CÁC CHỨC NĂNG ĐƯỢC PHÉP (ALLOWED ACTIONS)
+
+### 3.1 Tạo Question (CREATE)
+
+Admin được phép tạo Question với các thông tin:
+
+* nội dung câu hỏi (text / LaTeX)
+* loại câu hỏi (MCQ / tự luận / khác)
+* đáp án mẫu (nếu có)
+* lời giải mẫu (nếu có)
+* gắn:
+
+  * Chapter
+  * Skill
+  * độ khó (content-level)
+
+📌 **Ràng buộc**
+
+* Đáp án / lời giải là **content reference**
+* Không dùng để chấm bài trong Phase 1
+
+---
+
+### 3.2 Chỉnh sửa Question (UPDATE)
+
+Admin được phép:
+
+* sửa nội dung
+* sửa lời giải
+* sửa metadata (skill, difficulty)
+
+📌 **Ràng buộc**
+
+* Sửa Question **không ảnh hưởng runtime**
+* Không cần migrate dữ liệu học sinh (vì chưa gắn)
+
+---
+
+### 3.3 Xem & quản lý danh sách Question (READ)
+
+Admin được phép:
+
+* xem danh sách Question
+* lọc theo:
+
+  * Chapter
+  * Skill
+  * loại câu hỏi
+  * độ khó
+* xem preview Question (read-only)
+
+---
+
+### 3.4 Xóa Question (DELETE)
+
+Admin được phép xóa Question **khi thỏa điều kiện**:
+
+* chưa được dùng trong bất kỳ Exercise nào
+* hoặc đang ở trạng thái draft nội bộ
+
+📌 **KHÔNG**:
+
+* cascade ảnh hưởng Exercise đã APPROVED
+
+---
+
+## 4. NHỮNG GÌ TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP (EXPLICIT NON-GOALS)
+
+### 4.1 Không có hành vi học tập
+
+Admin **KHÔNG**:
+
+* xem học sinh trả lời Question thế nào
+* xem tỉ lệ đúng / sai
+* xem lịch sử attempt
+
+---
+
+### 4.2 Không có đánh giá chất lượng học tập
+
+KHÔNG có:
+
+* “Question này khó với học sinh”
+* “Question này hay/dở theo kết quả học”
+* analytics theo student
+
+---
+
+### 4.3 Không có logic runtime
+
+KHÔNG có:
+
+* chấm điểm
+* so đáp án
+* quyết định đúng/sai
+
+👉 Tất cả logic này **thuộc C2/C3**, không thuộc D1.4.
+
+---
+
+## 5. HÀNH VI UI ĐƯỢC PHÉP
+
+* UI:
+
+  * List Question
+  * Detail / Preview Question
+  * Create / Edit form
+* Filter:
+
+  * Chapter
+  * Skill
+  * Difficulty
+* Điều hướng:
+
+  * List → Detail
+  * List → Edit
+* Không có:
+
+  * bulk grading
+  * bulk analytics
+
+---
+
+## 6. RÀNG BUỘC PHASE 1 (BẮT BUỘC)
+
+* Question Management:
+
+  * không gọi API practice
+  * không gọi API attempt
+  * không gọi API mastery
+* Frontend:
+
+  * không suy luận “đúng/sai”
+  * không hiển thị dữ liệu học sinh
+
+---
+
+## 7. CHECKLIST D1.4 (CHO DEV & REVIEW)
+
+* [ ] Question là content asset độc lập
+* [ ] Có thể gắn Chapter & Skill
+* [ ] Đáp án/lời giải chỉ là reference
+* [ ] Không hiển thị dữ liệu student
+* [ ] Không có logic chấm điểm
+* [ ] Không có analytics học tập
+
+---
+
+## 8. TÓM TẮT 1 CÂU (ANTI-CONFUSION)
+
+> **D1.4 = Quản lý “nguyên liệu nội dung”,
+> KHÔNG phải “đánh giá người học”.**
+
+---
+
+## 9. NOTE CHO DEV (CỰC QUAN TRỌNG)
+
+Nếu nảy sinh ý tưởng:
+
+> “Lấy luôn kết quả học sinh để biết Question này khó không…”
+
+→ **DỪNG NGAY.**
+→ Đó là **Phase 2+**, không thuộc Phase 1.
+
+---
+
+VI. # D1.5 – CONTENT MANAGEMENT: EXERCISE (PHASE 1 – CONTENT APPROVAL ONLY)
+
+## 1. MỤC TIÊU & PHẠM VI
+
+### 1.1 Mục tiêu
+
+D1.5 định nghĩa **toàn bộ luồng quản trị NỘI DUNG bài tập (Exercise)** trong Phase 1, bao gồm:
+
+* tạo bài tập
+* chỉnh sửa nội dung
+* **phê duyệt chất lượng nội dung**
+* đưa bài tập vào **trạng thái sẵn sàng dùng cho học sinh**
+
+> **Lưu ý cốt lõi:**
+> D1.5 **chỉ xử lý Content Governance**, **KHÔNG xử lý Learning Governance**.
+
+---
+
+### 1.2 Những gì D1.5 KHÔNG LÀ
+
+D1.5 **KHÔNG**:
+
+* review bài làm của học sinh
+* review Practice / Attempt
+* quyết định mastery / progression
+* ảnh hưởng runtime học tập
+* can thiệp logic C2 (Practice) hoặc C3 (Student Runtime)
+
+---
+
+## 2. KHÁI NIỆM CỐT LÕI (BẮT BUỘC HIỂU ĐÚNG)
+
+### 2.1 Exercise là gì trong Phase 1?
+
+**Exercise = tài sản nội dung học tập (content asset)**
+
+* tồn tại độc lập với student
+* tồn tại độc lập với practice
+* có thể được tạo từ nhiều nguồn
+* **phải được phê duyệt nội dung** trước khi dùng
+
+---
+
+### 2.2 Trạng thái của Exercise (CONTENT STATE)
+
+Mỗi Exercise có **content_status** với vòng đời sau:
+
+```
+DRAFT → REVIEWED → APPROVED
+```
+
+| Trạng thái | Ý nghĩa                                       |
+| ---------- | --------------------------------------------- |
+| DRAFT      | Nội dung mới tạo, CHƯA được dùng cho học sinh |
+| REVIEWED   | Đã được admin kiểm tra sơ bộ                  |
+| APPROVED   | Được phép dùng làm input cho Practice         |
+
+⚠️ **Rule bất biến Phase 1**
+
+> Exercise **CHỈ** được dùng trong C2 (Practice) nếu `content_status = APPROVED`
+
+---
+
+## 3. HAI CON ĐƯỜNG TẠO EXERCISE (THEO C3)
+
+### 3.1 CON ĐƯỜNG 1 – AI GENERATE EXERCISE (IN-SYSTEM)
+
+#### 3.1.1 Mô tả
+
+Admin sử dụng AI Service để tạo bài tập dựa trên:
+
+* Chapter
+* Skill
+* Difficulty
+* Ràng buộc nội dung Phase 1
+
+#### 3.1.2 Hành vi hệ thống
+
+* AI Service trả về nội dung đề + lời giải
+* Core Service lưu Exercise với:
+
+  ```
+  content_status = DRAFT
+  source = AI
+  ```
+* **KHÔNG auto-approve**
+* **KHÔNG được dùng ngay cho học sinh**
+
+#### 3.1.3 Yêu cầu UI
+
+* Hiển thị rõ nhãn:
+
+  > “Bài tập tạo bởi AI – CHƯA được phê duyệt”
+* Bắt buộc admin review trước khi approve
+
+---
+
+### 3.2 CON ĐƯỜNG 2 – IMPORT EXERCISE TỪ JSON (OUT-OF-SYSTEM)
+
+#### 3.2.1 Mô tả
+
+Admin import bài tập từ file JSON chuẩn hóa (ngoài hệ thống).
+
+#### 3.2.2 Hành vi hệ thống
+
+* Validate:
+
+  * schema
+  * LaTeX
+  * mapping Chapter / Skill
+* Persist Exercise với:
+
+  ```
+  content_status = DRAFT
+  source = IMPORT
+  ```
+* **KHÔNG auto-approve**
+* **KHÔNG gắn student / practice**
+
+#### 3.2.3 Yêu cầu UI
+
+* Hiển thị lỗi validate rõ ràng
+* Hiển thị nhãn:
+
+  > “Bài tập import – CHƯA được phê duyệt”
+
+---
+
+## 4. CONTENT REVIEW & APPROVAL (TRỌNG TÂM D1.5)
+
+### 4.1 Content Review là gì?
+
+**Content Review = kiểm soát chất lượng nội dung bài tập**
+
+Admin được phép kiểm tra:
+
+* đề bài có đúng chương / skill không
+* lời giải có hợp lệ không
+* LaTeX có render đúng không
+* mức độ phù hợp độ khó
+* nội dung có lỗi logic / ngữ nghĩa không
+
+---
+
+### 4.2 Content Review KHÔNG PHẢI là gì?
+
+Content Review **KHÔNG**:
+
+* đánh giá khả năng học sinh
+* đánh giá độ khó so với mastery
+* đánh giá kết quả học tập
+* quyết định progression
+
+---
+
+### 4.3 Hành động được phép trong Review
+
+| Action             | Kết quả                     |
+| ------------------ | --------------------------- |
+| Approve            | `content_status → APPROVED` |
+| Reject / chỉnh sửa | Quay về `DRAFT`             |
+| Edit content       | Nội dung được cập nhật      |
+
+📌 **Lưu ý**
+
+* Reject **KHÔNG phải** là “bài tập kém”
+* Chỉ có nghĩa: “chưa sẵn sàng dùng”
+
+---
+
+### 4.4 Audit & Traceability
+
+Mỗi hành động review:
+
+* được ghi log (ExerciseReviewLog)
+* KHÔNG phát sinh domain event học tập
+* KHÔNG ảnh hưởng student nào
+
+---
+
+## 5. QUY TẮC RÀNG BUỘC (PHASE 1 SAFE RULES)
+
+### 5.1 Rule bất biến
+
+* Exercise chưa APPROVED:
+
+  * không xuất hiện trong Practice
+  * không được AI Service dùng làm reference
+* Admin **không thể bypass** approval
+
+---
+
+### 5.2 Rule bảo vệ Phase 1
+
+* Review UI **không hiển thị**:
+
+  * student
+  * practice
+  * mastery
+* Không có nút:
+
+  * “Dùng cho học sinh”
+  * “Giao bài”
+  * “Đánh giá kết quả”
+
+---
+
+## 6. TÓM TẮT NGẮN GỌN (ĐỂ DEV ĐỌC NHANH)
+
+> **D1.5 chỉ làm 1 việc:**
+> đảm bảo **Exercise là nội dung đủ chất lượng để dùng cho học sinh**.
+
+> **D1.5 KHÔNG liên quan học sinh học thế nào.**
+
+---
+
+## 7. CHECKLIST PHASE 1 (BẮT BUỘC)
+
+* [ ] Có 2 đường tạo Exercise: AI / JSON
+* [ ] Tất cả Exercise mới đều ở DRAFT
+* [ ] Có màn hình content review rõ ràng
+* [ ] Không có auto-approve
+* [ ] Không gắn student / practice
+* [ ] Exercise chỉ được dùng khi APPROVED
+
+---
+
+VII. # D1.6 – CONTENT MANAGEMENT: EXERCISE – UI FLOW SUMMARY
+
+*(PHASE 1 – CONTENT APPROVAL ONLY)*
+
+---
+
+## 1. MỤC ĐÍCH CỦA D1.6
+
+D1.6 cung cấp **bản đồ luồng UI (UI Flow Map)** cho toàn bộ vòng đời **Exercise** trong Admin Dashboard Phase 1, nhằm:
+
+* giúp frontend dev **nhìn nhanh – hiểu đúng – làm đúng**
+* đảm bảo **mọi màn hình & CTA chỉ phục vụ content governance**
+* ngăn tuyệt đối việc:
+
+  * kéo logic learning/runtime vào UI
+  * mở Phase 2 ngầm thông qua UX
+
+> **D1.6 không định nghĩa logic mới.**
+> **D1.6 chỉ tóm tắt và khóa hành vi UI theo D1.5.**
+
+---
+
+## 2. BẢN CHẤT LUỒNG UI EXERCISE (PHASE 1)
+
+### 2.1 Exercise trong Phase 1 là gì?
+
+* **Exercise = Content Asset**
+* Có vòng đời nội dung:
+
+  ```
+  DRAFT → REVIEWED → APPROVED
+  ```
+* **Chưa bao giờ gắn với Student / Practice trong Admin UI**
+
+---
+
+### 2.2 Nguyên tắc UI cốt lõi
+
+* UI **phản ánh trạng thái nội dung**
+* UI **không phản ánh trạng thái học tập**
+* UI **không kích hoạt hành vi runtime**
+
+---
+
+## 3. TỔNG QUAN LUỒNG UI (HIGH-LEVEL)
+
+```
+Exercise List
+   │
+   ├── Create Exercise
+   │     ├── AI Generate
+   │     └── Import JSON
+   │
+   ├── View / Edit Exercise (DRAFT)
+   │
+   ├── Review Exercise (Content Review)
+   │
+   └── Approved Exercise (Read-only)
+```
+
+📌 **Lưu ý:**
+
+* Không có nhánh nào đi tới Student / Practice / Runtime.
+
+---
+
+## 4. CHI TIẾT TỪNG MÀN HÌNH & HÀNH VI UI
+
+---
+
+### 4.1 Exercise List Screen
+
+**Mục tiêu**
+
+* Quản lý danh sách Exercise theo **content status**
+
+**Hiển thị**
+
+* List Exercise
+* Cột:
+
+  * Title
+  * Chapter
+  * Skill
+  * Source (AI / Import / Manual)
+  * Content Status (DRAFT / REVIEWED / APPROVED)
+
+**CTA được phép**
+
+* `Create Exercise`
+* `View`
+* `Edit` (chỉ với DRAFT / REVIEWED)
+
+**KHÔNG được phép**
+
+* “Giao cho học sinh”
+* “Dùng trong Practice”
+* “Đánh giá kết quả học tập”
+
+---
+
+### 4.2 Create Exercise Entry Point
+
+#### 4.2.1 Create via AI
+
+**Luồng**
+
+```
+Create → AI Generate → DRAFT
+```
+
+**UI bắt buộc**
+
+* Label rõ:
+
+  > “Bài tập tạo bởi AI – CHƯA được phê duyệt”
+
+**Ràng buộc**
+
+* Không auto-approve
+* Không auto-publish
+
+---
+
+#### 4.2.2 Create via JSON Import
+
+**Luồng**
+
+```
+Create → Import JSON → Validate → DRAFT
+```
+
+**UI bắt buộc**
+
+* Hiển thị lỗi schema / LaTeX nếu có
+* Label:
+
+  > “Bài tập import – CHƯA được phê duyệt”
+
+---
+
+### 4.3 Exercise Detail / Edit Screen (DRAFT / REVIEWED)
+
+**Mục tiêu**
+
+* Chỉnh sửa nội dung bài tập
+
+**Cho phép**
+
+* Sửa:
+
+  * đề bài
+  * câu hỏi
+  * lời giải
+  * metadata (chapter / skill / difficulty)
+
+**CTA được phép**
+
+* `Save Draft`
+* `Submit for Review`
+
+**KHÔNG có**
+
+* Approve trực tiếp (nếu chưa review)
+* Runtime preview theo student
+
+---
+
+### 4.4 Exercise Review Screen (CONTENT REVIEW)
+
+**Mục tiêu**
+
+* Kiểm tra **chất lượng nội dung**
+
+**Hiển thị**
+
+* Nội dung Exercise (read-only)
+* Preview LaTeX
+* Metadata
+
+**CTA được phép**
+
+* `Approve` → content_status = APPROVED
+* `Reject / Edit` → quay về DRAFT
+
+**KHÔNG có**
+
+* Student context
+* Practice context
+* Runtime scoring
+* Mastery info
+
+📌 **Anti-confusion label (bắt buộc)**
+
+> “Phê duyệt này chỉ xác nhận CHẤT LƯỢNG NỘI DUNG,
+> không liên quan học sinh.”
+
+---
+
+### 4.5 Approved Exercise Screen
+
+**Mục tiêu**
+
+* Xem Exercise đã sẵn sàng dùng cho học sinh
+
+**Hiển thị**
+
+* Toàn bộ nội dung (read-only)
+* Nhãn:
+
+  > “Đã phê duyệt – sẵn sàng dùng trong Practice”
+
+**KHÔNG có**
+
+* Edit
+* Review lại
+* Action runtime
+
+📌 **Ghi chú**
+
+* Việc Exercise được dùng ở Practice **xảy ra ở C2**, không ở Admin UI.
+
+---
+
+## 5. NHỮNG CTA TUYỆT ĐỐI BỊ CẤM (GLOBAL UI BAN)
+
+Trong toàn bộ D1.x, **không được xuất hiện**:
+
+* “Assign to Student”
+* “Use for Practice”
+* “Test with Student”
+* “Preview as Student”
+* “See Results”
+* “See Mastery”
+
+---
+
+## 6. UI STATE ↔ CONTENT STATE MAPPING (BẮT BUỘC)
+
+| content_status | UI Behavior               |
+| -------------- | ------------------------- |
+| DRAFT          | Editable                  |
+| REVIEWED       | Editable (review context) |
+| APPROVED       | Read-only                 |
+
+📌 Không có trạng thái nào dẫn tới runtime.
+
+---
+
+## 7. CHECKLIST D1.6 (CHO DEV & REVIEW)
+
+* [ ] Có 2 entry points: AI / JSON
+* [ ] Mọi Exercise mới đều là DRAFT
+* [ ] Có màn hình Review riêng (content-only)
+* [ ] Approved Exercise là read-only
+* [ ] Không có CTA runtime
+* [ ] Không có student context
+
+---
+
+## 8. TÓM TẮT 1 CÂU (ANTI-CONFUSION)
+
+> **D1.6 mô tả “bài tập được chuẩn bị như thế nào”,
+> KHÔNG mô tả “bài tập được học như thế nào”.**
+
+---
+
+## 9. GHI CHÚ CUỐI (RẤT QUAN TRỌNG)
+
+Nếu trong lúc làm UI xuất hiện suy nghĩ:
+
+> “Cho admin test nhanh với học sinh giả lập cho tiện…”
+
+→ **DỪNG LẠI.**
+→ Đó là **Phase 2+**, không thuộc Phase 1.
 
 ---
 
