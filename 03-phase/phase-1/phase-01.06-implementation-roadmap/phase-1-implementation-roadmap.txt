@@ -51,181 +51,2873 @@ Frontend chỉ được triển khai khi backend đã khóa xong domain tương 
 
 ---
 
-A1. AUTH & IDENTITY
+A1. AUTH & IDENTITY – MÔ TẢ CHI TIẾT TRIỂN KHAI
 
-Mục tiêu
-Thiết lập nền móng xác thực và danh tính người dùng cho Phase 1.
+Mục tiêu tổng quát
+Bước A1 thiết lập nền móng xác thực và danh tính người dùng cho toàn bộ hệ thống Phase 1.
+Đây là lớp thấp nhất trong kiến trúc, chịu trách nhiệm duy nhất cho việc:
 
-Phạm vi
+* xác định “ai là ai”
+* người đó thuộc vai trò nào
+* phiên đăng nhập còn hợp lệ hay không
 
-* Login cho ADMIN, PARENT, STUDENT
-* JWT + refresh token
+A1 không biết và không được biết bất kỳ điều gì về:
+
+* học tập
+* chương, kỹ năng
+* tiến độ
+* AI
+* trial / license
+
+Nếu A1 sai hoặc mơ hồ, toàn bộ các bước phía trên sẽ buộc phải “vá” bằng logic sai chỗ.
+
+---
+
+1. CÁC THỰC THỂ CỐT LÕI TRONG A1 (CORE SERVICE)
+
+A1 chỉ tồn tại hai khái niệm dữ liệu chính.
+
+1. User
+   User đại diện cho danh tính đăng nhập duy nhất trong hệ thống.
+
+User có:
+
+* id
+* username
+* password (đã hash)
+* role: ADMIN | PARENT | STUDENT
+
+User KHÔNG có:
+
+* trạng thái học tập
+* lifecycle học
+* tiến độ
+* quan hệ học tập
+
+Role chỉ dùng để:
+
+* phân quyền truy cập API
+* không dùng để suy luận hành vi học tập
+
+2. Refresh Token
+   Refresh token đại diện cho phiên đăng nhập dài hạn.
+
+* Gắn với user
+* Có thể bị revoke
+* Dùng để cấp lại access token
+
+Không tồn tại:
+
+* session phức tạp
+* device binding
+* multi-login rule
+
+---
+
+2. LOGIC XÁC THỰC TRONG CORE SERVICE
+
+Luồng login chuẩn cho mọi role (ADMIN / PARENT / STUDENT) là giống nhau.
+
+2.1. Login
+
+Input:
+
+* username
+* password
+
+Xử lý:
+
+* kiểm tra username tồn tại
+* verify password bằng hash
+* nếu đúng:
+
+  * sinh access token (JWT)
+  * sinh refresh token
+  * lưu refresh token vào DB
+
+Output:
+
+* access_token
+* refresh_token
+* role (để frontend route UI)
+
+Access token:
+
+* ngắn hạn
+* mang thông tin user_id + role
+* không mang thông tin học tập
+
+2.2. Refresh token
+
+Input:
+
+* refresh_token
+
+Xử lý:
+
+* kiểm tra token tồn tại
+* kiểm tra chưa bị revoke
+* kiểm tra chưa hết hạn
+
+Output:
+
+* access_token mới
+
+Không:
+
+* tạo refresh token mới trừ khi policy cho phép
+* không suy luận quyền mới
+
+2.3. Logout
+
+Input:
+
+* refresh_token
+
+Xử lý:
+
+* revoke refresh token
+
+Logout KHÔNG:
+
+* xóa user
+* ảnh hưởng user khác
+* ảnh hưởng dữ liệu học tập
+
+---
+
+3. LOGIC ADMIN TẠO USER (CORE SERVICE)
+
+Admin là authority duy nhất tạo user.
+
+3.1. Tạo user
+
+Input:
+
+* username
+* password
+* role (ADMIN | PARENT | STUDENT)
+* name (nếu có)
+
+Xử lý:
+
+* validate username unique
+* hash password
+* tạo user
+
+Output:
+
+* user_id
+* role
+* username
+
+Không:
+
+* tạo profile học tập
+* gán quan hệ parent-student
+* tạo lifecycle
+
+3.2. Reset mật khẩu user
+
+Bản chất:
+
+* đây là biện pháp vận hành
+* không phải tính năng người dùng
+
+Input:
+
+* user_id
+
+Xử lý:
+
+* generate password ngẫu nhiên (8 ký tự chữ + số)
+* hash password
+* update user.password
+
+Output:
+
+* plaintext password (chỉ trả về 1 lần)
+
+Không:
+
+* gửi email
+* lưu plaintext
+* log password
+
+---
+
+4. GIAO TIẾP VỚI FRONTEND – PHÂN TÁCH RÕ TRÁCH NHIỆM
+
+A1 là bước đầu tiên có frontend tương tác, nhưng frontend chỉ là “client”.
+
+4.1. Admin Dashboard (liên quan A1)
+
+Admin Dashboard sử dụng A1 để:
+
+* đăng nhập admin
+* tạo user
+* reset mật khẩu user
+
+Admin Dashboard KHÔNG:
+
+* tự tạo logic phân quyền
+* tự suy luận role
+* lưu password plaintext
+
+Luồng điển hình:
+
+* Admin login
 * Admin tạo user
-* Admin reset mật khẩu cho user
+* Admin copy mật khẩu và gửi thủ công cho user
 
-Không bao gồm
+4.2. Parent Dashboard (liên quan A1)
 
-* Trial
-* License
-* Lifecycle học tập
-* Chapter, Skill
-* Learning logic
+Parent Dashboard chỉ dùng A1 để:
 
-Bản chất
-Auth & Identity là tầng thấp nhất, không phụ thuộc domain học tập.
-Nếu bước này sai, toàn bộ hệ thống phía trên sẽ sai.
+* đăng nhập
+* lấy role
+* xác thực token
 
----
+Parent Dashboard KHÔNG:
 
-A2. ADMIN – PARENT / STUDENT RELATION
+* tạo user
+* reset mật khẩu
+* gán quan hệ
 
-Mục tiêu
-Thiết lập quan hệ sở hữu giữa Parent và Student.
+4.3. Student App (liên quan A1)
 
-Phạm vi
+Student App chỉ dùng A1 để:
 
-* Bảng parent_student
-* Admin gán và hủy quan hệ parent–student
+* đăng nhập
+* giữ access token
+* refresh token
 
-Không bao gồm
+Student App KHÔNG:
 
-* student_profile
-* lifecycle_state
-* learning domain
-
-Bản chất
-Đây là Identity Ownership, không phải Learning Domain.
-Quan hệ này chỉ xác định “ai quản lý ai”, không xác định “ai được học”.
+* biết admin API
+* biết logic user khác
+* tự reset mật khẩu
 
 ---
 
-B1. CHAPTER / SKILL (CONTENT DOMAIN)
+5. NHỮNG ĐIỀU A1 TUYỆT ĐỐI KHÔNG LÀM
 
-Mục tiêu
-Xây dựng nội dung chương và kỹ năng như tài sản tri thức thuần.
+Để dev không hiểu nhầm, A1 cần ghi rõ những điều bị cấm:
 
-Phạm vi
+* Không kiểm tra student có được học hay không
+* Không kiểm tra lifecycle học tập
+* Không kiểm tra trial / license
+* Không gán chapter
+* Không tạo student_profile
+* Không tạo parent_student
+* Không gọi AI
+* Không emit domain event
 
-* Chapter
-* Skill
-* Mapping Chapter–Skill
-* Skill Prerequisite
+Nếu xuất hiện bất kỳ logic nào ở trên trong A1 → sai kiến trúc.
 
-Không bao gồm
+---
 
-* Student
+6. VÌ SAO A1 PHẢI ĐƯỢC VIẾT CHI TIẾT NHƯ VẬY
+
+A1 là lớp nền móng.
+
+Nếu:
+
+* auth mơ hồ
+* role bị dùng sai mục đích
+* frontend tự suy luận quyền
+
+thì:
+
+* domain phía trên sẽ bị bóp méo
+* Phase 1 sẽ “trượt” sang Phase 2 lúc nào không biết
+
+Viết A1 rõ ràng giúp:
+
+* dev backend không vượt quyền
+* dev frontend không đoán logic
+* các bước A2, B1, B2, C1 triển khai trơn tru
+
+---
+
+KẾT LUẬN
+
+A1 không phải là “đăng nhập cho chạy được”.
+
+A1 là:
+
+* định nghĩa danh tính
+* khóa quyền lực
+* tạo nền cho toàn bộ hệ thống
+
+Nếu A1 đúng → các bước sau chỉ là mở rộng domain.
+Nếu A1 sai → mọi bước sau đều phải sửa lại.
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
+
+---
+
+A2. ADMIN – PARENT / STUDENT RELATION – MÔ TẢ CHI TIẾT TRIỂN KHAI
+
+Mục tiêu tổng quát
+Bước A2 thiết lập **quan hệ sở hữu (ownership)** giữa Parent và Student trong hệ thống.
+Quan hệ này trả lời duy nhất một câu hỏi:
+
+“Parent nào có quyền quản lý Student nào?”
+
+A2 **không trả lời**:
+
+* Student có được học hay không
+* Student đang học gì
+* Student học đến đâu
+
+Đây là bước nối tiếp trực tiếp của A1 (Auth & Identity) và là **bước cuối cùng của Identity Domain** trước khi chuyển sang Content Domain.
+
+---
+
+1. BẢN CHẤT DOMAIN CỦA A2
+
+A2 thuộc về:
+
+* Identity Ownership
+* Quan hệ quản lý / giám hộ
+
+A2 KHÔNG thuộc về:
+
+* Learning Domain
+* Progression Domain
+* Runtime học tập
+
+Điều này dẫn đến nguyên tắc quan trọng:
+
+Quan hệ Parent – Student:
+
+* chỉ là dữ liệu tĩnh
+* không mang trạng thái
+* không có lifecycle
+* không kích hoạt logic học tập
+
+---
+
+2. THỰC THỂ DỮ LIỆU TRONG A2 (CORE SERVICE)
+
+A2 chỉ thêm **một cấu trúc dữ liệu duy nhất**.
+
+Bảng parent_student
+
+Mỗi bản ghi biểu diễn:
+
+* một Parent
+* quản lý một Student
+
+Dữ liệu chứa:
+
+* parent_id
+* student_id
+
+Ràng buộc logic:
+
+* parent_id phải thuộc user có role = PARENT
+* student_id phải thuộc user có role = STUDENT
+* không cho phép trùng quan hệ
+* không cho phép parent_id = student_id
+
+Bảng này:
+
+* không có created_at / updated_at cũng được (tùy coding standard)
+* không có state
+* không có metadata học tập
+
+---
+
+3. AUTHORITY TRONG A2
+
+Authority duy nhất trong A2 là ADMIN.
+
+Chỉ ADMIN:
+
+* tạo quan hệ parent–student
+* hủy quan hệ parent–student
+* xem danh sách quan hệ
+
+PARENT:
+
+* không tự gán con
+* không tự bỏ gán
+* không sửa quan hệ
+
+STUDENT:
+
+* không biết
+* không can thiệp
+* không thay đổi
+
+Điều này nhằm đảm bảo:
+
+* không phát sinh logic “self-service” sớm
+* tránh kéo frontend logic vào identity domain
+
+---
+
+4. LOGIC ADMIN GÁN PARENT – STUDENT (CORE SERVICE)
+
+4.1. Gán quan hệ
+
+Input:
+
+* parent_id
+* student_id
+
+Xử lý:
+
+* kiểm tra parent_id tồn tại
+* kiểm tra user.role = PARENT
+* kiểm tra student_id tồn tại
+* kiểm tra user.role = STUDENT
+* kiểm tra chưa tồn tại quan hệ
+* tạo bản ghi parent_student
+
+Output:
+
+* xác nhận quan hệ đã được tạo
+
+Không thực hiện:
+
+* tạo student_profile
+* kiểm tra lifecycle
+* gán chapter
+* khởi tạo tiến độ học
+
+4.2. Hủy quan hệ
+
+Input:
+
+* parent_id
+* student_id
+
+Xử lý:
+
+* kiểm tra quan hệ tồn tại
+* xóa bản ghi parent_student
+
+Output:
+
+* xác nhận quan hệ đã bị hủy
+
+Không thực hiện:
+
+* xóa user
+* ảnh hưởng dữ liệu học tập (vì chưa tồn tại)
+* cascade sang domain khác
+
+---
+
+5. LOGIC TRUY VẤN QUAN HỆ (READ-ONLY)
+
+Admin có thể:
+
+* xem danh sách student của một parent
+* xem parent của một student
+
+Các API này:
+
+* chỉ trả dữ liệu identity
+* không trả tiến độ
+* không trả trạng thái học tập
+
+---
+
+6. GIAO TIẾP VỚI FRONTEND
+
+6.1. Admin Dashboard
+
+Admin Dashboard sử dụng A2 để:
+
+* gán parent cho student sau khi tạo user
+* chỉnh sửa quan hệ khi nhập liệu sai
+
+Luồng điển hình:
+
+* Admin tạo user PARENT
+* Admin tạo user STUDENT
+* Admin gán PARENT ↔ STUDENT
+
+Admin Dashboard KHÔNG:
+
+* hiển thị tiến độ học (chưa có)
+* hiển thị chapter
+* hiển thị skill
+
+6.2. Parent Dashboard
+
+Ở Phase 1, Parent Dashboard:
+
+* CHƯA dùng trực tiếp A2
+* chỉ gián tiếp hưởng lợi ở các bước sau
+
+Quan hệ A2 sẽ được dùng ở:
+
+* C1: xem tiến độ học
+* C2: xem bài tập
+
+Nhưng ở A2:
+
+* Parent Dashboard không gọi API gán quan hệ
+
+6.3. Student App
+
+Student App:
+
+* hoàn toàn không tương tác với A2
+* không biết parent là ai
+
+---
+
+7. NHỮNG ĐIỀU A2 TUYỆT ĐỐI KHÔNG LÀM
+
+Để tránh trượt domain, A2 cần ghi rõ các điều bị cấm:
+
+* Không tạo student_profile
+* Không lưu lifecycle_state
+* Không kiểm tra “được học hay không”
+* Không tạo chapter_progress
+* Không gán chapter
+* Không sinh practice
+* Không gọi AI
+* Không emit domain event
+
+Nếu bất kỳ logic nào ở trên xuất hiện trong A2 → sai domain.
+
+---
+
+8. VÌ SAO A2 PHẢI ĐƯỢC GIỮ TỐI GIẢN
+
+A2 càng đơn giản thì:
+
+* ranh giới domain càng rõ
+* frontend càng không đoán logic
+* learning domain càng sạch
+
+Nếu A2 bị làm “thông minh”:
+
+* parent sẽ bị hiểu nhầm là có quyền học tập
+* backend sẽ bị kéo logic C1/C2 lên sớm
+* Phase 1 sẽ lệch khỏi Phase 0 intent
+
+---
+
+KẾT LUẬN
+
+A2 không phải là “feature cho phụ huynh”.
+
+A2 là:
+
+* dữ liệu sở hữu
+* nền tảng cho quyền xem
+* cầu nối giữa Identity và Learning Domain
+
+A2 đúng thì:
+
+* C1 triển khai rất gọn
+* Parent Dashboard sau này không cần sửa lại logic
+
+A2 sai thì:
+
+* toàn bộ quyền xem tiến độ về sau sẽ rối
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
+
+---
+
+B1. CHAPTER / SKILL (CONTENT DOMAIN) – MÔ TẢ CHI TIẾT TRIỂN KHAI
+
+Mục tiêu tổng quát
+Bước B1 xây dựng **Chapter** và **Skill** như **tài sản tri thức thuần (content asset)** của hệ thống.
+
+B1 trả lời duy nhất các câu hỏi:
+
+* Chương học gồm những gì?
+* Kỹ năng nào thuộc chương nào?
+* Kỹ năng nào cần có trước kỹ năng khác?
+
+B1 **không trả lời**:
+
+* ai đang học
+* đã học hay chưa
+* học tốt hay kém
+* có được phép học hay không
+
+B1 là bước **đóng băng cấu trúc kiến thức**, làm nền cho Exercise Domain (B2) và Learning Domain (C1) về sau.
+
+---
+
+1. BẢN CHẤT DOMAIN CỦA B1
+
+B1 thuộc về:
+
+* Content Domain
+* Knowledge Structure
+
+B1 KHÔNG thuộc về:
+
+* Learning Runtime
 * Progression
 * Mastery
-* Learning state
+* Assessment
 
-Bản chất
-Chapter và Skill là content asset, không phải runtime học tập.
-Không có khái niệm “đã học” ở bước này.
+Nguyên tắc cốt lõi:
+
+Chapter và Skill **chỉ là mô tả nội dung**,
+không mang bất kỳ trạng thái học tập nào.
+
+Không tồn tại trong B1 các khái niệm:
+
+* đã học
+* đang học
+* học xong
+* học giỏi / yếu
 
 ---
 
-B2. EXERCISE DOMAIN (CONTENT ASSET)
+2. CÁC THỰC THỂ DỮ LIỆU TRONG B1 (CORE SERVICE)
 
-Mục tiêu
-Xây dựng ngân hàng bài tập và lời giải như tài sản tri thức.
+B1 bao gồm bốn nhóm dữ liệu chính.
 
-Phạm vi
+---
 
-* Exercise
-* ExerciseSolution
-* ExerciseTag
-* ExerciseReviewLog
+2.1. Chapter
 
-Không bao gồm
+Chapter đại diện cho **một đơn vị kiến thức lớn**, thường tương ứng:
+
+* một chương trong sách giáo khoa
+* một chủ đề lớn trong chương trình học
+
+Chapter chứa:
+
+* id
+* code (định danh ổn định, dùng cho mapping)
+* name
+* description
+* grade (lớp học)
+
+Chapter KHÔNG có:
+
+* state
+* lifecycle
+* progression
+* liên kết trực tiếp với student
+
+Chapter tồn tại độc lập với việc có học sinh hay không.
+
+---
+
+2.2. Skill
+
+Skill đại diện cho **một năng lực hoặc kỹ năng cụ thể** mà học sinh cần đạt.
+
+Skill chứa:
+
+* id
+* code
+* name
+* description
+
+Skill KHÔNG có:
+
+* completion
+* mastery
+* điểm số
+* trạng thái học
+
+Skill KHÔNG phải là đơn vị tiến độ.
+Skill chỉ là “nội dung cần học”, không phải “đã học hay chưa”.
+
+---
+
+2.3. Mapping Chapter – Skill
+
+Mapping Chapter–Skill mô tả:
+
+* một Chapter gồm những Skill nào
+
+Mapping chứa:
+
+* chapter_id
+* skill_id
+* skill_type (REQUIRED / OPTIONAL)
+
+Ý nghĩa:
+
+* REQUIRED: skill bắt buộc trong chapter
+* OPTIONAL: skill bổ trợ
+
+Mapping này:
+
+* chỉ mang tính mô tả
+* không enforce học tập
+* không tạo thứ tự học
+
+---
+
+2.4. Skill Prerequisite
+
+Skill Prerequisite mô tả:
+
+* kỹ năng nào cần có trước kỹ năng khác
+
+Mỗi quan hệ prerequisite:
+
+* skill_id
+* prerequisite_skill_id
+
+Nguyên tắc:
+
+* không self-reference
+* không vòng lặp logic
+
+Skill Prerequisite:
+
+* chỉ là metadata
+* không trigger logic
+* không tự động unlock
+
+---
+
+3. AUTHORITY TRONG B1
+
+Authority duy nhất trong B1 là ADMIN.
+
+Chỉ ADMIN:
+
+* tạo Chapter
+* sửa Chapter
+* tạo Skill
+* sửa Skill
+* gán Skill vào Chapter
+* định nghĩa Skill Prerequisite
+
+Không có vai trò nào khác được:
+
+* chỉnh sửa content
+* thêm / bớt skill
+* thay đổi cấu trúc kiến thức
+
+---
+
+4. LOGIC QUẢN LÝ CONTENT (CORE SERVICE)
+
+4.1. CRUD Chapter
+
+Admin có thể:
+
+* tạo chapter mới
+* chỉnh sửa thông tin chapter
+* xem danh sách chapter
+* xem chi tiết chapter
+
+CRUD Chapter:
+
+* không phụ thuộc Student
+* không phụ thuộc tiến độ
+* không phụ thuộc Exercise
+
+---
+
+4.2. CRUD Skill
+
+Admin có thể:
+
+* tạo skill
+* chỉnh sửa skill
+* xem danh sách skill
+* xem chi tiết skill
+
+Skill tồn tại độc lập, có thể:
+
+* chưa gắn vào chapter nào
+* được dùng lại ở nhiều chapter
+
+---
+
+4.3. Gán Skill vào Chapter
+
+Admin:
+
+* gán skill cho chapter
+* chỉ định skill là REQUIRED hoặc OPTIONAL
+
+Hành vi này:
+
+* không kiểm tra prerequisite
+* không sinh learning logic
+* không ảnh hưởng student
+
+---
+
+4.4. Định nghĩa Skill Prerequisite
+
+Admin:
+
+* định nghĩa quan hệ prerequisite giữa các skill
+
+Hành vi này:
+
+* chỉ tạo metadata
+* không enforce thứ tự học
+* không khóa chapter
+
+---
+
+5. GIAO TIẾP VỚI FRONTEND
+
+5.1. Admin Dashboard
+
+Admin Dashboard sử dụng B1 để:
+
+* xây dựng cấu trúc chương trình học
+* nhập liệu kiến thức
+* chỉnh sửa nội dung
+
+Admin Dashboard KHÔNG:
+
+* hiển thị trạng thái học tập
+* hiển thị tiến độ
+* hiển thị mastery
+
+---
+
+5.2. Parent Dashboard
+
+Ở Phase 1, Parent Dashboard:
+
+* KHÔNG tương tác trực tiếp với B1
+* chỉ gián tiếp xem nội dung khi gắn với tiến độ ở C1
+
+---
+
+5.3. Student App
+
+Student App:
+
+* có thể đọc Chapter / Skill (ở các bước sau)
+* nhưng ở B1:
+
+  * không ghi
+  * không sửa
+  * không suy luận
+
+---
+
+6. NHỮNG ĐIỀU B1 TUYỆT ĐỐI KHÔNG LÀM
+
+Để tránh trượt domain, B1 phải ghi rõ các điều bị cấm:
+
+* Không tạo student_profile
+* Không tạo chapter_progress
+* Không gán chapter cho student
+* Không kiểm tra prerequisite để cho học
+* Không unlock chapter
+* Không tạo mastery
+* Không gắn Exercise runtime
+* Không gọi AI
+
+Nếu xuất hiện bất kỳ logic nào ở trên trong B1 → sai Content Domain.
+
+---
+
+7. VÌ SAO B1 PHẢI ĐƯỢC GIỮ THUẦN CONTENT
+
+B1 càng thuần content thì:
+
+* cấu trúc kiến thức càng ổn định
+* Exercise Domain càng dễ gắn
+* Learning Domain càng sạch
+
+Nếu B1 bị pha runtime:
+
+* mọi thay đổi nội dung sẽ kéo theo logic học
+* Phase 1 sẽ rất khó mở rộng hoặc kiểm soát
+
+---
+
+KẾT LUẬN
+
+B1 không phải là “học chương”.
+
+B1 là:
+
+* định nghĩa kiến thức
+* chuẩn hóa cấu trúc nội dung
+* tạo nền cho mọi logic học tập phía sau
+
+Chapter và Skill trong B1:
+
+* tồn tại độc lập
+* không biết học sinh
+* không biết tiến độ
+
+Nếu B1 đúng:
+
+* B2 (Exercise) gắn rất gọn
+* C1 (Learning) triển khai rõ ràng
+
+Nếu B1 sai:
+
+* toàn bộ learning flow sẽ rối từ gốc.
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
+
+---
+
+B2. EXERCISE DOMAIN (CONTENT ASSET) – MÔ TẢ CHI TIẾT TRIỂN KHAI
+
+Mục tiêu tổng quát
+Bước B2 xây dựng **ngân hàng bài tập (Exercise)** và **lời giải (ExerciseSolution)** như **tài sản tri thức độc lập**, không gắn với hành vi học tập runtime.
+
+B2 trả lời các câu hỏi:
+
+* Có những bài tập nào trong hệ thống?
+* Bài tập thuộc chương nào, kỹ năng nào?
+* Bài tập có nội dung, độ khó, lời giải ra sao?
+* Bài tập đã được review và duyệt hay chưa?
+
+B2 **không trả lời**:
+
+* ai đang làm bài
+* học sinh trả lời đúng hay sai
+* học sinh giỏi hay yếu
+* bài tập có làm tăng mastery hay không
+
+B2 là **nguồn dữ liệu đầu vào duy nhất** cho Practice Runtime ở C2.
+
+---
+
+1. BẢN CHẤT DOMAIN CỦA B2
+
+B2 thuộc về:
+
+* Content Asset Domain
+* Knowledge Assessment Content
+
+B2 KHÔNG thuộc về:
+
+* Learning Runtime
+* Practice Flow
+* Scoring / Mastery
+* AI Decision
+
+Nguyên tắc cốt lõi:
+
+Exercise là **template nội dung**,
+không phải là hành vi học tập,
+không đại diện cho việc “làm bài”.
+
+---
+
+2. CÁC THỰC THỂ DỮ LIỆU TRONG B2 (CORE SERVICE)
+
+B2 bao gồm bốn nhóm thực thể chính.
+
+---
+
+2.1. Exercise
+
+Exercise đại diện cho **một bài toán độc lập** trong hệ thống.
+
+Exercise chứa:
+
+* id
+* chapter_id (tham chiếu Chapter)
+* skill_id (tham chiếu Skill)
+* content_text (nội dung bài toán)
+* content_latex (nếu có)
+* difficulty (mức độ khó, dùng để phân loại)
+* created_by (ADMIN | TEACHER | AI)
+* status (DRAFT | REVIEWED | APPROVED)
+* created_at
+* updated_at
+
+Exercise KHÔNG:
+
+* gắn student
+* gắn kết quả làm bài
+* gắn điểm số
+* gắn mastery
+
+Exercise chỉ tồn tại như:
+
+* một đề bài
+* một template để practice sau này
+
+---
+
+2.2. ExerciseSolution
+
+ExerciseSolution đại diện cho **lời giải nội dung** của một Exercise.
+
+ExerciseSolution chứa:
+
+* id
+* exercise_id
+* solution_steps (các bước giải)
+* final_answer
+* explanation (diễn giải)
+
+Nguyên tắc:
+
+* Một Exercise có thể có nhiều Solution
+* Solution là content asset, không phải đáp án runtime
+
+ExerciseSolution KHÔNG:
+
+* đánh giá học sinh
+* so sánh câu trả lời
+* chấm điểm
+
+---
+
+2.3. ExerciseTag
+
+ExerciseTag đại diện cho **metadata gắn kèm bài tập**.
+
+ExerciseTag chứa:
+
+* id
+* exercise_id
+* tag_name
+* tag_type (tùy chọn)
+
+Tag dùng để:
+
+* tìm kiếm
+* phân loại
+* lọc nội dung
+
+ExerciseTag KHÔNG:
+
+* ảnh hưởng logic học tập
+* ảnh hưởng completion
+* ảnh hưởng mastery
+
+---
+
+2.4. ExerciseReviewLog
+
+ExerciseReviewLog đại diện cho **lịch sử biên tập và review nội dung**.
+
+ExerciseReviewLog chứa:
+
+* id
+* exercise_id
+* reviewer_id
+* action (SUBMITTED | APPROVED | REJECTED | UPDATED)
+* comment
+* created_at
+
+ReviewLog:
+
+* chỉ audit
+* không trigger domain event
+* không tự động thay đổi tiến độ học
+
+---
+
+3. QUY TRÌNH BIÊN TẬP NỘI DUNG (CONTENT WORKFLOW)
+
+B2 cho phép một workflow nội dung đơn giản.
+
+3.1. Tạo bài tập
+
+* Exercise được tạo ở trạng thái DRAFT
+* Có thể do ADMIN, TEACHER hoặc AI tạo
+
+3.2. Review bài tập
+
+* Admin thực hiện review
+* Ghi lại ExerciseReviewLog
+* Chuyển trạng thái:
+
+  * DRAFT → REVIEWED
+  * REVIEWED → APPROVED
+  * REVIEWED → REJECTED
+
+3.3. Sửa bài tập
+
+* Khi bài tập được sửa:
+
+  * ghi log UPDATED
+  * trạng thái có thể quay lại REVIEWED
+
+Workflow này:
+
+* chỉ phục vụ kiểm soát chất lượng nội dung
+* không liên quan runtime học tập
+
+---
+
+4. AUTHORITY TRONG B2
+
+Authority duy nhất trong B2 là ADMIN.
+
+ADMIN:
+
+* tạo / sửa Exercise
+* duyệt hoặc từ chối Exercise
+* quản lý Solution
+* quản lý Tag
+
+Không có vai trò nào khác được:
+
+* chấm bài
+* quyết định học tập
+* gắn Exercise vào tiến độ
+
+---
+
+5. GIAO TIẾP VỚI CÁC MODULE KHÁC
+
+---
+
+5.1. Với B1 – Chapter / Skill
+
+Exercise:
+
+* tham chiếu Chapter
+* tham chiếu Skill
+
+Nhưng:
+
+* không làm thay đổi Chapter
+* không làm thay đổi Skill
+* không yêu cầu Chapter đang “được học”
+
+---
+
+5.2. Với C1 – ChapterProgress
+
+B2:
+
+* KHÔNG đọc chapter_state
+* KHÔNG ghi chapter_progress
+* KHÔNG quyết định completion
+
+C1:
+
+* chỉ đọc Exercise khi cần hiển thị
+* không sửa Exercise
+
+---
+
+5.3. Với C2 – Practice Runtime
+
+C2 sẽ:
+
+* lấy Exercise từ B2
+* tạo Practice runtime instance
+
+B2 KHÔNG:
+
+* biết C2 tạo Practice thế nào
+* biết Student làm bài ra sao
+
+---
+
+6. GIAO TIẾP VỚI FRONTEND
+
+---
+
+6.1. Admin Dashboard
+
+Admin Dashboard dùng B2 để:
+
+* nhập liệu bài tập
+* nhập lời giải
+* review nội dung
+* quản lý tag
+
+Admin Dashboard KHÔNG:
+
+* hiển thị kết quả học sinh
+* hiển thị tiến độ
+* hiển thị mastery
+
+---
+
+6.2. Parent Dashboard
+
+Ở Phase 1:
+
+* Parent Dashboard KHÔNG tương tác trực tiếp với B2
+* chỉ gián tiếp xem khi gắn với Practice (C2)
+
+---
+
+6.3. Student App
+
+Student App:
+
+* KHÔNG gọi trực tiếp B2
+* chỉ nhận Exercise thông qua Practice Runtime (C2)
+
+---
+
+7. NHỮNG ĐIỀU B2 TUYỆT ĐỐI KHÔNG LÀM
+
+Để khóa chặt domain boundary, B2 phải ghi rõ các điều bị cấm:
+
+* Không tạo Practice runtime
+* Không lưu StudentAnswer
+* Không chấm bài
+* Không tính mastery
+* Không quyết định completion
+* Không gọi AI decision
+* Không unlock chapter
+* Không emit domain event
+
+Nếu bất kỳ logic nào ở trên xuất hiện trong B2 → sai Content Asset Domain.
+
+---
+
+8. VÌ SAO B2 PHẢI ĐƯỢC GIỮ THUẦN CONTENT
+
+B2 càng thuần content thì:
+
+* chất lượng bài tập càng ổn định
+* AI càng dễ dùng làm nguồn dữ liệu
+* Practice Runtime càng đơn giản
+
+Nếu B2 bị pha runtime:
+
+* nội dung sẽ phụ thuộc hành vi học
+* mọi thay đổi bài tập sẽ ảnh hưởng logic học
+* Phase 1 mất khả năng kiểm soát
+
+---
+
+KẾT LUẬN
+
+B2 không phải là “học sinh làm bài”.
+
+B2 là:
+
+* nơi lưu trữ tri thức đánh giá
+* nơi kiểm soát chất lượng đề bài
+* nguồn duy nhất cho Practice Runtime
+
+Exercise trong B2:
+
+* không biết học sinh
+* không biết kết quả
+* không biết mastery
+
+Nếu B2 đúng:
+
+* C2 triển khai nhanh và sạch
+* AI không vượt quyền
+* Frontend không phải đoán logic
+
+Nếu B2 sai:
+
+* learning flow sẽ rối ngay từ lúc làm bài.
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
+
+---
+
+C1. LEARNING DOMAIN – CHAPTER PROGRESS – MÔ TẢ CHI TIẾT TRIỂN KHAI
+
+Mục tiêu tổng quát
+Bước C1 đưa **trạng thái học tập runtime đầu tiên** vào hệ thống.
+Từ bước này trở đi, hệ thống bắt đầu biết:
+
+* học sinh nào đang học
+* đang học chương nào
+* chương đó đang ở trạng thái gì
+
+C1 là **ranh giới chuyển pha quan trọng nhất** trong Phase 1:
+trước đó là Identity + Content, từ đây trở đi mới là Learning Runtime.
+
+---
+
+1. BẢN CHẤT DOMAIN CỦA C1
+
+C1 thuộc về:
+
+* Learning Domain
+* Runtime State Management
+
+C1 KHÔNG thuộc về:
+
+* Content Domain
+* AI Domain
+* Scoring / Mastery Domain
+
+Nguyên tắc cốt lõi:
+
+ChapterProgress là **Aggregate Root duy nhất** đại diện cho tiến độ học tập.
+Không có bất kỳ bảng, service hay module nào khác được phép suy luận hoặc thay thế vai trò này.
+
+---
+
+2. CÁC THỰC THỂ DỮ LIỆU TRONG C1 (CORE SERVICE)
+
+C1 bổ sung **hai thực thể runtime bắt buộc**.
+
+2.1. student_profile
+
+student_profile đại diện cho **trạng thái cho phép học tập của student**, tách biệt hoàn toàn khỏi User.
+
+student_profile chứa:
+
+* user_id (PK, FK → users.id)
+* lifecycle_state
+
+lifecycle_state chỉ có các giá trị:
+
+* ACTIVE
+* SUSPENDED
+* INACTIVE
+
+Ý nghĩa:
+
+* ACTIVE: được phép tham gia learning runtime
+* SUSPENDED / INACTIVE: bị chặn mọi hành vi học tập
+
+student_profile:
+
+* chỉ áp dụng cho role = STUDENT
+* không áp dụng cho ADMIN, PARENT
+
+student_profile KHÔNG:
+
+* chứa tiến độ
+* chứa chapter
+* chứa mastery
+* chứa lịch sử học
+
+---
+
+2.2. chapter_progress (Aggregate Root)
+
+chapter_progress đại diện cho:
+“Học sinh X đang học chương Y ở trạng thái Z”.
+
+chapter_progress chứa:
+
+* id
+* student_id
+* chapter_id
+* chapter_state
+
+chapter_state chỉ có:
+
+* LOCKED
+* IN_PROGRESS
+* COMPLETED
+
+Ràng buộc dữ liệu bắt buộc:
+
+* UNIQUE(student_id, chapter_id)
+* Mỗi student chỉ có TỐI ĐA 1 chapter ở trạng thái IN_PROGRESS
+
+Ràng buộc này phải được bảo vệ:
+
+* ở Domain Logic
+* và/hoặc ở DB constraint
+
+---
+
+3. FSM CHAPTER – LUẬT BẤT BIẾN
+
+FSM duy nhất hợp lệ trong Phase 1:
+
+LOCKED → IN_PROGRESS → COMPLETED
+
+Luật bất biến:
+
+* không có UNLOCKED
+* không có quay ngược
+* không có nhảy trạng thái
+* không có nhiều IN_PROGRESS
+
+Bất kỳ logic nào vi phạm FSM này → sai Domain.
+
+---
+
+4. AUTHORITY & DOMAIN LOGIC
+
+4.1. Authority tuyệt đối
+
+Chỉ ChapterProgress Domain Logic được phép:
+
+* tạo chapter_progress
+* chuyển chapter_state
+* đánh dấu COMPLETED
+
+Không entity, service hay controller nào khác được phép:
+
+* set chapter_state trực tiếp
+* update chapter_progress “tiện tay”
+
+---
+
+4.2. Start Chapter
+
+Hành vi:
+
+* student bắt đầu học một chapter
+
+Input:
+
+* student_id (từ token)
+* chapter_id
+
+Điều kiện bắt buộc:
+
+* student_profile tồn tại
+* lifecycle_state = ACTIVE
+* chapter_progress với chapter_id ở trạng thái LOCKED
+* student không có chapter khác IN_PROGRESS
+
+Xử lý:
+
+* chuyển chapter_state: LOCKED → IN_PROGRESS
+
+Không thực hiện:
+
+* tạo practice
+* gọi AI
+* kiểm tra mastery
+
+---
+
+4.3. Completion Rule – Phase 1 (Temporary)
+
+Completion trong Phase 1 có ý nghĩa:
+
+* đánh dấu tiến độ tối giản
+* KHÔNG phải hoàn thành học thuật
+
+Luật Completion Phase 1:
+
+* chapter được đánh dấu COMPLETED khi:
+
+  * có ít nhất 1 practice hợp lệ được submit
+
+Lưu ý rất quan trọng:
+
+* C1 CHỈ định nghĩa completion rule
+* Việc “submit practice” sẽ được triển khai ở C2
+* C1 không sinh practice
+
+---
+
+5. API PHẢI CÓ (MỨC TỐI THIỂU)
+
+5.1. Student APIs
+
+Student chỉ có các hành vi sau:
+
+* start chapter
+* xem trạng thái chapter
+
+Student KHÔNG:
+
+* tự complete chapter
+* tự unlock chapter khác
+
+5.2. Admin APIs
+
+Admin chỉ được:
+
+* gán chapter ban đầu cho student
+
+Admin KHÔNG:
+
+* đổi chapter_state
+* complete chapter hộ
+* reset tiến độ học
+
+---
+
+6. GIAO TIẾP VỚI FRONTEND
+
+6.1. Student App
+
+Student App dùng C1 để:
+
+* hiển thị danh sách chapter
+* hiển thị trạng thái: LOCKED / IN_PROGRESS / COMPLETED
+* gửi action “bắt đầu học”
+
+Student App KHÔNG:
+
+* suy luận FSM
+* tự đổi trạng thái
+* bypass backend rule
+
+---
+
+6.2. Parent Dashboard
+
+Parent Dashboard:
+
+* chỉ đọc dữ liệu chapter_progress
+* không ghi
+* không điều khiển FSM
+
+---
+
+6.3. Admin Dashboard
+
+Admin Dashboard:
+
+* chỉ thực hiện gán chapter ban đầu
+* không hiển thị hành vi học chi tiết
+* không thao tác runtime
+
+---
+
+7. NHỮNG ĐIỀU C1 TUYỆT ĐỐI KHÔNG LÀM
+
+Để khóa chặt domain, C1 phải ghi rõ các điều bị cấm:
+
+* Không sinh practice runtime
+* Không gọi AI
+* Không chấm bài
+* Không tính mastery
+* Không unlock chapter tiếp theo
+* Không recommendation
+* Không adaptive logic
+* Không decision dựa mastery
+
+Nếu bất kỳ logic nào ở trên xuất hiện trong C1 → sai Phase 1.
+
+---
+
+8. VÌ SAO C1 PHẢI ĐƯỢC GIỮ CHẶT NHƯ VẬY
+
+C1 là nơi:
+
+* mọi tiến độ học tập bắt đầu
+* mọi state được xác lập
+
+Nếu C1 bị:
+
+* làm lỏng
+* cho phép bypass
+* pha trộn với practice hoặc AI
+
+thì:
+
+* C2 sẽ không thể kiểm soát
+* FSM sẽ vỡ
+* Completion Rule sẽ mâu thuẫn với System Law
+
+---
+
+KẾT LUẬN
+
+C1 không phải là “cho học sinh học”.
+
+C1 là:
+
+* nơi xác lập sự tồn tại của tiến độ
+* nơi bảo vệ FSM
+* nền tảng để C2 gắn Practice + AI
+
+ChapterProgress đúng thì:
+
+* Practice chạy an toàn
+* AI không vượt quyền
+* Frontend không phải đoán logic
+
+ChapterProgress sai thì:
+
+* toàn bộ learning flow sẽ phải sửa lại từ đầu.
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
+
+---
+
+C2. PRACTICE + AI – MÔ TẢ CHI TIẾT TRIỂN KHAI
+
+Mục tiêu tổng quát
+Bước C2 cho phép **học sinh thực sự làm bài** lần đầu tiên trong hệ thống, đồng thời **tích hợp AI** để:
+
+* sinh bài tập (theo yêu cầu của Core)
+* giải thích lời giải
+
+C2 là bước:
+
+* chuyển từ “có tiến độ” (C1)
+* sang “có hành vi học tập”
+
+Tuy nhiên, **AI không có authority**.
+Mọi quyết định cuối cùng vẫn thuộc về **Core Service**.
+
+---
+
+1. BẢN CHẤT DOMAIN CỦA C2
+
+C2 thuộc về:
+
+* Learning Runtime
+* Practice Execution
+* AI Assistance
+
+C2 KHÔNG thuộc về:
+
+* Content Domain (đã xong ở B1, B2)
+* Adaptive Learning nâng cao
+* Recommendation Engine
+* Mastery-based Decision
+
+Nguyên tắc cốt lõi:
+
+Practice là **hành vi runtime**,
+AI là **công cụ hỗ trợ**,
+Core Service là **nguồn chân lý (source of truth)**.
+
+---
+
+2. CÁC THỰC THỂ DỮ LIỆU TRONG C2 (CORE SERVICE)
+
+---
+
+2.1. Practice
+
+Practice đại diện cho **một lần học sinh làm bài**.
+
+Practice chứa:
+
+* id
+* student_id
+* chapter_id
+* exercise_id
+* submitted_answer
+* is_correct (boolean hoặc enum)
+* created_at
+* submitted_at
+
+Practice:
+
+* luôn gắn với ChapterProgress đang IN_PROGRESS
+* luôn gắn với một Exercise (từ B2)
+
+Practice KHÔNG:
+
+* quyết định completion
+* quyết định unlock
+* quyết định mastery cuối cùng
+
+---
+
+2.2. SkillMastery (reference only)
+
+SkillMastery ở C2:
+
+* chỉ là dữ liệu tham chiếu
+* cập nhật sau mỗi Practice
+* không dùng để ra quyết định
+
+SkillMastery:
+
+* có thể là bảng
+* hoặc embedded value
+
+SkillMastery KHÔNG:
+
+* unlock chapter
+* complete chapter
+* block học sinh
+
+---
+
+3. AUTHORITY TRONG C2
+
+Phân quyền rõ ràng:
+
+* Core Service:
+
+  * tạo Practice
+  * validate Practice
+  * lưu kết quả
+  * quyết định Completion Rule Phase 1
+
+* AI Service:
+
+  * generate bài (theo yêu cầu)
+  * giải thích bài
+  * gợi ý (chỉ text)
+
+AI:
+
+* KHÔNG:
+
+  * thay đổi state
+  * unlock chapter
+  * complete chapter
+  * update mastery trực tiếp
+
+---
+
+4. LUỒNG NGHIỆP VỤ PRACTICE (CORE SERVICE)
+
+---
+
+4.1. Tạo Practice (request bài)
+
+Luồng:
+
+* Student yêu cầu làm bài
+* Core Service kiểm tra:
+
+  * student_profile = ACTIVE
+  * chapter_progress = IN_PROGRESS
+
+Sau đó:
+
+* Core Service chọn Exercise:
+
+  * từ B2
+  * theo chapter_id / skill_id / difficulty (rule đơn giản)
+
+Nếu cần AI:
+
+* Core Service gọi AI Service:
+
+  * yêu cầu generate bài tương đương Exercise
+  * AI chỉ trả về content
+
+Core Service:
+
+* tạo Practice record
+* trả đề bài cho Student App
+
+---
+
+4.2. Submit Practice
+
+Luồng:
+
+* Student gửi submitted_answer
+* Core Service:
+
+  * validate Practice tồn tại
+  * validate Practice chưa submit
+  * so sánh với Solution (logic đơn giản Phase 1)
+  * lưu kết quả
+
+Sau submit:
+
+* update SkillMastery (reference)
+* kiểm tra Completion Rule Phase 1:
+
+  * nếu đây là Practice hợp lệ đầu tiên
+  * đánh dấu ChapterProgress COMPLETED
+  
+LƯU Ý QUAN TRỌNG VỀ COMPLETION AUTHORITY
+
+Mặc dù Completion được trigger trong luồng Submit Practice (C2),
+C2 KHÔNG phải là nơi sở hữu luật completion.
+
+C2:
+- chỉ phát hiện điều kiện
+- chỉ gửi signal nội bộ
+
+ChapterProgress (C1):
+- là nơi duy nhất được phép chuyển trạng thái COMPLETED
+- mọi cập nhật chapter_state phải đi qua Domain Logic của C1
+
+Nếu code C2 trực tiếp update chapter_state → SAI DOMAIN.
+
+---
+
+5. COMPLETION RULE – GIAO ĐIỂM C1 ↔ C2
+
+Điểm rất quan trọng:
+
+* Completion Rule được định nghĩa ở C1
+* Trigger thực tế xảy ra ở C2
+
+Luật:
+
+* Practice đầu tiên hợp lệ
+  → ChapterProgress chuyển COMPLETED
+
+AI:
+
+* không biết
+* không quyết định
+* không can thiệp
+
+---
+
+6. TÍCH HỢP AI SERVICE – RANH GIỚI RÕ RÀNG
+
+---
+
+6.1. AI Service làm gì?
+
+AI Service chỉ cung cấp:
+
+* generate bài tập
+* giải thích lời giải
+
+AI Service nhận:
+
+* yêu cầu từ Core
+* context rất hạn chế:
+
+  * chapter
+  * skill
+  * difficulty
+  * không có student profile
+
+AI Service trả:
+
+* nội dung bài
+* lời giải / explanation
+
+---
+
+6.2. AI Service KHÔNG được làm gì?
+
+AI Service KHÔNG:
+
+* biết chapter_state
+* biết lifecycle_state
+* biết mastery hiện tại
+* quyết định học tiếp hay không
+* cache quyết định học tập
+
+---
+
+6.3. Giao tiếp Core ↔ AI
+
+* Core gọi AI qua API
+* AI trả dữ liệu thuần (text / json)
+* Core:
+
+  * validate
+  * sanitize
+  * quyết định dùng hay không
+
+Nếu AI trả nội dung sai:
+
+* Core có quyền bỏ qua
+* Core có quyền fallback Exercise tĩnh
+
+AI FAILURE & FALLBACK RULE – PHASE 1
+
+Trong Phase 1, AI Service được xem là dịch vụ KHÔNG BẮT BUỘC.
+
+Nếu xảy ra bất kỳ tình huống nào sau:
+- AI timeout
+- AI trả dữ liệu không hợp lệ
+- AI trả nội dung không phù hợp chapter / skill
+
+Core Service PHẢI:
+- bỏ qua kết quả AI
+- fallback sang Exercise tĩnh từ B2
+- KHÔNG retry vô hạn
+- KHÔNG block hành vi học tập
+
+Learning Runtime không được phụ thuộc vào độ ổn định của AI.
+
+
+---
+
+7. GIAO TIẾP VỚI FRONTEND
+
+---
+
+7.1. Student App
+
+Student App:
+
+* yêu cầu làm bài
+* hiển thị đề
+* gửi câu trả lời
+* nhận kết quả
+* xem giải thích
+
+Student App KHÔNG:
+
+* quyết định completion
+* tự update state
+* tin AI tuyệt đối
+
+---
+
+7.2. Parent Dashboard
+
+Parent Dashboard:
+
+* chỉ xem:
+
+  * số lần practice
+  * trạng thái chapter
+* không can thiệp
+
+---
+
+7.3. Admin Dashboard
+
+Admin Dashboard:
+
+* không can thiệp runtime
+* chỉ dùng cho content & review
+
+---
+
+8. NHỮNG ĐIỀU C2 TUYỆT ĐỐI KHÔNG LÀM
+
+Để khóa Phase 1, C2 phải ghi rõ các điều bị cấm:
+
+* Không recommendation engine
+* Không adaptive learning nâng cao
+* Không unlock logic
+* Không mastery-based completion
+* Không AI decision
+* Không AI cache học tập
+* Không AI override Core
+
+---
+
+9. VÌ SAO C2 PHẢI TÁCH AI KHỎI AUTHORITY
+
+Nếu AI có authority:
+
+* logic học tập không kiểm soát được
+* debug gần như không thể
+* vi phạm System Law
+
+C2 thiết kế đúng giúp:
+
+* AI có thể thay đổi dễ dàng
+* Core luôn ổn định
+* Phase 1 không “trượt”
+
+---
+
+KẾT LUẬN
+
+C2 không phải là “AI dạy học”.
+
+C2 là:
 
 * Practice runtime
-* Student answer
-* Mastery
-* AI decision
+* AI là trợ lý
+* Core là trọng tài
 
-Bản chất
-Exercise Domain phục vụ:
+AI nói “có thể”,
+Core quyết định “có được hay không”.
 
-* Nhập liệu nội dung
-* Review nội dung
-* Làm nguồn cho Practice ở C2
+Nếu C2 đúng:
 
-Exercise KHÔNG phải là hành vi học tập.
+* Learning flow rõ ràng
+* AI không vượt quyền
+* Phase 1 giữ được kỷ luật
+
+Nếu C2 sai:
+
+* AI sẽ vô tình trở thành hệ thống điều khiển học tập.
+
+DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM
+
+Tại thời điểm kết thúc bước <A1 / A2 / B1 / ...>:
+- Tất cả logic thuộc phạm vi bước này đã được xử lý đầy đủ
+- MỌI hành vi ngoài phạm vi này phải được thực hiện ở bước tiếp theo
+
+Nếu dev cần:
+- đọc trạng thái học tập → KHÔNG thuộc bước này
+- quyết định học tiếp hay không → KHÔNG thuộc bước này
+- thay đổi progression → KHÔNG thuộc bước này
+
+Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
+
 
 ---
 
-C1. LEARNING DOMAIN – CHAPTER PROGRESS
+D. FRONTEND 
+
+---
+
+D1. WEB ADMIN DASHBOARD – IMPLEMENTATION ROADMAP (PHASE 1)
+
+Mục tiêu tổng quát
+Web Admin Dashboard là **Control Plane** của hệ thống Phase 1.
+Nó cho phép ADMIN:
+
+* quản lý danh tính (user)
+* quản lý quan hệ (parent–student)
+* quản lý nội dung (chapter, skill, exercise)
+* thiết lập điều kiện học ban đầu
+
+Admin Dashboard **KHÔNG**:
+
+* tham gia runtime học tập
+* quyết định tiến độ
+* override logic backend
+
+---
+
+I. NGUYÊN TẮC KIẾN TRÚC CHUNG CHO D1
+
+1. Admin Dashboard là client thuần
+
+* Không chứa business logic học tập
+* Không suy luận trạng thái
+* Không cache quyết định
+
+2. Backend là nguồn sự thật duy nhất
+
+* Mọi state hiển thị phải đến từ API
+* Không optimistic update cho learning state
+
+3. Phase 1 tuyệt đối không chuẩn bị Phase 2
+
+* Không UI cho trial / license
+* Không placeholder cho feature tương lai
+* Không nút “ẩn” hoặc “coming soon”
+
+---
+
+II. D1.1 AUTH & ACCESS CONTROL
 
 Mục tiêu
-Đưa trạng thái học tập runtime đầu tiên vào hệ thống.
+Đảm bảo chỉ ADMIN truy cập được Admin Dashboard.
 
-Phạm vi
+Chức năng
 
-* student_profile (lifecycle_state)
-* chapter_progress (Aggregate Root)
-* FSM: LOCKED → IN_PROGRESS → COMPLETED
-* Completion Rule Phase 1 (temporary)
+* Admin Login
+* Token refresh
+* Logout
 
-Không bao gồm
+Logic
 
-* Practice runtime
-* AI
-* Mastery decision
+* Sau login, frontend đọc role từ token
+* Nếu role ≠ ADMIN → redirect / forbidden
+* Mọi route admin đều được guard
 
-Bản chất
-ChapterProgress là Aggregate Root duy nhất của tiến độ học.
-Mọi logic “đang học đến đâu” đều đi qua đây.
+Không làm
+
+* Không tự lưu role cứng
+* Không hardcode quyền theo UI
+* Không bypass backend guard
 
 ---
 
-C2. PRACTICE + AI
+III. D1.2 USER MANAGEMENT (A1)
 
 Mục tiêu
-Cho phép học sinh làm bài và tương tác với AI trong phạm vi luật Phase 1.
+Quản lý danh tính người dùng trong hệ thống.
 
-Phạm vi
+Chức năng
 
-* Practice runtime
-* Submit practice
-* Update mastery (reference only)
-* AI generate bài
-* AI giải thích bài
+* Tạo user:
 
-Không bao gồm
+  * ADMIN
+  * PARENT
+  * STUDENT
+* Xem danh sách user
+* Filter theo role
+* Reset mật khẩu user
 
-* Recommendation engine
-* Adaptive learning nâng cao
-* Unlock logic
-* Mastery-based completion
+Luồng tạo user
 
-Bản chất
-AI là công cụ hỗ trợ, không có authority.
-System Core luôn override AI.
+1. Admin nhập thông tin
+2. Gửi API create user
+3. Nhận response
+4. Hiển thị thông báo thành công
+
+Luồng reset mật khẩu
+
+1. Admin chọn user
+2. Gọi API reset password
+3. Backend trả plaintext password
+4. Frontend hiển thị đúng 1 lần
+
+Logic ẩn
+
+* Không hiển thị lại password sau khi đóng modal
+* Không lưu password ở local storage
+* Không cho admin đổi role của chính mình
 
 ---
 
-D. FRONTEND (CHƯA TRIỂN KHAI Ở THỜI ĐIỂM VIẾT TÀI LIỆU NÀY)
+IV. D1.3 PARENT – STUDENT RELATION (A2)
 
-Frontend chỉ được triển khai khi backend domain tương ứng đã hoàn tất.
+Mục tiêu
+Thiết lập quan hệ sở hữu.
 
-D1. Web Admin Dashboard
+Chức năng
 
-* Quản lý user
-* Quản lý content (chapter, skill, exercise)
-* Review nội dung
+* Gán Parent ↔ Student
+* Hủy gán
+* Xem danh sách quan hệ
 
-D2. Web Parent Dashboard
+Luồng gán
 
-* Xem tiến độ học tập
-* Xem báo cáo
+1. Admin chọn Parent
+2. Admin chọn Student
+3. Gửi API link
+4. Backend xác nhận
 
-D3. App Student
+Luồng hủy
 
-* Học skill
-* Làm bài
-* Xem lời giải
+* Gọi API unlink
+* Refresh danh sách
 
-Các bước D1, D2, D3 sẽ được chia nhỏ tiếp (D1.1, D1.2, …) trong tài liệu frontend riêng.
+Logic ẩn
+
+* Không cho gán sai role
+* Không tạo student_profile
+* Không hiển thị logic học tập
+
+---
+
+V. D1.4 CONTENT MANAGEMENT – CHAPTER / SKILL (B1)
+
+Mục tiêu
+Xây dựng cấu trúc kiến thức.
+
+Chức năng
+
+* CRUD Chapter
+* CRUD Skill
+* Gán Skill vào Chapter
+* Định nghĩa Skill Prerequisite
+
+Luồng làm việc
+
+* Admin tạo Chapter
+* Admin tạo Skill
+* Admin gán Skill vào Chapter
+* Admin khai báo prerequisite
+
+Logic ẩn
+
+* Không hiển thị trạng thái học
+* Không hiển thị tiến độ
+* Không enforce thứ tự học ở UI
+
+---
+
+VI. D1.5 CONTENT MANAGEMENT – EXERCISE (B2)
+
+Mục tiêu
+Xây dựng và kiểm soát chất lượng ngân hàng bài tập.
+
+Chức năng
+
+* CRUD Exercise
+* CRUD ExerciseSolution
+* Quản lý ExerciseTag
+* Review Exercise
+* Xem ReviewLog
+
+Workflow UI
+
+* Exercise ở trạng thái DRAFT
+* Admin review → APPROVED / REJECTED
+* Mọi thay đổi đều ghi log
+
+Logic ẩn
+
+* Không hiển thị student answer
+* Không hiển thị practice runtime
+* Không cho sửa Exercise đã APPROVED nếu không quay về REVIEWED
+
+---
+
+VII. D1.6 LEARNING SETUP (C1 – ADMIN SCOPE HẸP)
+
+Mục tiêu
+Thiết lập điều kiện học ban đầu.
+
+Chức năng
+
+* Gán Chapter ban đầu cho Student
+* Xem ChapterProgress (read-only)
+
+Luồng gán chapter
+
+1. Admin chọn Student
+2. Admin chọn Chapter
+3. Gọi API assign
+
+Logic ẩn
+
+* Admin không được đổi chapter_state
+* Không có nút “complete”
+* Không reset tiến độ
+
+---
+
+VIII. D1.7 ERROR HANDLING & EDGE CASE
+
+Mục tiêu
+Tránh frontend phá vỡ invariant backend.
+
+Xử lý
+
+* Token expired → logout
+* 403 → redirect forbidden
+* 409 (conflict) → hiển thị rõ nguyên nhân
+* Validation error → hiển thị message từ backend
+
+Không làm
+
+* Không auto-retry learning API
+* Không swallow error
+
+---
+
+IX. D1.8 NON-FUNCTIONAL REQUIREMENTS
+
+* UI đơn giản, ưu tiên rõ ràng
+* Không animation phức tạp
+* Không cache dữ liệu learning
+* Không offline mode
+
+---
+
+X. DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM D1
+
+Sau khi hoàn thành D1:
+
+* Admin có thể:
+
+  * quản lý user
+  * quản lý content
+  * thiết lập điều kiện học
+* Admin KHÔNG:
+
+  * can thiệp runtime
+  * quyết định học tập
+  * override Core logic
+
+Nếu Admin Dashboard cần:
+
+* xem kết quả học chi tiết → thuộc D2
+* thao tác học tập → thuộc D3
+
+---
+
+KẾT LUẬN
+
+D1 không phải là “màn hình quản trị”.
+
+D1 là:
+
+* nơi bảo vệ dữ liệu
+* nơi giữ kỷ luật hệ thống
+* nơi không được phép sáng tạo nghiệp vụ
+
+Nếu D1 làm đúng:
+
+* Backend giữ được authority
+* D2 và D3 triển khai nhẹ
+* Phase 1 không trượt sang Phase 2
+
+---
+
+D2. WEB PARENT DASHBOARD – IMPLEMENTATION ROADMAP (PHASE 1)
+
+Mục tiêu tổng quát
+Web Parent Dashboard là **Insight Surface** của hệ thống Phase 1.
+Nó cho phép PARENT:
+
+* xem tình hình học tập của con
+* theo dõi tiến độ tổng quát
+* hiểu con đang học gì, đến đâu
+
+Parent Dashboard **KHÔNG**:
+
+* điều khiển học tập
+* tạo hoặc sửa dữ liệu học
+* can thiệp vào FSM
+* tương tác trực tiếp với AI
+
+---
+
+I. NGUYÊN TẮC KIẾN TRÚC CHUNG CHO D2
+
+1. READ-ONLY tuyệt đối
+
+* Parent Dashboard chỉ đọc dữ liệu
+* Không có action thay đổi state học tập
+* Không có submit, start, reset, retry
+
+2. Authority nằm ở Core Service
+
+* Mọi dữ liệu hiển thị đều lấy từ backend
+* Frontend không suy luận “được học / không được học”
+
+3. Không cá nhân hóa nâng cao
+
+* Không recommendation
+* Không adaptive learning
+* Không đánh giá học lực
+
+---
+
+II. D2.1 AUTH & ACCESS CONTROL
+
+Mục tiêu
+Đảm bảo chỉ PARENT truy cập Parent Dashboard.
+
+Chức năng
+
+* Parent Login
+* Token refresh
+* Logout
+
+Logic
+
+* Sau login, frontend đọc role từ token
+* Nếu role ≠ PARENT → redirect forbidden
+* Guard toàn bộ route Parent
+
+Không làm
+
+* Không reuse Admin UI
+* Không cho Parent truy cập API Admin
+
+---
+
+III. D2.2 STUDENT LIST (OWNERSHIP VIEW)
+
+Mục tiêu
+Parent thấy được **những Student thuộc quyền quản lý của mình**.
+
+Chức năng
+
+* Hiển thị danh sách Student
+* Chọn 1 Student để xem chi tiết
+
+Dữ liệu
+
+* Lấy từ quan hệ parent_student (A2)
+* Không suy luận từ tên, email
+
+Logic ẩn
+
+* Parent KHÔNG thấy Student khác
+* Nếu Parent không có Student → hiển thị empty state rõ ràng
+
+---
+
+IV. D2.3 LEARNING OVERVIEW (C1 – READ-ONLY)
+
+Mục tiêu
+Cho Parent cái nhìn tổng quan về tiến độ học.
+
+Chức năng
+
+* Danh sách Chapter của Student
+* Trạng thái mỗi Chapter:
+
+  * LOCKED
+  * IN_PROGRESS
+  * COMPLETED
+
+Hiển thị
+
+* Tổng số Chapter
+* Số Chapter đã COMPLETED
+* Chapter hiện tại đang IN_PROGRESS (nếu có)
+
+Logic ẩn
+
+* Không cho click “bắt đầu học”
+* Không cho đổi trạng thái
+* Không reorder Chapter
+
+---
+
+V. D2.4 PRACTICE SUMMARY (C2 – READ-ONLY)
+
+Mục tiêu
+Cho Parent biết Student **có học hay không**, không đánh giá chất lượng.
+
+Chức năng
+
+* Số lần Practice đã làm
+* Thời điểm làm gần nhất
+* Tỷ lệ đúng / sai (nếu backend cung cấp)
+
+Không hiển thị
+
+* Nội dung bài làm chi tiết
+* Câu trả lời học sinh
+* Lời giải AI
+
+Logic ẩn
+
+* Không cho Parent replay practice
+* Không cho Parent trigger practice mới
+
+---
+
+VI. D2.5 PRACTICE HISTORY (TÙY CHỌN – NHẸ)
+
+Mục tiêu
+Cho Parent xem **lịch sử học tập ở mức hành vi**, không phải đánh giá.
+
+Chức năng
+
+* Danh sách practice theo thời gian
+* Thông tin cơ bản:
+
+  * Chapter
+  * Đúng / sai
+  * Thời điểm
+
+Không làm
+
+* Không hiển thị submitted_answer
+* Không hiển thị mastery
+
+---
+
+VII. D2.6 UI & UX CONSTRAINTS
+
+Nguyên tắc
+
+* Giao diện đơn giản
+* Ưu tiên readability
+* Không biểu đồ phức tạp
+
+Không làm
+
+* Không gamification
+* Không animation gây nhiễu
+* Không ranking
+
+---
+
+VIII. D2.7 ERROR HANDLING & EDGE CASE
+
+Xử lý
+
+* Token expired → logout
+* 403 → redirect forbidden
+* Student bị unlinked → refresh list
+* Không có dữ liệu → empty state rõ ràng
+
+Không làm
+
+* Không retry logic học tập
+* Không cache dữ liệu nhạy cảm
+
+---
+
+IX. DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM D2
+
+Sau khi hoàn thành D2:
+
+* Parent có thể:
+
+  * theo dõi tiến độ
+  * hiểu hành vi học tập của con
+* Parent KHÔNG:
+
+  * điều khiển học
+  * tác động AI
+  * thay đổi state
+
+Nếu Parent Dashboard cần:
+
+* can thiệp học tập → SAI PHASE 1
+* cá nhân hóa học → Phase sau
+
+---
+
+KẾT LUẬN
+
+D2 không phải là “ứng dụng học tập cho phụ huynh”.
+
+D2 là:
+
+* bảng điều khiển quan sát
+* công cụ đồng hành
+* lớp minh bạch thông tin
+
+Nếu D2 làm đúng:
+
+* phụ huynh yên tâm
+* học sinh không bị áp lực
+* hệ thống giữ đúng kỷ luật Phase 1
+
+Nếu D2 làm sai:
+
+* Parent vô tình trở thành “giáo viên”
+* Learning Domain bị phá vỡ authority.
+
+---
+
+D3. STUDENT APP – IMPLEMENTATION ROADMAP (PHASE 1)
+
+Mục tiêu tổng quát
+Student App là **Learning Action Surface** của hệ thống Phase 1.
+Đây là **nơi duy nhất học sinh thực hiện hành vi học tập**:
+
+* bắt đầu học chương
+* làm bài (practice)
+* xem kết quả và giải thích
+
+Student App **KHÔNG**:
+
+* quyết định tiến độ
+* suy luận FSM
+* override backend
+* điều khiển AI
+
+---
+
+I. NGUYÊN TẮC KIẾN TRÚC CHUNG CHO D3
+
+1. Backend là nguồn sự thật duy nhất
+
+* Mọi trạng thái học tập hiển thị đều đến từ Core Service
+* UI không tự suy luận “được học / không được học”
+
+2. Student App chỉ là executor
+
+* Thực hiện hành động theo API cho phép
+* Không có logic quyết định học tiếp hay không
+
+3. Phase 1 = tối giản
+
+* Không gamification
+* Không recommendation
+* Không adaptive learning
+
+---
+
+II. D3.1 AUTH & SESSION MANAGEMENT
+
+Mục tiêu
+Cho phép Student đăng nhập và duy trì phiên làm việc.
+
+Chức năng
+
+* Student Login
+* Token refresh
+* Logout
+
+Logic
+
+* Sau login, xác nhận role = STUDENT
+* Guard toàn bộ route học tập
+
+Không làm
+
+* Không login đa role
+* Không switch role
+* Không bypass auth
+
+---
+
+III. D3.2 HOME / CHAPTER LIST VIEW
+
+Mục tiêu
+Cho Student biết **mình có thể học gì**.
+
+Chức năng
+
+* Hiển thị danh sách Chapter được gán
+* Hiển thị trạng thái:
+
+  * LOCKED
+  * IN_PROGRESS
+  * COMPLETED
+
+Hiển thị
+
+* Chapter name
+* Chapter description (ngắn)
+* Trạng thái rõ ràng
+
+Logic ẩn
+
+* UI không tự unlock
+* UI không reorder Chapter
+* Nếu có chapter IN_PROGRESS → chỉ chapter đó cho phép hành động
+
+---
+
+IV. D3.3 START CHAPTER FLOW (C1)
+
+Mục tiêu
+Cho phép Student bắt đầu học một Chapter.
+
+Luồng
+
+1. Student chọn Chapter ở trạng thái LOCKED
+2. Student bấm “Bắt đầu học”
+3. Gọi API start chapter
+4. Backend trả trạng thái mới
+
+Logic ẩn
+
+* Disable nếu Student có chapter khác IN_PROGRESS
+* Không cho start nếu lifecycle_state ≠ ACTIVE
+
+UI
+
+* Không optimistic update
+* Chờ response backend rồi mới đổi trạng thái
+
+---
+
+V. D3.4 PRACTICE REQUEST FLOW (C2)
+
+Mục tiêu
+Cho phép Student yêu cầu một bài tập để làm.
+
+Luồng
+
+1. Student ở Chapter IN_PROGRESS
+2. Student bấm “Làm bài”
+3. Gọi API request practice
+4. Backend trả Exercise content
+
+Hiển thị
+
+* Nội dung bài toán
+* Có thể có LaTeX / hình ảnh
+
+Logic ẩn
+
+* Không request practice nếu chapter ≠ IN_PROGRESS
+* Không cache bài cũ
+* Mỗi Practice là một instance riêng
+
+---
+
+VI. D3.5 PRACTICE SUBMISSION FLOW (C2)
+
+Mục tiêu
+Cho phép Student nộp bài.
+
+Luồng
+
+1. Student nhập câu trả lời
+2. Student bấm “Nộp bài”
+3. Gửi API submit practice
+4. Backend trả kết quả:
+
+   * đúng / sai
+   * explanation (nếu có)
+
+Logic ẩn
+
+* Disable submit nhiều lần
+* Không cho sửa sau submit
+* Không tự chấm bài ở UI
+
+---
+
+VII. D3.6 PRACTICE RESULT & FEEDBACK
+
+Mục tiêu
+Phản hồi kết quả học tập ở mức tối giản.
+
+Hiển thị
+
+* Kết quả đúng / sai
+* Lời giải chuẩn (ExerciseSolution)
+* Giải thích từ AI (nếu backend cung cấp)
+
+Không hiển thị
+
+* mastery score
+* đánh giá năng lực
+* lời khuyên học tiếp
+
+Logic ẩn
+
+* UI không quyết định Chapter COMPLETED
+* Chỉ hiển thị trạng thái mới nếu backend trả về
+
+---
+
+VIII. D3.7 POST-PRACTICE STATE UPDATE
+
+Mục tiêu
+Đồng bộ trạng thái học tập sau Practice.
+
+Luồng
+
+* Sau submit:
+
+  * gọi API fetch chapter_progress
+  * cập nhật UI theo response
+
+Logic ẩn
+
+* Không optimistic completion
+* Không giả định Practice đầu tiên luôn complete
+* Không tự unlock chapter khác
+
+---
+
+IX. D3.8 ERROR HANDLING & EDGE CASE
+
+Xử lý
+
+* Token expired → logout
+* 403 / 409 → hiển thị message backend
+* AI explanation không có → fallback UI gọn
+* Network lỗi → retry có kiểm soát
+
+Không làm
+
+* Không retry vô hạn
+* Không tự sinh bài
+* Không bypass backend rule
+
+---
+
+X. D3.9 UX CONSTRAINTS (PHASE 1)
+
+Nguyên tắc
+
+* UI rõ ràng, không gây áp lực
+* Tập trung vào “làm bài”
+
+Không làm
+
+* Không bảng xếp hạng
+* Không streak
+* Không badge
+* Không notification học tập
+
+---
+
+XI. DOMAIN BOUNDARY – KẾT THÚC TRÁCH NHIỆM D3
+
+Sau khi hoàn thành D3:
+
+* Student có thể:
+
+  * học đúng 1 chapter tại 1 thời điểm
+  * làm bài
+  * xem kết quả
+
+Student KHÔNG:
+
+* học nhiều chapter song song
+* tự quyết completion
+* tương tác trực tiếp với AI service
+
+Nếu Student App cần:
+
+* recommendation
+* adaptive flow
+  → đó là Phase sau, không thuộc Phase 1.
+
+---
+
+KẾT LUẬN
+
+D3 không phải là “app học thông minh”.
+
+D3 là:
+
+* nơi học sinh thực hiện hành vi học tập tối thiểu
+* nơi backend kiểm soát toàn bộ logic
+* nơi AI chỉ đóng vai trò trợ lý
+
+Nếu D3 làm đúng:
+
+* C1 + C2 phát huy đúng vai trò
+* Parent Dashboard đọc rất sạch
+* Phase 1 giữ được kỷ luật kiến trúc
+
+Nếu D3 làm sai:
+
+* frontend sẽ vô tình điều khiển learning domain
+* toàn bộ hệ thống sẽ lệch ngay từ runtime.
+
+---
+
+## TỔNG KẾT PHẦN D
+
+* D1 = **Admin Control Plane**
+* D2 = **Parent Read-Only Insight**
+* D3 = **Student Action Surface**
+
+Frontend Phase 1:
+
+* **Không suy luận**
+* **Không quyết định**
+* **Không override Core**
 
 ---
 
@@ -240,5 +2932,22 @@ Phase 1 phải được triển khai:
 
 Nếu một bước chưa xong:
 → Không được phép triển khai bước tiếp theo.
+
+END-TO-END LEARNING FLOW – PHASE 1 (TEXT SUMMARY)
+
+1. Admin tạo User (A1)
+2. Admin gán Parent – Student (A2)
+3. Admin tạo Chapter / Skill / Exercise (B1, B2)
+4. Admin gán Chapter ban đầu cho Student (C1)
+5. Student start Chapter → chapter_state = IN_PROGRESS (C1)
+6. Student request Practice → Core chọn Exercise (C2)
+7. (Optional) Core gọi AI để generate / explain (C2)
+8. Student submit Practice (C2)
+9. Core validate → trigger Completion Rule (C1)
+10. ChapterProgress chuyển COMPLETED (C1)
+
+Không có bước nào được bỏ qua.
+Không có AI bước nào thay thế Core decision.
+
 
 ---
