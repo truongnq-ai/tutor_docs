@@ -2098,6 +2098,387 @@ Nếu dev cần:
 
 Việc vi phạm boundary này được xem là lỗi kiến trúc, không phải lỗi logic nhỏ.
 
+---
+
+# C3. CONTENT INGESTION – ADMIN (AI / JSON)
+
+---
+
+## 1. MỤC TIÊU (GOAL)
+
+C3 định nghĩa **pipeline tạo tài sản nội dung (Exercise)** cho Phase 1, phục vụ **ADMIN**, **tách biệt tuyệt đối** với runtime học tập của học sinh.
+
+C3 tồn tại để giải quyết bài toán:
+
+> Làm thế nào để tạo, kiểm soát và lưu trữ bài tập Toán (Exercise)
+> như một **content asset**,
+> trong khi vẫn giữ **System Law là tối thượng** và **AI không có authority**.
+
+---
+
+## 2. PHẠM VI ÁP DỤNG (SCOPE)
+
+### 2.1. Actor
+
+* **ADMIN** (duy nhất)
+
+### 2.2. In-scope (ĐƯỢC PHÉP)
+
+* Load & render prompt templates từ resource
+* Generate Exercise bằng AI (AI → JSON → validate → save)
+* Import Exercise từ JSON thủ công
+* Validate JSON & LaTeX theo **2 tầng**
+* Fix LaTeX theo cơ chế có kiểm soát
+* Persist Exercise ở trạng thái **DRAFT**
+* Ghi nhận nguồn tạo (AI / ADMIN)
+
+### 2.3. Out-of-scope (TUYỆT ĐỐI KHÔNG LÀM)
+
+* Tạo Practice
+* Gán Exercise cho Student
+* Gán Exercise cho ChapterProgress
+* Auto approve / auto publish
+* Trigger domain event học tập
+* Ảnh hưởng SkillMastery hoặc ChapterProgress
+
+---
+
+## 3. ĐỊNH NGHĨA DOMAIN & THUẬT NGỮ
+
+### 3.1. Exercise (trong C3)
+
+* Exercise là **content asset tĩnh**
+* Thuộc:
+
+  * Chapter
+  * Skill
+* KHÔNG thuộc:
+
+  * Student
+  * ChapterProgress
+* KHÔNG có lifecycle học tập
+
+### 3.2. Content Ingestion
+
+Content Ingestion là quá trình:
+
+> Nhận dữ liệu bài tập (AI hoặc JSON)
+> → kiểm tra hợp lệ
+> → chuyển thành Exercise entity
+> → lưu DB ở trạng thái DRAFT
+
+---
+
+## 4. KIẾN TRÚC TỔNG THỂ C3
+
+```
+Admin API
+  ├── PromptTemplateLoader
+  ├── (optional) AIContentClient
+  ├── ExerciseJsonValidator
+  ├── LatexGuardValidator (Tầng 1)
+  └── ExerciseIngestionService
+        └── ExerciseRepository
+```
+
+**Nguyên tắc kiến trúc:**
+
+* Core Service là **authority duy nhất**
+* AI Service chỉ là **content generator / QA tool**
+* Validation xảy ra **TRƯỚC persistence**
+* Không có logic “vá” ở DB layer
+
+---
+
+## 5. PROMPT TEMPLATE HANDLING
+
+### 5.1. Vị trí prompt (BẮT BUỘC)
+
+```
+tutor-core-service
+└── src/main/resources/ai/prompts/
+    ├── generate_exercise_v1.txt
+    ├── explain_solution_v1.txt
+    └── validate_json_v1.txt
+```
+
+### 5.2. Quy tắc sử dụng prompt
+
+* Prompt:
+
+  * Chỉ load từ resource
+  * Không lưu DB
+  * Không chỉnh runtime
+* Thay đổi prompt:
+
+  * Thông qua Git / PR
+  * Không qua UI / config
+
+---
+
+## 6. CON ĐƯỜNG 1 – AI GENERATE EXERCISE (IN-SYSTEM)
+
+### 6.1. API
+
+```
+POST /admin/exercises/ai-generate
+```
+
+### 6.2. Input
+
+* chapterCode
+* skillCode
+* difficultyLevel (1–5)
+* exerciseCount
+
+**KHÔNG nhận:**
+
+* studentId
+* mastery
+* lifecycle
+* permission snapshot
+
+---
+
+### 6.3. FLOW XỬ LÝ (STEP-BY-STEP)
+
+#### Step 1 – Controller Guard
+
+* Xác thực JWT
+* role = ADMIN
+
+#### Step 2 – Load & Render Prompt
+
+* Load `generate_exercise_v1.txt`
+* Inject input data
+* Prompt sau render là **string thuần**
+
+#### Step 3 – Call AI Provider
+
+* Gửi prompt
+* Nhận **raw text response**
+* Core Service **không tin tưởng nội dung này**
+
+#### Step 4 – JSON & LaTeX Guard Validation (TẦNG 1)
+
+* Parse JSON
+* Validate schema
+* Validate LaTeX theo **LatexGuardValidator**
+* Nếu FAIL:
+
+  * Reject request
+  * KHÔNG ghi DB
+  * KHÔNG retry ngầm
+
+#### Step 5 – Ingest Exercise
+
+* Map JSON → Exercise entity
+* Gán:
+
+  * created_by = AI
+  * status = DRAFT
+* Persist DB
+
+#### Step 6 – Response
+
+* Trả Exercise (DRAFT)
+* Không emit domain event
+
+---
+
+## 7. CON ĐƯỜNG 2 – IMPORT EXERCISE TỪ JSON (OUT-OF-SYSTEM)
+
+### 7.1. API
+
+```
+POST /admin/exercises/import-json
+```
+
+### 7.2. Input
+
+* rawExerciseJson (string)
+
+### 7.3. FLOW
+
+* Controller guard (ADMIN)
+* JSON + LaTeX Guard Validation (Tầng 1)
+* Ingest Exercise:
+
+  * created_by = ADMIN
+  * status = DRAFT
+* Persist DB
+* Return Exercise (DRAFT)
+
+---
+
+## 8. LaTeX VALIDATION & FIXING POLICY (SECTION BẮT BUỘC)
+
+### 8.1. Mục tiêu của LaTeX Validation
+
+* Bảo vệ hệ thống khỏi content lỗi
+* Đảm bảo Exercise lưu DB:
+
+  * Không phá UI
+  * Không phá runtime
+* Phân tách rõ:
+
+  * **System Guard**
+  * **Quality Inspection**
+
+---
+
+### 8.2. TẦNG 1 – LaTeX Guard Validation (CORE SERVICE)
+
+**Vai trò:**
+Gatekeeper – bảo vệ DB và System Law
+
+**Thực hiện tại:**
+`tutor-core-service` (Java)
+
+**Phạm vi kiểm tra (BẮT BUỘC):**
+
+* Không chứa:
+
+  * `$$ ... $$`
+  * `\(...\)`
+  * `\[...\]`
+* Escape `\` đúng chuẩn JSON
+* LaTeX chỉ xuất hiện tại:
+
+  * problemText
+  * solutionSteps[].content
+  * finalAnswer
+  * problemLatex
+* Không có ký tự điều khiển nguy hiểm
+
+**Kết luận của Tầng 1:**
+
+* PASS → cho phép lưu DRAFT
+* FAIL → reject ingestion
+
+⚠️ **Tầng 1 KHÔNG kết luận “LaTeX đúng học thuật”**
+⚠️ Chỉ kết luận: “Không vi phạm chuẩn hệ thống”
+
+---
+
+### 8.3. TẦNG 2 – LaTeX Deep Validation (AI SERVICE)
+
+**Vai trò:**
+Quality Inspection & QA nội dung
+
+**Thực hiện tại:**
+`tutor-ai-service` (Python)
+
+**Phạm vi:**
+
+* Parse LaTeX
+* Render thử (KaTeX / MathJax)
+* Phát hiện:
+
+  * Công thức không render
+  * Cú pháp sai
+  * Lệnh LaTeX không hợp lệ
+
+**Kết quả:**
+
+* Báo:
+
+  * Render OK / NOT OK
+  * Danh sách lỗi
+
+⚠️ **KHÔNG ghi DB**
+⚠️ **KHÔNG đổi status**
+⚠️ **KHÔNG thay đổi nội dung**
+
+---
+
+### 8.4. LaTeX Fixing Tool (AI SERVICE)
+
+**Mục tiêu:**
+Sửa lỗi format LaTeX, KHÔNG sửa nội dung toán học
+
+**Điều kiện BẮT BUỘC:**
+
+* Input = Exercise đã tồn tại
+* Output = Exercise mới (chưa ghi DB)
+* Sau fix:
+
+  * BẮT BUỘC qua lại Tầng 1 validation
+* Ghi audit:
+
+  * Fix bởi AI
+  * Thời điểm
+  * Trước / sau
+
+**KHÔNG ĐƯỢC:**
+
+* Thay đổi số liệu
+* Thay đổi logic toán
+* Tối ưu lời giải
+
+---
+
+### 8.5. Frontend LaTeX Handling (NẾU CÓ)
+
+Frontend chỉ được phép:
+
+* Preview
+* Highlight lỗi
+* Escape ký tự cơ bản
+
+Frontend **KHÔNG được:**
+
+* Rewrite LaTeX
+* Save trực tiếp
+* Bypass backend validation
+
+---
+
+## 9. PERSISTENCE RULES
+
+* Exercise:
+
+  * status = DRAFT
+  * created_by = AI | ADMIN
+* Không auto APPROVE
+* Không gắn Student
+* Không tạo Practice
+
+---
+
+## 10. SYSTEM LAW GUARANTEES
+
+C3 PHẢI đảm bảo:
+
+* AI không ghi DB trực tiếp
+* AI không quyết định status
+* LaTeX fix ≠ approve
+* Exercise không tham gia learning domain
+* Không ảnh hưởng ChapterProgress
+
+Nếu code mâu thuẫn → **CODE SAI, KHÔNG SỬA LUẬT**
+
+---
+
+## 11. POSTCONDITIONS
+
+Sau khi C3 thành công:
+
+* Exercise tồn tại trong DB
+* Ở trạng thái DRAFT
+* LaTeX không vi phạm chuẩn hệ thống
+* Sẵn sàng cho ADMIN review / approve
+* Runtime học tập không bị ảnh hưởng
+
+---
+
+## 12. GHI CHÚ CHO DEV (RẤT QUAN TRỌNG)
+
+* C3 là **đắp vá có chủ đích**
+* Không reuse learning service
+* Không “gom flow cho tiện”
+* Nếu thấy cần “tối ưu”:
+  → DỪNG – đang đi sai Phase 1
 
 ---
 
