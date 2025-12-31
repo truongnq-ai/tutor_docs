@@ -72,6 +72,7 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 17 | core-service | B1 | PUT | `/api/v1/admin/skills/{id}` | Admin Dashboard | Cập nhật Skill | Yes | 200, 404, 403 | Code không được sửa |
 | 18 | core-service | B1 | GET | `/api/v1/admin/skills` | Admin Dashboard | Lấy danh sách tất cả Skill | No | 200, 403 | Requires ADMIN role |
 | 19 | core-service | B1 | GET | `/api/v1/admin/skills/{id}` | Admin Dashboard | Lấy chi tiết Skill | No | 200, 404, 403 | Requires ADMIN role |
+| 59 | core-service | B1 | GET | `/api/v1/admin/skills/by-chapter/{chapterId}` | Admin Dashboard | Lấy danh sách kỹ năng của một chapter | No | 200, 404, 403 | Requires ADMIN role |
 | 20 | core-service | B1 | POST | `/api/v1/admin/skills/{skillId}/prerequisites` | Admin Dashboard | Thêm Skill Prerequisite | Yes | 200, 400, 404, 403 | Requires ADMIN role |
 | 21 | core-service | B1 | DELETE | `/api/v1/admin/skills/{skillId}/prerequisites/{prerequisiteSkillId}` | Admin Dashboard | Xóa Skill Prerequisite | Yes | 200, 404, 403 | Requires ADMIN role |
 | 56 | core-service | B1 | GET | `/api/v1/admin/skills/{skillId}/prerequisites` | Admin Dashboard | Lấy danh sách kỹ năng tiên quyết của Skill với đầy đủ thông tin | No | 200, 404, 403 | Requires ADMIN role |
@@ -87,6 +88,7 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 30 | core-service | B2 | POST | `/api/v1/admin/exercises/{exerciseId}/review` | Admin Dashboard | Tạo ExerciseReviewLog | Yes | 200, 400, 404, 403 | Reviewer ID từ token |
 | 31 | core-service | C3 | POST | `/api/v1/admin/exercises/ai-generate` | Admin Dashboard | Generate Exercise từ AI | Yes | 200, 400, 403, 500 | Status = DRAFT, created_by = AI |
 | 32 | core-service | C3 | POST | `/api/v1/admin/exercises/import-json` | Admin Dashboard | Import Exercise từ JSON | Yes | 200, 400, 403 | Status = DRAFT, created_by = ADMIN |
+| 58 | core-service | C3 | POST | `/api/v1/admin/exercises/generate-prompt` | Admin Dashboard | Generate prompt template cho AI exercise generation | No | 200, 400, 403, 404 | Lookup Chapter/Skill để lấy names, descriptions, prerequisites |
 | 33 | core-service | C1 | POST | `/api/v1/students/me/chapters/{chapterId}/start` | Student App | Bắt đầu học Chapter (LOCKED → IN_PROGRESS) | Yes | 200, 400, 403, 404, 409 | Requires STUDENT role, student ACTIVE, ChapterProgress phải đã được assign bởi Admin |
 | 34 | core-service | C1 | GET | `/api/v1/students/me/chapters/{chapterId}/progress` | Student App | Lấy tiến độ Chapter | No | 200, 404, 403 | Requires STUDENT role |
 | 35 | core-service | C1 | GET | `/api/v1/students/me/chapters/progress` | Student App | Lấy tất cả tiến độ Chapter | No | 200, 403 | Requires STUDENT role |
@@ -318,6 +320,21 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
   - Sử dụng để hiển thị dropdown khi thêm prerequisite vào skill
   - Sau khi xóa prerequisite khỏi skill, skill đó sẽ xuất hiện lại trong danh sách này
 
+#### 59. GET `/api/v1/admin/skills/by-chapter/{chapterId}`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `chapterId` (UUID)
+- **Response DTO:** `ResponseObject<List<SkillResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: Chapter not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Trả về danh sách tất cả skills của một chapter (trả về `List<SkillResponse>`)
+  - Khác với API `GET /api/v1/admin/chapters/{chapterId}/skills` (trả về `List<ChapterSkillDetailResponse>` có thêm `skillType`)
+  - Sử dụng để load skills trong dropdown khi chọn chapter (ví dụ: trong Exercise Generate Modal)
+  - Skills được sắp xếp theo thứ tự trong database, frontend có thể sort thêm nếu cần
+
 ---
 
 ### B2 – Exercise Domain
@@ -363,14 +380,18 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
   - 200: Thành công
   - 400: JSON validation failed (C3_001) hoặc LaTeX validation failed (C3_002)
   - 403: Không có quyền ADMIN
+  - 404: Chapter hoặc Skill not found
   - 500: AI Service error (C3_003) hoặc Ingestion error (C3_004)
 - **Flow:**
-  1. Load & render prompt template
-  2. Call AI Service
-  3. Validate JSON schema (Tier 1)
-  4. Validate LaTeX Guard (Tier 1)
-  5. Ingest Exercise
-- **Ghi chú:** Exercise lưu ở DRAFT, không auto approve
+  1. Lookup Chapter và Skill by code để lấy names, descriptions, prerequisites
+  2. Load & render prompt template với đầy đủ thông tin
+  3. Call AI Service
+  4. Validate JSON schema (Tier 1)
+  5. Validate LaTeX Guard (Tier 1)
+  6. Ingest Exercise
+- **Ghi chú:** 
+  - Exercise lưu ở DRAFT, không auto approve
+  - Sử dụng full Chapter/Skill lookup (không dùng placeholders)
 
 #### 31. POST `/api/v1/admin/exercises/import-json`
 - **Caller:** Admin Dashboard
@@ -382,9 +403,32 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
   - 400: JSON validation failed (C3_001) hoặc LaTeX validation failed (C3_002) hoặc Ingestion error (C3_004)
   - 403: Không có quyền ADMIN
 - **Flow:**
-  1. Validate JSON schema
+  1. Validate JSON schema (bao gồm chapterCode, skillCode, difficultyLevel ở root level)
   2. Validate LaTeX Guard (Tier 1)
   3. Ingest Exercise
+- **Ghi chú:** 
+  - JSON phải chứa `chapterCode`, `skillCode`, `difficultyLevel` ở root level
+  - JSON structure: `{"chapterCode": "...", "skillCode": "...", "difficultyLevel": 3, "exercises": [...]}`
+
+#### 58. POST `/api/v1/admin/exercises/generate-prompt`
+- **Caller:** Admin Dashboard
+- **Request DTO:** `GeneratePromptRequest` (chapterCode, skillCode, difficultyLevel)
+- **Response DTO:** `GeneratePromptResponse` (prompt)
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 400: Validation error hoặc Prompt template not found (C3_005)
+  - 403: Không có quyền ADMIN
+  - 404: Chapter hoặc Skill not found
+- **Flow:**
+  1. Lookup Chapter by code → get name
+  2. Lookup Skill by code → get name, description
+  3. Lookup Skill prerequisites → format as comma-separated skill names
+  4. Render prompt template `generate_exercise_v1.txt` với đầy đủ variables
+  5. Return prompt string
+- **Ghi chú:** 
+  - Dùng để generate prompt cho "Copy Prompt" feature trong AI Generation modal
+  - Prompt được render với đầy đủ thông tin Chapter/Skill (không dùng placeholders)
 
 ---
 
@@ -743,8 +787,8 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 
 ## KẾT LUẬN
 
-Tài liệu này đã liệt kê **57 API endpoints** đã tồn tại trong codebase Phase 1:
-- **46 API** từ tutor-core-service
+Tài liệu này đã liệt kê **59 API endpoints** đã tồn tại trong codebase Phase 1:
+- **47 API** từ tutor-core-service
 - **9 API** từ tutor-ai-service
 
 **Tổng kết:**
