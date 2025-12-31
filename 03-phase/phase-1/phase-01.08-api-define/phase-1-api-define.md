@@ -64,6 +64,8 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 11 | core-service | B1 | PUT | `/api/v1/admin/chapters/{id}` | Admin Dashboard | Cập nhật Chapter | Yes | 200, 404, 403 | Code không được sửa |
 | 12 | core-service | B1 | GET | `/api/v1/admin/chapters` | Admin Dashboard | Lấy danh sách tất cả Chapter | No | 200, 403 | Requires ADMIN role |
 | 13 | core-service | B1 | GET | `/api/v1/admin/chapters/{id}` | Admin Dashboard | Lấy chi tiết Chapter | No | 200, 404, 403 | Requires ADMIN role |
+| 54 | core-service | B1 | GET | `/api/v1/admin/chapters/{chapterId}/skills` | Admin Dashboard | Lấy danh sách kỹ năng của Chapter với đầy đủ thông tin | No | 200, 404, 403 | Requires ADMIN role |
+| 55 | core-service | B1 | GET | `/api/v1/admin/chapters/{chapterId}/available-skills` | Admin Dashboard | Lấy danh sách kỹ năng chưa có trong Chapter | No | 200, 404, 403 | Requires ADMIN role |
 | 14 | core-service | B1 | POST | `/api/v1/admin/chapters/{chapterId}/skills` | Admin Dashboard | Gán Skill vào Chapter | Yes | 200, 400, 404, 403 | Requires ADMIN role, skill_type: REQUIRED/OPTIONAL |
 | 15 | core-service | B1 | DELETE | `/api/v1/admin/chapters/{chapterId}/skills/{skillId}` | Admin Dashboard | Xóa Skill khỏi Chapter | Yes | 200, 404, 403 | Requires ADMIN role |
 | 16 | core-service | B1 | POST | `/api/v1/admin/skills` | Admin Dashboard | Tạo Skill mới | Yes | 200, 400, 403 | Requires ADMIN role |
@@ -72,9 +74,11 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 19 | core-service | B1 | GET | `/api/v1/admin/skills/{id}` | Admin Dashboard | Lấy chi tiết Skill | No | 200, 404, 403 | Requires ADMIN role |
 | 20 | core-service | B1 | POST | `/api/v1/admin/skills/{skillId}/prerequisites` | Admin Dashboard | Thêm Skill Prerequisite | Yes | 200, 400, 404, 403 | Requires ADMIN role |
 | 21 | core-service | B1 | DELETE | `/api/v1/admin/skills/{skillId}/prerequisites/{prerequisiteSkillId}` | Admin Dashboard | Xóa Skill Prerequisite | Yes | 200, 404, 403 | Requires ADMIN role |
+| 56 | core-service | B1 | GET | `/api/v1/admin/skills/{skillId}/prerequisites` | Admin Dashboard | Lấy danh sách kỹ năng tiên quyết của Skill với đầy đủ thông tin | No | 200, 404, 403 | Requires ADMIN role |
+| 57 | core-service | B1 | GET | `/api/v1/admin/skills/{skillId}/available-prerequisites` | Admin Dashboard | Lấy danh sách kỹ năng có thể thêm làm tiên quyết (cùng chương, chưa có trong prerequisites, loại trừ chính nó) | No | 200, 404, 403 | Requires ADMIN role |
 | 22 | core-service | B2 | POST | `/api/v1/admin/exercises` | Admin Dashboard | Tạo Exercise mới | Yes | 200, 400, 403 | Requires ADMIN role |
 | 23 | core-service | B2 | PUT | `/api/v1/admin/exercises/{id}` | Admin Dashboard | Cập nhật Exercise | Yes | 200, 404, 403 | Requires ADMIN role |
-| 24 | core-service | B2 | GET | `/api/v1/admin/exercises` | Admin Dashboard | Lấy danh sách Exercise (có filter) | No | 200, 403 | Query: chapterId?, skillId?, status?, difficulty?, createdBy? |
+| 24 | core-service | B2 | GET | `/api/v1/admin/exercises` | Admin Dashboard | Lấy danh sách Exercise (có filter và pagination) | No | 200, 403 | Query: chapterId?, skillId?, status? (ExerciseStatus), difficulty?, createdBy?, page? (default 0), size? (default 10). Response: PageResponse<ExerciseResponse> với fields: chapterName, skillName, grade, problemText |
 | 25 | core-service | B2 | GET | `/api/v1/admin/exercises/{id}` | Admin Dashboard | Lấy chi tiết Exercise | No | 200, 404, 403 | Requires ADMIN role |
 | 26 | core-service | B2 | POST | `/api/v1/admin/exercises/{exerciseId}/solutions` | Admin Dashboard | Tạo ExerciseSolution | Yes | 200, 400, 404, 403 | Requires ADMIN role |
 | 27 | core-service | B2 | GET | `/api/v1/admin/exercises/{exerciseId}/solutions` | Admin Dashboard | Lấy danh sách Solution của Exercise | No | 200, 404, 403 | Requires ADMIN role |
@@ -101,6 +105,9 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 48 | ai-service | AI Tooling | POST | `/internal/ai/score-practice` | Core Service | Score practice submission | No | 200, 503, 500 | Error codes: 4001-4004, 5001 |
 | 49 | ai-service | AI Tooling | GET | `/health` | Core Service | Health check | No | 200 | Không yêu cầu auth |
 | 50 | ai-service | AI Tooling | GET | `/` | Core Service | Root endpoint | No | 200 | Không yêu cầu auth |
+| 51 | core-service | A1 | GET | `/api/v1/admin/users` | Admin Dashboard | Lấy danh sách users với pagination và filter | No | 200, 403 | Query: role?, page?, size? |
+| 52 | core-service | A1 | GET | `/api/v1/admin/users/{id}` | Admin Dashboard | Lấy chi tiết user | No | 200, 404, 403 | Requires ADMIN role |
+| 53 | core-service | A1 | PUT | `/api/v1/auth/users/{id}` | Admin/Parent/Student Dashboard | User tự cập nhật thông tin (name) | Yes | 200, 400, 404, 403 | User chỉ có thể update chính mình |
 
 ---
 
@@ -158,6 +165,45 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
   - 403: Không có quyền ADMIN
 - **Ghi chú:** Trả plaintext password 1 lần duy nhất, không gửi email
 
+#### 51. GET `/api/v1/admin/users`
+- **Caller:** Admin Dashboard
+- **Request:** Query params: `role?` (Role enum: ADMIN, PARENT, STUDENT), `page?` (int, default 0), `size?` (int, default 10)
+- **Response DTO:** `ResponseObject<PageResponse<UserResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 403: Không có quyền ADMIN
+- **Ghi chú:** 
+  - Pagination: page (0-indexed), size (default 10)
+  - Filter theo role nếu có
+  - Response bao gồm: content (List<UserResponse>), totalElements, totalPages, page, pageSize
+
+#### 52. GET `/api/v1/admin/users/{id}`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `id` (UUID)
+- **Response DTO:** `ResponseObject<UserResponse>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: User not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:** UserResponse bao gồm: id, username, name, role, createdAt
+
+#### 53. PUT `/api/v1/auth/users/{id}`
+- **Caller:** Admin Dashboard, Parent Dashboard, Student App
+- **Request DTO:** `UpdateUserRequest` (name)
+- **Response DTO:** `ResponseObject<UserResponse>`
+- **State Change:** Update user.name
+- **Error Codes:**
+  - 200: Thành công
+  - 400: Invalid request hoặc user đang cố update user khác
+  - 404: User not found
+  - 403: Không có quyền (user chỉ có thể update chính mình)
+- **Ghi chú:** 
+  - User chỉ có thể update thông tin của chính mình (userId phải match với current user)
+  - Chỉ có thể update field `name`
+  - Requires authentication (ADMIN, PARENT, hoặc STUDENT role)
+
 ---
 
 ### A2 – Parent / Student Relation
@@ -197,12 +243,41 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 
 ### B1 – Chapter / Skill
 
-#### 9-14. Chapter APIs
+#### 9-14, 54. Chapter APIs
 - **Caller:** Admin Dashboard
 - **Authority:** ADMIN duy nhất
 - **State Change:** CRUD Chapter, gán Skill vào Chapter
 - **Error Codes:** 200, 400, 404, 403
 - **Ghi chú:** Chapter là content asset, không gắn với student
+
+#### 54. GET `/api/v1/admin/chapters/{chapterId}/skills`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `chapterId` (UUID)
+- **Response DTO:** `ResponseObject<List<ChapterSkillDetailResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: Chapter not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Trả về danh sách kỹ năng của chapter với đầy đủ thông tin skill (code, name, description, skillType)
+  - Frontend không cần gọi thêm API để lấy thông tin skill
+  - `ChapterSkillDetailResponse` bao gồm: `skillId`, `skillCode`, `skillName`, `skillDescription`, `skillType`
+
+#### 55. GET `/api/v1/admin/chapters/{chapterId}/available-skills`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `chapterId` (UUID)
+- **Response DTO:** `ResponseObject<List<SkillResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: Chapter not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Trả về danh sách kỹ năng chưa có trong chapter (có thể thêm vào chapter)
+  - Backend filter skills dựa trên chapter_skill mapping
+  - Sử dụng để hiển thị dropdown khi thêm skill vào chapter
+  - Sau khi xóa skill khỏi chapter, skill đó sẽ xuất hiện lại trong danh sách này
 
 #### 15-20. Skill APIs
 - **Caller:** Admin Dashboard
@@ -210,6 +285,38 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 - **State Change:** CRUD Skill, quản lý Prerequisite
 - **Error Codes:** 200, 400, 404, 403
 - **Ghi chú:** Skill là content asset, không có mastery trong B1
+
+#### 56. GET `/api/v1/admin/skills/{skillId}/prerequisites`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `skillId` (UUID)
+- **Response DTO:** `ResponseObject<List<SkillPrerequisiteDetailResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: Skill not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Trả về danh sách kỹ năng tiên quyết của skill với đầy đủ thông tin prerequisite skill (code, name, description)
+  - Frontend không cần gọi thêm API để lấy thông tin prerequisite skill
+  - `SkillPrerequisiteDetailResponse` bao gồm: `skillId`, `skillCode`, `skillName`, `skillDescription`
+
+#### 57. GET `/api/v1/admin/skills/{skillId}/available-prerequisites`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `skillId` (UUID)
+- **Response DTO:** `ResponseObject<List<SkillResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 404: Skill not found
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Trả về danh sách kỹ năng có thể thêm làm tiên quyết (trong cùng chương với skill, chưa có trong prerequisites, loại trừ chính skill đó)
+  - Backend filter skills dựa trên:
+    1. Cùng chương với skill (từ `chapter_skill` table)
+    2. Chưa có trong danh sách prerequisites hiện tại
+    3. Loại trừ chính skill đó (không thể tự tham chiếu)
+  - Sử dụng để hiển thị dropdown khi thêm prerequisite vào skill
+  - Sau khi xóa prerequisite khỏi skill, skill đó sẽ xuất hiện lại trong danh sách này
 
 ---
 
@@ -221,6 +328,27 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 - **State Change:** CRUD Exercise, Solution, Tag, ReviewLog
 - **Error Codes:** 200, 400, 404, 403
 - **Ghi chú:** Exercise là content asset, không gắn với Practice runtime
+
+#### 24. GET `/api/v1/admin/exercises`
+- **Caller:** Admin Dashboard
+- **Request:** Query params: 
+  - `chapterId?` (UUID) - Filter by chapter
+  - `skillId?` (UUID) - Filter by skill
+  - `status?` (ExerciseStatus: DRAFT, REVIEWED, APPROVED) - Filter by status
+  - `difficulty?` (Integer 1-5) - Filter by difficulty level
+  - `createdBy?` (ExerciseCreatedBy) - Filter by creator
+  - `page?` (int, default 0) - Page number (0-indexed)
+  - `size?` (int, default 10) - Page size
+- **Response DTO:** `ResponseObject<PageResponse<ExerciseResponse>>`
+- **State Change:** No
+- **Error Codes:**
+  - 200: Thành công
+  - 403: Không có quyền ADMIN
+- **Ghi chú:**
+  - Response includes pagination: `PageResponse` with `content` (List<ExerciseResponse>), `totalElements`, `totalPages`, `page`, `pageSize`
+  - `ExerciseResponse` includes additional fields: `chapterName` (String), `skillName` (String), `grade` (Integer), `problemText` (String, alias for `contentText`)
+  - Backend fetches Chapter and Skill entities to populate names
+  - Status filter supports: DRAFT, REVIEWED, APPROVED (separate options)
 
 ---
 
@@ -559,9 +687,9 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 ### 1. Các domain đã đủ API hay chưa?
 
 #### ✅ Đủ API:
-- **A1 (Auth & Identity):** Đủ 5 API (login, refresh, logout, create user, reset password)
+- **A1 (Auth & Identity):** Đủ 8 API (login, refresh, logout, create user, reset password, list users, get user detail, update user)
 - **A2 (Parent/Student Relation):** Đủ 3 API (link, unlink, list)
-- **B1 (Chapter/Skill):** Đủ 12 API (CRUD Chapter, CRUD Skill, gán Skill vào Chapter, Prerequisite)
+- **B1 (Chapter/Skill):** Đủ 14 API (CRUD Chapter, CRUD Skill, gán Skill vào Chapter, Prerequisite - add, remove, get list, get available)
 - **B2 (Exercise):** Đủ 9 API (CRUD Exercise, Solution, Tag, Review)
 - **C3 (Content Ingestion):** Đủ 2 API (AI generate, import JSON)
 - **C1 (ChapterProgress):** Đủ 6 API (assign chapter - Admin, start chapter - Student, get progress - student & parent)
@@ -615,14 +743,17 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 
 ## KẾT LUẬN
 
-Tài liệu này đã liệt kê **50 API endpoints** đã tồn tại trong codebase Phase 1:
-- **41 API** từ tutor-core-service
+Tài liệu này đã liệt kê **57 API endpoints** đã tồn tại trong codebase Phase 1:
+- **46 API** từ tutor-core-service
 - **9 API** từ tutor-ai-service
 
 **Tổng kết:**
 - ✅ Tất cả domain đã có đủ API
 - ✅ Đã implement API Admin assign chapter (C1)
 - ✅ Đã sửa logic startChapter() để tuân thủ System Law
+- ✅ Đã bổ sung API list users, get user detail, update user (A1)
+- ✅ Đã bổ sung API get chapter skills và available skills (B1)
+- ✅ Đã bổ sung API get skill prerequisites và available prerequisites (B1)
 - ✅ Không có API trùng chức năng
 - ✅ Không có API vi phạm boundary nghiêm trọng
 - ✅ Không có API vượt Phase 1 scope
@@ -630,7 +761,8 @@ Tài liệu này đã liệt kê **50 API endpoints** đã tồn tại trong cod
 **Khuyến nghị:**
 1. ✅ Đã implement API Admin assign chapter
 2. ✅ Đã sửa startChapter() để không tự tạo ChapterProgress
-3. Đảm bảo tất cả error response có errorCode và errorDetail đầy đủ
+3. ✅ Đã bổ sung API quản lý prerequisites cho skill
+4. Đảm bảo tất cả error response có errorCode và errorDetail đầy đủ
 
 ---
 
