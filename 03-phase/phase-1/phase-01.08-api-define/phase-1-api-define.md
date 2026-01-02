@@ -81,14 +81,17 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 | 23 | core-service | B2 | PUT | `/api/v1/admin/exercises/{id}` | Admin Dashboard | Cập nhật Exercise | Yes | 200, 404, 403 | Requires ADMIN role |
 | 24 | core-service | B2 | GET | `/api/v1/admin/exercises` | Admin Dashboard | Lấy danh sách Exercise (có filter và pagination) | No | 200, 403 | Query: chapterId?, skillId?, status? (ExerciseStatus), difficulty?, createdBy?, page? (default 0), size? (default 10). Response: PageResponse<ExerciseResponse> với fields: chapterName, skillName, grade, problemText |
 | 25 | core-service | B2 | GET | `/api/v1/admin/exercises/{id}` | Admin Dashboard | Lấy chi tiết Exercise | No | 200, 404, 403 | Requires ADMIN role |
+| 25a | core-service | B2 | DELETE | `/api/v1/admin/exercises/{id}` | Admin Dashboard | Xóa Exercise và dữ liệu liên quan (solutions, review logs). Chỉ cho phép xóa DRAFT hoặc REVIEWED | Yes | 200, 400, 404, 403 | Requires ADMIN role. Không xóa exercise_tag. Xóa vĩnh viễn (hard delete) |
 | 26 | core-service | B2 | POST | `/api/v1/admin/exercises/{exerciseId}/solutions` | Admin Dashboard | Tạo ExerciseSolution | Yes | 200, 400, 404, 403 | Requires ADMIN role |
 | 27 | core-service | B2 | GET | `/api/v1/admin/exercises/{exerciseId}/solutions` | Admin Dashboard | Lấy danh sách Solution của Exercise | No | 200, 404, 403 | Requires ADMIN role |
 | 28 | core-service | B2 | POST | `/api/v1/admin/exercises/{exerciseId}/tags` | Admin Dashboard | Tạo ExerciseTag | Yes | 200, 400, 404, 403 | Requires ADMIN role |
 | 29 | core-service | B2 | DELETE | `/api/v1/admin/exercises/{exerciseId}/tags/{tagId}` | Admin Dashboard | Xóa ExerciseTag | Yes | 200, 404, 403 | Requires ADMIN role |
 | 30 | core-service | B2 | POST | `/api/v1/admin/exercises/{exerciseId}/review` | Admin Dashboard | Tạo ExerciseReviewLog | Yes | 200, 400, 404, 403 | Reviewer ID từ token |
 | 31 | core-service | C3 | POST | `/api/v1/admin/exercises/ai-generate` | Admin Dashboard | Generate Exercise từ AI | Yes | 200, 400, 403, 500 | Status = DRAFT, created_by = AI |
-| 32 | core-service | C3 | POST | `/api/v1/admin/exercises/import-json` | Admin Dashboard | Import Exercise từ JSON | Yes | 200, 400, 403 | Status = DRAFT, created_by = ADMIN |
+| 32 | core-service | C3 | POST | `/api/v1/admin/exercises/import-json` | Admin Dashboard | Import Exercise từ JSON | Yes | 200, 400, 403 | Status = DRAFT, created_by = ADMIN. Backend sẽ tự động fix JSON nếu invalid và normalize LaTeX |
 | 58 | core-service | C3 | POST | `/api/v1/admin/exercises/generate-prompt` | Admin Dashboard | Generate prompt template cho AI exercise generation | No | 200, 400, 403, 404 | Lookup Chapter/Skill để lấy names, descriptions, prerequisites |
+| 60 | core-service | C3 | POST | `/api/v1/admin/exercises/check-json` | Admin Dashboard | Check exercise JSON structure và LaTeX (JSON, LaTeX Basic, LaTeX Advanced) với error codes | No | 200, 400, 403 | Requires ADMIN role. Trả về nested structure với json, latexBasic, latexAdvanced |
+| 61 | core-service | C3 | POST | `/api/v1/admin/exercises/fix-json` | Admin Dashboard | Fix exercise JSON và LaTeX errors dựa trên error codes | No | 200, 400, 403 | Requires ADMIN role. Fix JSON syntax, LaTeX Basic, và gọi AI Service cho LaTeX Advanced |
 | 33 | core-service | C1 | POST | `/api/v1/students/me/chapters/{chapterId}/start` | Student App | Bắt đầu học Chapter (LOCKED → IN_PROGRESS) | Yes | 200, 400, 403, 404, 409 | Requires STUDENT role, student ACTIVE, ChapterProgress phải đã được assign bởi Admin |
 | 34 | core-service | C1 | GET | `/api/v1/students/me/chapters/{chapterId}/progress` | Student App | Lấy tiến độ Chapter | No | 200, 404, 403 | Requires STUDENT role |
 | 35 | core-service | C1 | GET | `/api/v1/students/me/chapters/progress` | Student App | Lấy tất cả tiến độ Chapter | No | 200, 403 | Requires STUDENT role |
@@ -366,6 +369,31 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
   - `ExerciseResponse` includes additional fields: `chapterName` (String), `skillName` (String), `grade` (Integer), `problemText` (String, alias for `contentText`)
   - Backend fetches Chapter and Skill entities to populate names
   - Status filter supports: DRAFT, REVIEWED, APPROVED (separate options)
+
+#### 25a. DELETE `/api/v1/admin/exercises/{id}`
+- **Caller:** Admin Dashboard
+- **Request:** Path variable `id` (UUID)
+- **Response DTO:** `ResponseObject<Void>`
+- **State Change:** 
+  - Xóa Exercise (hard delete)
+  - Xóa tất cả ExerciseSolution liên quan
+  - Xóa tất cả ExerciseReviewLog liên quan
+  - **KHÔNG xóa** ExerciseTag (giữ nguyên)
+- **Error Codes:**
+  - 200: Thành công
+  - 400: Không thể xóa bài tập APPROVED (chỉ cho phép xóa DRAFT hoặc REVIEWED)
+  - 404: Exercise not found
+  - 403: Không có quyền ADMIN
+- **Business Rules:**
+  1. Chỉ cho phép xóa bài tập có status = DRAFT hoặc REVIEWED
+  2. Nếu status = APPROVED → throw `CannotDeleteExerciseException` (400)
+  3. Xóa tất cả dữ liệu liên quan: solutions, review logs, common mistakes, hints (JSONB fields)
+  4. **KHÔNG xóa** exercise_tag (theo yêu cầu)
+  5. Hard delete (xóa vĩnh viễn, không có soft delete)
+- **Ghi chú:**
+  - Frontend chỉ hiển thị menu "Xóa" cho bài tập có status DRAFT hoặc REVIEWED
+  - Có confirmation dialog trước khi xóa
+  - Sau khi xóa thành công, refresh danh sách bài tập
 
 ---
 
@@ -734,8 +762,8 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 - **A1 (Auth & Identity):** Đủ 8 API (login, refresh, logout, create user, reset password, list users, get user detail, update user)
 - **A2 (Parent/Student Relation):** Đủ 3 API (link, unlink, list)
 - **B1 (Chapter/Skill):** Đủ 14 API (CRUD Chapter, CRUD Skill, gán Skill vào Chapter, Prerequisite - add, remove, get list, get available)
-- **B2 (Exercise):** Đủ 9 API (CRUD Exercise, Solution, Tag, Review)
-- **C3 (Content Ingestion):** Đủ 2 API (AI generate, import JSON)
+- **B2 (Exercise):** Đủ 10 API (CRUD Exercise, Solution, Tag, Review, Delete)
+- **C3 (Content Ingestion):** Đủ 4 API (AI generate, import JSON, check-json, fix-json)
 - **C1 (ChapterProgress):** Đủ 6 API (assign chapter - Admin, start chapter - Student, get progress - student & parent)
 - **C2 (Practice):** Đủ 4 API (create, submit, get detail, list)
 - **AI Tooling:** Đủ 9 API (OCR, solve, hint, generate-exercises, validate-latex, generate-exercise-content, score-practice, health, root)
@@ -787,8 +815,8 @@ Tài liệu này liệt kê **TẤT CẢ API ĐÃ TỒN TẠI** trong codebase P
 
 ## KẾT LUẬN
 
-Tài liệu này đã liệt kê **59 API endpoints** đã tồn tại trong codebase Phase 1:
-- **47 API** từ tutor-core-service
+Tài liệu này đã liệt kê **62 API endpoints** đã tồn tại trong codebase Phase 1:
+- **50 API** từ tutor-core-service
 - **9 API** từ tutor-ai-service
 
 **Tổng kết:**
@@ -798,6 +826,7 @@ Tài liệu này đã liệt kê **59 API endpoints** đã tồn tại trong cod
 - ✅ Đã bổ sung API list users, get user detail, update user (A1)
 - ✅ Đã bổ sung API get chapter skills và available skills (B1)
 - ✅ Đã bổ sung API get skill prerequisites và available prerequisites (B1)
+- ✅ Đã bổ sung API check-json và fix-json cho Content Ingestion (C3)
 - ✅ Không có API trùng chức năng
 - ✅ Không có API vi phạm boundary nghiêm trọng
 - ✅ Không có API vượt Phase 1 scope
@@ -806,7 +835,8 @@ Tài liệu này đã liệt kê **59 API endpoints** đã tồn tại trong cod
 1. ✅ Đã implement API Admin assign chapter
 2. ✅ Đã sửa startChapter() để không tự tạo ChapterProgress
 3. ✅ Đã bổ sung API quản lý prerequisites cho skill
-4. Đảm bảo tất cả error response có errorCode và errorDetail đầy đủ
+4. ✅ Đã bổ sung API check-json và fix-json với error codes chi tiết
+5. Đảm bảo tất cả error response có errorCode và errorDetail đầy đủ
 
 ---
 
