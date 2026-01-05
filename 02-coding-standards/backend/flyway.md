@@ -78,6 +78,29 @@ COMMENT ON TABLE chapter IS 'Danh mục chương học';
 COMMENT ON COLUMN chapter.code IS 'Mã chương unique';
 ```
 
+### Column Comments Requirement
+
+**Bắt buộc**: Tất cả columns phải có COMMENT khi:
+- CREATE TABLE: Mỗi column phải có `COMMENT ON COLUMN table.column`
+- ALTER TABLE ADD COLUMN: Column mới phải có comment ngay sau khi thêm
+
+**Format**: 
+```sql
+COMMENT ON COLUMN table_name.column_name IS 'Mô tả rõ nghĩa của column';
+```
+
+**Ví dụ**:
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    username VARCHAR(255) NOT NULL
+);
+
+COMMENT ON TABLE users IS 'User accounts for authentication';
+COMMENT ON COLUMN users.id IS 'UUID primary key';
+COMMENT ON COLUMN users.username IS 'Unique username for login';
+```
+
 ## Backward Compatibility Patterns
 
 ### Pattern 1: Add Column (Nullable)
