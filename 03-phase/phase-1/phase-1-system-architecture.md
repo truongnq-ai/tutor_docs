@@ -248,27 +248,300 @@ Teacher confirm
 
 ---
 
-### Flow C – Exercise Usage
+## Flow C – Exercise Usage
 
-**Gợi ý nhận xét:**
+### *(ExerciseSet + Assignment – Phase 1 FINAL)*
 
-```
-Teacher request
- → Frontend
-   → Core Backend
-     → AI Service
-     ← Suggested text
-   ← Display
+---
+
+## 0. MỤC ĐÍCH CỦA UPDATE NÀY
+
+Update này nhằm:
+
+* Đồng bộ **API Boundary** với:
+
+  * Domain Model mới (`ExerciseSet`)
+  * User Flow C (Assign ExerciseSet)
+  * UI-Spec Skeleton Flow C
+* Khóa tuyệt đối:
+
+  * Không còn API gán Exercise trực tiếp
+  * Không còn logic “đề thi” trá hình
+
+👉 **Mọi API không map được vào Flow C mới → KHÔNG ĐƯỢC TỒN TẠI**
+
+---
+
+## 1. NGUYÊN TẮC TOÀN CỤC (NON-NEGOTIABLE – GIỮ NGUYÊN)
+
+Áp dụng cho **toàn bộ API Flow C**:
+
+* Actor duy nhất: **Teacher**
+* Mọi API:
+
+  * Gắn với `teacher_id`
+  * Không có cross-teacher access
+* AI:
+
+  * Không ghi DB
+  * Không gọi API nghiệp vụ
+  * Không trigger flow
+* Không có:
+
+  * Auto-assign
+  * Auto-save
+  * Background logic
+  * Enforcement theo intent
+
+---
+
+## 2. API GROUP MỚI – EXERCISESET (PHASE 1)
+
+> Đây là **API quản lý “đề / bộ bài”**, không phải LMS.
+
+---
+
+### 2.1 ExerciseSet CRUD APIs
+
+**ĐƯỢC PHÉP TỒN TẠI:**
+
+| API                          | Mục đích              | Ghi chú             |
+| ---------------------------- | --------------------- | ------------------- |
+| `POST /exercise-sets`        | Tạo ExerciseSet       | Teacher-owned       |
+| `GET /exercise-sets`         | Danh sách ExerciseSet | Chỉ của teacher     |
+| `GET /exercise-sets/{id}`    | Chi tiết ExerciseSet  | Ownership check     |
+| `PUT /exercise-sets/{id}`    | Sửa metadata          | Không đổi ownership |
+| `DELETE /exercise-sets/{id}` | Xóa ExerciseSet       | Không cascade ngầm  |
+
+---
+
+### 2.2 ExerciseSet – Exercise Mapping APIs
+
+**ĐƯỢC PHÉP:**
+
+| API                                                 | Mục đích              |
+| --------------------------------------------------- | --------------------- |
+| `POST /exercise-sets/{id}/exercises`                | Thêm Exercise vào Set |
+| `DELETE /exercise-sets/{id}/exercises/{exerciseId}` | Gỡ Exercise khỏi Set  |
+
+**LUẬT CỨNG:**
+
+* Exercise:
+
+  * Phải thuộc teacher hiện tại
+  * Phải ở trạng thái `APPROVED`
+* Không có:
+
+  * Auto-order logic
+  * Auto-balance
+  * Auto-suggest
+
+---
+
+### 2.3 Field Rules (IMPORTANT)
+
+* `intent`:
+
+  * Chỉ lưu giá trị mô tả
+  * API **KHÔNG**:
+
+    * Validate theo intent
+    * Trigger behavior theo intent
+* Không tồn tại:
+
+  * `/exercise-sets/publish`
+  * `/exercise-sets/share`
+  * `/exercise-sets/public`
+
+👉 “Public / private” **không phải hành vi API**,
+chỉ là **quy ước sao chép ở Phase sau**.
+
+---
+
+## 3. UPDATE API GROUP – ASSIGNMENT (FLOW C CORE)
+
+---
+
+### 3.1 Assignment Creation API (UPDATED)
+
+**ĐƯỢC PHÉP TỒN TẠI:**
+
+| API                     | Mục đích                  |
+| ----------------------- | ------------------------- |
+| `POST /assignments`     | Gán ExerciseSet cho Class |
+| `GET /assignments/{id}` | Xem Assignment            |
+
+---
+
+### 3.2 Payload Rule – `POST /assignments`
+
+```json
+{
+  "class_id": "...",
+  "exercise_set_id": "..."
+}
 ```
 
-**Lưu kết quả / nhận xét:**
+**LUẬT BẮT BUỘC:**
 
+* `exercise_set_id`:
+
+  * Phải tồn tại
+  * Thuộc teacher hiện tại
+* KHÔNG nhận:
+
+  * `exercise_id`
+  * `intent`
+  * Rule kiểm tra / thi
+
+---
+
+### 3.3 Assignment API – LUẬT CỨNG
+
+* Assignment:
+
+  * Đại diện cho **1 lần giao đề**
+* Không có:
+
+  * Bulk assign
+  * Auto-assign
+  * Auto-trigger
+
+❌ CẤM TUYỆT ĐỐI:
+
+* `POST /assignments/by-exercise`
+* `POST /assignments/bulk`
+* `POST /assignments/with-rules`
+
+---
+
+## 4. RESULT & COMMENT APIs (GIỮ NGUYÊN, DIỄN GIẢI RÕ)
+
+---
+
+### 4.1 Result APIs
+
+**ĐƯỢC PHÉP:**
+
+| API                 | Mục đích    |
+| ------------------- | ----------- |
+| `POST /results`     | Lưu kết quả |
+| `PUT /results/{id}` | Sửa kết quả |
+
+**Payload logic (logical):**
+
+```json
+{
+  "assignment_id": "...",
+  "student_id": "...",
+  "exercise_id": "...",
+  "value": "..."
+}
 ```
-Teacher confirm
- → Frontend
-   → Core Backend
-     → DB
-```
+
+**LUẬT CỨNG:**
+
+* Result:
+
+  * Không aggregate
+  * Không compute
+  * Không compare
+
+---
+
+### 4.2 Comment APIs
+
+**ĐƯỢC PHÉP:**
+
+| API                  | Mục đích     |
+| -------------------- | ------------ |
+| `POST /comments`     | Lưu nhận xét |
+| `PUT /comments/{id}` | Sửa nhận xét |
+
+**LUẬT CỨNG:**
+
+* Comment:
+
+  * Teacher-owned
+  * AI chỉ gợi ý text
+* Không có:
+
+  * Auto-comment
+  * Multi-student apply
+
+---
+
+## 5. AI SUPPORT APIs (KHÔNG ĐỔI, NHẮC LẠI RANH GIỚI)
+
+---
+
+### 5.1 AI Comment Draft API
+
+**ĐƯỢC PHÉP:**
+
+| API                      | Mục đích               |
+| ------------------------ | ---------------------- |
+| `POST /ai/comment-draft` | Gợi ý câu chữ nhận xét |
+
+**LUẬT AI API:**
+
+* Input: tường minh
+* Output:
+
+  * Text only
+  * Không side effect
+* AI:
+
+  * Không gọi `/assignments`
+  * Không gọi `/results`
+  * Không gọi `/comments`
+
+---
+
+## 6. API BỊ CẤM TUYỆT ĐỐI (FLOW C)
+
+Bất kỳ API nào sau đây **KHÔNG ĐƯỢC TỒN TẠI**:
+
+* `/assignments/by-exercise`
+* `/exercise-sets/publish`
+* `/exercise-sets/share`
+* `/tests/*`
+* `/exam/*`
+* `/analytics/*`
+* `/summary/*`
+
+---
+
+## 7. MAPPING: API ↔ FLOW C
+
+| Flow Step    | API Group            |
+| ------------ | -------------------- |
+| Chọn đề      | `GET /exercise-sets` |
+| Gán đề       | `POST /assignments`  |
+| Nhập kết quả | `/results`           |
+| Nhận xét     | `/comments`          |
+| AI gợi ý     | `/ai/comment-draft`  |
+
+👉 **API nào không map được bảng này → FAIL PHASE 1**
+
+---
+
+## 8. CHECKLIST REVIEW API (PR GATE)
+
+* [ ] Assignment dùng `exercise_set_id`
+* [ ] Không còn API gán exercise trực tiếp
+* [ ] Không API enforce intent
+* [ ] Không analytics / summary
+* [ ] AI không ghi DB
+
+---
+
+### ✅ CHỐT API BOUNDARY – FLOW C (FINAL)
+
+* ExerciseSet là **đơn vị giao bài duy nhất**
+* Assignment là **sự kiện giao đề**
+* Result / Comment giữ nguyên vai trò
+* AI **chỉ gợi ý chữ**, không điều hành
 
 ---
 

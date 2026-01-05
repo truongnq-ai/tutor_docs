@@ -809,32 +809,37 @@ Flow B tồn tại để:
 
 ---
 
-## Flow C – Exercise Usage Flow
+## FLOW C – Exercise Usage Flow
 
-*(Gán bài – Ghi nhận kết quả – Nhận xét thủ công / AI gợi ý)*
+### *(Assign ExerciseSet – Ghi nhận kết quả – Nhận xét thủ công / AI gợi ý)*
 
 ---
 
-## 1. Mục đích của Flow C (Flow Intent)
+## 1. MỤC ĐÍCH CỦA FLOW C (FLOW INTENT)
 
-**Giá trị cốt lõi (Core Value):**
-👉 **Giúp giáo viên sử dụng bài tập trong thực tế dạy học và ghi nhận kết quả một cách gọn gàng, có kiểm soát**
+**Giá trị cốt lõi:**
 
-Flow C cho phép giáo viên:
+👉 **Hỗ trợ giáo viên sử dụng một “đề / bộ bài” trong thực tế dạy học,
+và ghi nhận kết quả – nhận xét một cách gọn gàng, có kiểm soát**
 
-* Gán bài tập đã soạn cho lớp
-* Ghi nhận kết quả làm bài
-* Viết nhận xét nhanh hơn (AI chỉ gợi ý)
+Flow C tồn tại để:
 
-Flow C **không nhằm**:
+* Cho phép giáo viên:
+
+  * Giao **một ExerciseSet** cho một lớp
+  * Ghi nhận kết quả làm bài theo từng học sinh
+  * Viết nhận xét nhanh hơn (AI chỉ gợi ý câu chữ)
+
+Flow C **KHÔNG nhằm**:
 
 * Đánh giá năng lực học sinh
-* Theo dõi tiến bộ
-* Tạo báo cáo, biểu đồ, insight
+* Tạo báo cáo / phân tích
+* Áp đặt quy trình kiểm tra – thi
+* Chuẩn hóa sư phạm
 
 ---
 
-## 2. Giả định & ràng buộc toàn cục (Hard Constraints)
+## 2. GIẢ ĐỊNH & RÀNG BUỘC TOÀN CỤC (HARD CONSTRAINTS)
 
 Flow C **bắt buộc tuân thủ**:
 
@@ -854,61 +859,84 @@ Flow C **bắt buộc tuân thủ**:
   * Chấm bài tự động
   * Phân tích kết quả
   * Tổng hợp tiến bộ
-  * Giao tiếp ngoài hệ thống
+  * Enforcement theo intent (TEST / PRACTICE / …)
 
-👉 Nếu Flow C có **analytics node** → sai Phase 1.
+👉 Nếu Flow C có **rule phụ thuộc intent**
+→ **VI PHẠM PHASE 1 LAW**
 
 ---
 
-## 3. Entry Condition (Điều kiện bắt đầu Flow)
+## 3. ENTRY CONDITION (ĐIỀU KIỆN BẮT ĐẦU FLOW)
 
 Flow C bắt đầu khi:
 
 * Giáo viên đã đăng nhập
 * Đã tồn tại:
 
-  * Ít nhất 1 lớp (Flow A)
-  * Ít nhất 1 bài tập ở trạng thái **`APPROVED`** (Flow B)
+  * Ít nhất **1 Class** (Flow A)
+  * Ít nhất **1 ExerciseSet** thuộc giáo viên hiện tại
 
-**Luật cứng:**
+    * ExerciseSet có thể chứa:
 
-* Bài `DRAFT` **không được phép** đi vào Flow C
+      * 1 Exercise
+      * hoặc nhiều Exercise
+
+**Lưu ý bắt buộc:**
+
+* Exercise **KHÔNG được gán trực tiếp**
+* Mọi việc giao bài **phải đi qua ExerciseSet**
 
 ---
 
-## 4. Main User Flow (Happy Path)
+## 4. MAIN USER FLOW (HAPPY PATH)
 
-### Bước C1 – Chọn lớp & bài tập
+### BƯỚC C1 – CHỌN LỚP & EXERCISESET
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
 * Chọn:
 
-  * 1 lớp
-  * 1 bài tập đã `APPROVED` (thuộc sở hữu của mình)
+  * 1 Class
+  * 1 ExerciseSet (đề / bộ bài)
 
-**Luật:**
+**Hiển thị thông tin ExerciseSet:**
 
-* Không hiển thị bài của giáo viên khác
-* Không hiển thị bài `DRAFT`
+* Title
+* Mô tả ngắn (nếu có)
+* Danh sách Exercise bên trong (read-only)
+
+**Luật hiển thị:**
+
+* Chỉ hiển thị ExerciseSet:
+
+  * Thuộc sở hữu của giáo viên
+  * Hoặc đã được copy vào workspace của giáo viên
+
+❌ Không hiển thị:
+
+* ExerciseSet của người khác (live object)
+* ExerciseSet chưa thuộc quyền sử dụng
 
 ---
 
-### Bước C2 – Gán bài tập cho lớp
+### BƯỚC C2 – GÁN EXERCISESET CHO LỚP
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
-* Chủ động bấm **“Gán bài”**
+* Chủ động bấm **“Gán đề / Gán bộ bài”**
 
-**Ý nghĩa gán bài:**
+**Ý nghĩa nghiệp vụ:**
 
-* Bài được sử dụng trong **ngữ cảnh lớp**
-* Không tạo bản sao bài tập
-* Không gửi thông báo
+* Tạo **1 Assignment**
+* Assignment đại diện cho:
 
-**Luật tuyệt đối:**
+  > “Lần giao đề này cho lớp này”
+
+**Luật nghiêm cấm:**
 
 * Không auto-assign
 * Không assign nền
@@ -916,70 +944,76 @@ Flow C bắt đầu khi:
 
 ---
 
-### Bước C3 – Ghi nhận kết quả làm bài
+### BƯỚC C3 – GHI NHẬN KẾT QUẢ LÀM BÀI
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
-* Với từng học sinh:
+* Với **mỗi học sinh trong lớp**
+* Với **mỗi Exercise trong ExerciseSet**:
 
-  * Nhập **điểm số** *hoặc*
-  * Chọn **Đạt / Không đạt**
+Giáo viên có thể:
 
-**Luật áp dụng:**
+* Nhập:
+
+  * Điểm số
+    **HOẶC**
+  * Đạt / Không đạt
+
+**Nguyên tắc cứng:**
 
 * Kết quả:
 
-  * Chỉ có giá trị trong **bài + lớp**
-  * Không dùng cho phân tích hệ thống
-
-**Luật cấm:**
-
-* Không tính trung bình
-* Không xếp hạng
-* Không gán nhãn năng lực
+  * Chỉ có giá trị trong **Assignment này**
+  * Không dùng để tổng hợp
+  * Không dùng để so sánh
 
 ---
 
-### Bước C4 – Ghi nhận nhận xét thủ công
+### BƯỚC C4 – GHI NHẬN NHẬN XÉT THỦ CÔNG
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
-* Nhập nhận xét tự do cho từng học sinh
+* Viết nhận xét cho từng học sinh
+* Nhận xét có thể:
+
+  * Gắn với toàn bộ ExerciseSet
+  * Hoặc gắn với từng Exercise cụ thể
 
 **Đặc điểm:**
 
+* Hoàn toàn thủ công
 * Không bắt buộc
 * Không có chuẩn hệ thống
-* Không bị xử lý tự động
 
 ---
 
-### Bước C5 – AI gợi ý nhận xét (TÙY CHỌN)
+### BƯỚC C5 – AI GỢI Ý NHẬN XÉT (TÙY CHỌN)
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
-* Chủ động yêu cầu AI:
-
-  * Gợi ý **nhận xét ngắn**
+* Chủ động yêu cầu AI gợi ý câu chữ
 
 **Input cho AI (tường minh):**
 
-* Kết quả bài
-* Nội dung bài tập
+* Nội dung Exercise
+* Kết quả đã nhập
 * Yêu cầu cụ thể của giáo viên
 
 **Vai trò AI:**
 
-* Chỉ sinh **gợi ý câu chữ**
-* Không đánh giá học sinh
+* Chỉ sinh **gợi ý ngôn từ**
+* Không đánh giá
 * Không kết luận sư phạm
 
 **Luật bắt buộc:**
 
-* Nhận xét AI:
+* AI output:
 
   * Luôn editable
   * Không auto-save
@@ -987,128 +1021,98 @@ Flow C bắt đầu khi:
 
 ---
 
-### Bước C6 – Lưu kết quả (Human-in-the-loop)
+### BƯỚC C6 – LƯU KẾT QUẢ (HUMAN-IN-THE-LOOP)
 
 **Actor:** Giáo viên
+
 **Hành động:**
 
 * Chủ động bấm **“Lưu”**
 
-**Ý nghĩa lưu:**
+**Ý nghĩa:**
 
 * Xác nhận dữ liệu cuối
 * AI **không liên quan** tới hành động này
 
 ---
 
-## 5. Optional Paths (Nhánh phụ hợp lệ)
+## 5. OPTIONAL PATHS (NHÁNH PHỤ HỢP LỆ)
 
-Flow C **cho phép**:
+Flow C **CHO PHÉP**:
 
-* Ghi kết quả **từng phần**
-* Lưu tạm (nếu cần UX), nhưng:
+* Ghi kết quả từng phần
+* Quay lại sửa nhận xét trước khi lưu
+* Giao ExerciseSet chỉ chứa 1 Exercise
 
-  * Không tạo insight
-  * Không trigger logic khác
-* Sửa nhận xét trước khi lưu
-
-Flow C **không cho phép**:
+Flow C **KHÔNG CHO PHÉP**:
 
 * Lưu tự động khi AI sinh
-* Lưu hàng loạt không kiểm soát
-* Áp dụng nhận xét AI cho nhiều học sinh cùng lúc
+* Áp dụng nhận xét AI cho nhiều học sinh
+* Enforce logic theo intent (TEST / PRACTICE)
 
 ---
 
-## 6. Exit Condition (Điều kiện kết thúc Flow)
+## 6. EXIT CONDITION (ĐIỀU KIỆN KẾT THÚC FLOW)
 
-Flow C được xem là **hoàn thành cho một bài tập** khi:
+Flow C được xem là **hoàn thành cho một Assignment** khi:
 
-* Bài đã được gán cho lớp
+* ExerciseSet đã được gán cho lớp
 * Giáo viên đã:
 
   * Ghi nhận kết quả
   * (Tùy chọn) ghi nhận nhận xét
 * Dữ liệu đã được **giáo viên xác nhận lưu**
 
-Flow C **có thể lặp lại** nhiều lần trong tuần.
+Flow C có thể lặp lại **nhiều lần trong tuần**.
 
 ---
 
-## 7. Dữ liệu được tạo ra (Data Outcome – Logical)
+## 7. DỮ LIỆU ĐƯỢC TẠO RA (LOGICAL OUTCOME)
 
-### Assignment / Usage Record (Phase 1)
+* Assignment (gắn với ExerciseSet)
+* Result:
 
-* `assignment_id`
-* `class_id`
-* `exercise_id`
-* `student_id`
-* `result` (score / pass-fail)
-* `comment` (optional)
+  * Theo từng học sinh
+  * Theo từng Exercise
+* Comment:
 
-Không tồn tại:
-
-* Progress
-* Trend
-* Aggregate metrics
+  * Teacher-controlled
+  * AI chỉ hỗ trợ câu chữ
 
 ---
 
-## 8. Forbidden Transitions (CẤM TUYỆT ĐỐI)
+## 8. FORBIDDEN TRANSITIONS (CẤM TUYỆT ĐỐI)
 
-Flow C **cấm**:
+Flow C **CẤM**:
 
-* `DRAFT` Exercise → Flow C
-* AI → Lưu dữ liệu
-* AI → Áp dụng nhận xét
-* Kết quả → Phân tích
-
-Cấm tuyệt đối:
-
-* “AI đánh giá học sinh”
-* “AI tổng hợp nhận xét”
-* “AI kết luận tiến bộ”
+* Gán Exercise trực tiếp cho Class
+* AI lưu dữ liệu
+* AI đánh giá học sinh
+* Hệ thống thay giáo viên quyết định
 
 ---
 
-## 9. Liên kết với các Flow khác
+## 9. GHI CHÚ KHÓA PHẠM VI (PM LOCK-IN NOTE)
 
-* Flow C:
+Flow C **cố tình không “thông minh”**.
 
-  * Phụ thuộc Flow A (Class)
-  * Phụ thuộc Flow B (`APPROVED`)
-* Flow D:
-
-  * Sử dụng lại dữ liệu Flow C
-  * **Không** phân tích dữ liệu Flow C
-
----
-
-## 10. Ghi chú khóa phạm vi (PM Lock-in Note)
-
-Flow C là **ranh giới cuối** trước khi TeachFlow biến thành LMS.
-
-> Chỉ cần thêm:
+> Nếu Flow C:
 >
-> * 1 biểu đồ
-> * 1 câu “nhận xét tổng hợp”
->   → Phase 1 coi như vỡ.
-
-Do đó:
-
-* Giữ Flow C **thủ công**
-* AI chỉ là **trợ lý viết chữ**
-* Mọi quyết định thuộc về giáo viên
+> * Có rule kiểm tra – thi
+> * Có giới hạn làm bài
+> * Có phân tích kết quả
+>   → Phase 1 coi như **vỡ**
 
 ---
 
-### ✅ CHỐT FLOW C
+### ✅ CHỐT FLOW C (FINAL)
 
 Flow C tồn tại để:
 
-* **Ghi nhận**, không phân tích
-* **Hỗ trợ**, không đánh giá
-* **Con người quyết định**, AI gợi ý
+* **Giao đề / bộ bài**
+* **Ghi nhận sự kiện dạy học**
+* **Không diễn giải dữ liệu**
+* **Giáo viên quyết định – AI hỗ trợ chữ nghĩa**
 
 ---
 

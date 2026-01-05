@@ -123,10 +123,13 @@ Tài liệu này tồn tại để:
 
 ---
 
+## **4. Exercise**
+
+```markdown
 ### 4. Exercise
 
 **Mục đích tồn tại:**
-👉 Là **công cụ dạy học**, không phải thực thể học tập
+👉 Là **đơn vị bài tập nhỏ nhất**, dùng để **xây dựng đề / bộ bài**
 
 **Logical Attributes:**
 
@@ -135,95 +138,156 @@ Tài liệu này tồn tại để:
 * `content`
 * `subject_id`
 * `topic_id`
-* `difficulty` (optional, teacher-selected)
+* `difficulty` (optional, teacher-declared)
 * `type` (optional, metadata)
 * `status` (`DRAFT` | `APPROVED`)
 
-**Luật nghiêm cấm:**
+**Đặc điểm quan trọng:**
 
-* Không có:
-
-  * Usage count
-  * Quality score
-  * Visibility scope
-* `APPROVED` ≠ public
+* Exercise **không bao giờ được giao trực tiếp cho lớp**
+* Exercise **không chạm tới học sinh**
+* Exercise **chỉ được sử dụng thông qua ExerciseSet**
 
 **Quan hệ:**
 
 * 1 Teacher → N Exercise
-* 1 Exercise → N Assignment (usage)
+* N Exercise → N ExerciseSet (thông qua quan hệ tập hợp)
+```
 
 ---
 
-### 5. Assignment (Exercise Usage Context)
+## **5. ExerciseSet (Assignment Unit / “Đề bài”)**  ← **ENTITY MỚI**
+
+```markdown
+### 5. ExerciseSet (Exercise Collection / “Đề bài”)
 
 **Mục đích tồn tại:**
-👉 Ghi nhận **việc sử dụng một bài tập trong một lớp**
+👉 Đại diện cho **một đơn vị giao bài có ý nghĩa thực tế**
+(ví dụ: đề ôn tập, đề luyện tập, đề kiểm tra, đề khảo sát…)
 
-**Bản chất:**
+ExerciseSet **không phải** bài tập đơn lẻ,
+mà là **tập hợp 1 hoặc nhiều Exercise** do giáo viên chủ động tạo.
 
-* Assignment **không phải bản sao Exercise**
-* Là **ngữ cảnh sử dụng**
+**Logical Attributes:**
+
+* `exercise_set_id`
+* `teacher_id` (owner)
+* `title`
+* `description` (optional)
+* `intent` (`PRACTICE` | `REVIEW` | `SURVEY` | `TEST`)
+* `note_for_teacher` (optional)
+
+**Nguyên tắc BẤT BIẾN:**
+
+* `intent` **chỉ mang tính mô tả**
+* `intent` **KHÔNG**:
+  * Enforce logic hệ thống
+  * Trigger rule
+  * Thay đổi hành vi Assignment
+* ExerciseSet **không có**:
+  * Giới hạn số lần làm
+  * Khóa xem kết quả
+  * Chấm điểm tổng
+  * Phân tích / đánh giá
+
+**Quan hệ:**
+
+* 1 Teacher → N ExerciseSet
+* 1 ExerciseSet → 1..N Exercise
+* 1 ExerciseSet → N Assignment
+```
+
+---
+
+## **6. Assignment (ExerciseSet Usage Context)** ← **ĐƯỢC SỬA**
+
+```markdown
+### 6. Assignment (ExerciseSet Usage Context)
+
+**Mục đích tồn tại:**
+👉 Ghi nhận **việc giáo viên giao một ExerciseSet cho một Class**
+
+Assignment đại diện cho:
+> “Lần giao đề này cho lớp này”
 
 **Logical Attributes:**
 
 * `assignment_id`
 * `class_id`
-* `exercise_id`
+* `exercise_set_id`
 * `assigned_at`
+
+**Đặc điểm quan trọng:**
+
+* Assignment **luôn gắn với ExerciseSet**
+* Trường hợp “giao 1 bài”:
+  * Vẫn tạo ExerciseSet chứa 1 Exercise
+* Assignment **không chứa rule sư phạm**
 
 **Quan hệ:**
 
 * 1 Class → N Assignment
-* 1 Exercise → N Assignment
-* Assignment là **điểm chạm duy nhất tới Student**
+* 1 ExerciseSet → N Assignment
+```
 
 ---
 
-### 6. Result (Per-Student, Per-Assignment)
+## **7. Result (Per-Student, Per-Exercise, Per-Assignment)** ← **DIỄN GIẢI RÕ HƠN**
+
+```markdown
+### 7. Result (Per-Student, Per-Exercise, Per-Assignment)
 
 **Mục đích tồn tại:**
-👉 Ghi nhận **kết quả làm bài**, không phân tích
+👉 Ghi nhận **kết quả làm bài của từng học sinh**
+trong **một Assignment cụ thể**
 
 **Logical Attributes:**
 
 * `result_id`
 * `assignment_id`
 * `student_id`
+* `exercise_id`
 * `value` (score hoặc pass/fail)
 
-**Luật cứng:**
+**Nguyên tắc:**
 
-* Result:
-
-  * Không dùng để tính toán
-  * Không tổng hợp
-  * Không so sánh
+* Result **không dùng để**:
+  * Tính toán tổng
+  * So sánh
+  * Phân tích tiến bộ
 
 **Quan hệ:**
 
 * 1 Assignment → N Result
-* 1 Result ↔ 1 Student
+* 1 Student → N Result
+* 1 Exercise → N Result (trong ngữ cảnh Assignment)
+```
 
 ---
 
-### 7. Comment (Teacher-controlled)
+## **8. Comment (Teacher-controlled)** ← **CHỈ ĐỔI SỐ THỨ TỰ**
+
+```markdown
+### 8. Comment (Teacher-controlled)
 
 **Mục đích tồn tại:**
-👉 Lưu **nhận xét thủ công** của giáo viên
+👉 Lưu **nhận xét thủ công của giáo viên**
+theo từng học sinh, trong từng Assignment
 
 **Logical Attributes:**
 
 * `comment_id`
 * `assignment_id`
 * `student_id`
+* `exercise_id` (optional)
 * `content`
 * `source` (`MANUAL` | `AI_SUGGESTED_EDITED`)
 
-**Lưu ý quan trọng:**
+**Nguyên tắc:**
 
-* AI **không bao giờ là source cuối**
-* `source = AI_SUGGESTED_EDITED` vẫn là **teacher-owned**
+* AI **không bao giờ** là owner
+* Comment **luôn teacher-controlled**
+```
 
 ---
 
@@ -263,7 +327,7 @@ Teacher
 | --------------- | ------------------------------ |
 | Class APIs      | Class, Student                 |
 | Exercise APIs   | Exercise                       |
-| Assignment APIs | Assignment                     |
+| Assignment APIs | Assignment, ExerciseSet        |                     |
 | Result APIs     | Result, Comment                |
 | AI APIs         | Draft text ONLY (no ownership) |
 
@@ -449,33 +513,78 @@ exercises
 
 * APPROVED ≠ public
 * Không usage_count / quality_score
+* ⚠️ Lưu ý quan trọng
+* Exercise không còn được gán trực tiếp cho class.
+* Mọi usage bắt buộc đi qua ExerciseSet.
 
 ---
 
-## 8. `assignments` (Usage Context)
+## 8. `exercise_sets` (**BẢNG MỚI – CORE UPDATE**)
 
-```
-assignments
+```sql
+exercise_sets
 - id (PK)
-- class_id (FK → classes.id, NOT NULL)
+- teacher_id (FK → teachers.id, NOT NULL)
+- title (NOT NULL)
+- description (nullable)
+- intent (ENUM: PRACTICE, REVIEW, SURVEY, TEST, NOT NULL)
+- note_for_teacher (nullable)
+- created_at
+- updated_at
+```
+
+### Rule (LOGICAL – không enforce bằng DB):
+
+* `intent`:
+
+  * Chỉ mang tính mô tả
+  * Không tạo constraint
+  * Không trigger hành vi hệ thống
+
+---
+
+## 9. `exercise_set_items` (JOIN TABLE – SET ↔ EXERCISE)
+
+```sql
+exercise_set_items
+- id (PK)
+- exercise_set_id (FK → exercise_sets.id, NOT NULL)
 - exercise_id (FK → exercises.id, NOT NULL)
-- assigned_at
+- order_index (nullable)
 ```
 
 **Rule:**
 
-* Assignment = ngữ cảnh dùng bài
-* Không copy exercise
+* Không enforce thứ tự
+* Không auto-sort
+* Order (nếu có) hoàn toàn do giáo viên
 
 ---
 
-## 9. `results`
+## 10. `assignments` (**UPDATED – GẮN EXERCISESET**)
 
+```sql
+assignments
+- id (PK)
+- class_id (FK → classes.id, NOT NULL)
+- exercise_set_id (FK → exercise_sets.id, NOT NULL)
+- assigned_at
 ```
+
+❌ **KHÔNG CÒN**:
+
+* `exercise_id` trong assignments
+
+---
+
+## 11. `results` (UPDATED – RÕ NGỮ CẢNH)
+
+```sql
 results
 - id (PK)
 - assignment_id (FK → assignments.id, NOT NULL)
 - student_id (FK → students.id, NOT NULL)
+- exercise_id (FK → exercises.id, NOT NULL)
 - value (TEXT or NUMBER, NOT NULL)
 - created_at
 - updated_at
@@ -484,44 +593,28 @@ results
 **Rule:**
 
 * Không aggregate
-* Không phân tích
+* Không compute
+* Không so sánh
 
 ---
 
-## 10. `comments`
+## 12. `comments` (UPDATED – TÙY CHỌN GẮN EXERCISE)
 
-```
+```sql
 comments
 - id (PK)
 - assignment_id (FK → assignments.id, NOT NULL)
 - student_id (FK → students.id, NOT NULL)
+- exercise_id (FK → exercises.id, nullable)
 - content (TEXT, NOT NULL)
 - source (ENUM: MANUAL, AI_SUGGESTED_EDITED, NOT NULL)
 - created_at
 - updated_at
 ```
 
-**Rule:**
-
-* AI không bao giờ là owner
-* Luôn teacher-controlled
-
 ---
 
-## 11. CỐ TÌNH KHÔNG CÓ (PHASE 1)
-
-❌ Không có:
-
-* progress / report / summary
-* analytics tables
-* user lifecycle / roles
-* audit log
-* soft delete
-* AI log tables
-
----
-
-## 12. QUAN HỆ TỔNG QUAN (1 dòng)
+## 13. QUAN HỆ TỔNG QUAN (1 DÒNG – UPDATED)
 
 ```
 User
@@ -529,9 +622,10 @@ User
    → Class
      → Student
      → Assignment
-       → Exercise
+       → ExerciseSet
+         → Exercise
        → Result
-         → Comment
+       → Comment
 ```
 
 ---

@@ -228,7 +228,7 @@ Exercise List
 
 ## 5. UI cho Flow C – Exercise Usage
 
-### 5.1 Assign Exercise Screen
+### 5.1 Assign ExerciseSet Screen
 
 **Flow liên quan:** Flow C
 
@@ -312,12 +312,12 @@ Nếu xuất hiện trong design → **FAIL Phase 1**.
 
 ## 8. Mapping: UI ↔ User Flow (Lock-in Table)
 
-| User Flow | UI Screen chính                 |
-| --------- | ------------------------------- |
-| Flow A    | Class List / Class Detail       |
-| Flow B    | Exercise List / Exercise Editor |
-| Flow C    | Assign Exercise / Result Entry  |
-| Flow D    | Không có screen riêng           |
+| User Flow | UI Screen chính                    |
+| --------- | ---------------------------------- |
+| Flow A    | Class List / Class Detail          |
+| Flow B    | Exercise List / Exercise Editor    |
+| Flow C    | Assign ExerciseSet / Result Entry  |
+| Flow D    | Không có screen riêng              |
 
 👉 **UI chỉ được phép tồn tại nếu map được vào bảng này.**
 
@@ -1033,7 +1033,7 @@ Flow B **chỉ cho phép điều hướng**:
 
 ❌ CẤM:
 
-* Editor → Assign Exercise (Flow C shortcut)
+* Editor → Assign ExerciseSet (Flow C shortcut)
 * Auto-redirect sau APPROVE
 
 ---
@@ -1097,67 +1097,66 @@ Tài liệu này **chỉ bao phủ Flow C** và **cố tình phòng thủ cao nh
 
 ## Flow C – Exercise Usage
 
-*(Gán bài – Ghi nhận kết quả – Nhận xét thủ công / AI gợi ý)*
+### *(Assign ExerciseSet – Ghi nhận kết quả – Nhận xét thủ công / AI gợi ý)*
 
-**Repo path (theo chuẩn bạn đang dùng):**
 ---
 
-## 0. Phạm vi & luật áp dụng
+## 0. PHẠM VI & LUẬT ÁP DỤNG
 
 ### 0.1 Flow áp dụng
 
 * Áp dụng **duy nhất** cho:
 
-  * Flow C – Exercise Usage Flow
+  * **Flow C – Exercise Usage Flow**
 
 ### 0.2 Luật bất biến (NON-NEGOTIABLE)
 
 * User duy nhất: **Giáo viên**
-* Chỉ dùng:
+* Chỉ sử dụng:
 
   * Class từ Flow A
-  * Exercise ở trạng thái **`APPROVED`** từ Flow B
+  * ExerciseSet do giáo viên sở hữu (hoặc đã copy)
 * AI:
 
   * Chỉ gợi ý câu chữ
   * Không đánh giá
   * Không auto-save
   * Không auto-apply
-* Không có:
+* **KHÔNG CÓ**:
 
   * Chấm bài tự động
   * Phân tích kết quả
-  * Tổng hợp tiến bộ
-  * Giao tiếp ngoài hệ thống
+  * Tổng hợp / dashboard
+  * Rule hệ thống theo intent (TEST / PRACTICE / …)
 
-Nếu UI element vi phạm → **FAIL PHASE 1**.
+👉 UI element nào vi phạm
+→ **FAIL PHASE 1**
 
 ---
 
-## 1. Danh sách màn hình Flow C (Screen Inventory)
+## 1. DANH SÁCH MÀN HÌNH FLOW C (SCREEN INVENTORY)
 
 Flow C **chỉ được phép có đúng 3 màn hình**:
 
-1. **Assign Exercise Screen**
-2. **Result Entry Screen** (trung tâm Flow C)
+1. **Assign ExerciseSet Screen**
+2. **Result Entry Screen** *(core screen)*
 3. **Confirm Save (Inline / Modal)**
 
 ❌ Không dashboard
 ❌ Không summary screen
-❌ Không “báo cáo bài tập”
+❌ Không “báo cáo đề”
 
 ---
 
-## 2. Assign Exercise Screen
+## 2. ASSIGN EXERCISESET SCREEN
 
 ### 2.1 Mục đích
 
-* Tạo **ngữ cảnh sử dụng bài tập**
+* Tạo **ngữ cảnh giao đề**
 * Kết nối:
 
-  * Lớp
-  * Bài tập
-* Không ghi nhận kết quả tại đây
+  * Class
+  * ExerciseSet
 
 ---
 
@@ -1174,39 +1173,59 @@ Flow C **chỉ được phép có đúng 3 màn hình**:
 ❌ Không hiển thị:
 
 * Thống kê lớp
-* Số học sinh dạng “đánh giá”
+* Số học sinh dạng đánh giá
 
 ---
 
-#### 2.2.2 Chọn bài tập
+#### 2.2.2 Chọn ExerciseSet
 
-| Thuộc tính | Quy định                          |
-| ---------- | --------------------------------- |
-| Type       | Select                            |
-| Source     | Exercise `APPROVED` của giáo viên |
-| Required   | ✅                                 |
+| Thuộc tính | Quy định                  |
+| ---------- | ------------------------- |
+| Type       | Select                    |
+| Source     | ExerciseSet của giáo viên |
+| Required   | ✅                         |
+
+**Mỗi ExerciseSet item hiển thị:**
+
+* Title
+* Intent (label mô tả, không màu cảnh báo)
+* Số lượng Exercise
 
 ❌ Không hiển thị:
 
-* Bài `DRAFT`
-* Bài của người khác
-* Metadata phân tích
+* Rule kiểm tra
+* Giới hạn làm bài
+* Trạng thái “thi / không thi”
 
 ---
 
-### 2.3 Hành động cho phép
+### 2.3 Preview ExerciseSet (READ-ONLY)
 
-| Hành động | Điều kiện             |
-| --------- | --------------------- |
-| Gán bài   | Khi đã chọn lớp + bài |
-| Hủy       | Luôn có               |
+Sau khi chọn ExerciseSet, UI **được phép hiển thị**:
+
+* Title
+* Description (nếu có)
+* Danh sách Exercise bên trong (read-only)
+
+❌ Không preview cho học sinh
+❌ Không hiển thị đáp án
+❌ Không hiển thị độ khó tổng
+
+---
+
+### 2.4 Hành động cho phép
+
+| Hành động           | Điều kiện                       |
+| ------------------- | ------------------------------- |
+| Gán đề / Gán bộ bài | Khi đã chọn Class + ExerciseSet |
+| Hủy                 | Luôn có                         |
 
 ❌ Không auto-assign
-❌ Không gán hàng loạt
+❌ Không assign hàng loạt
 
 ---
 
-## 3. Result Entry Screen (CORE SCREEN)
+## 3. RESULT ENTRY SCREEN (CORE SCREEN)
 
 > Đây là **màn hình nhạy cảm nhất của Phase 1**.
 
@@ -1216,63 +1235,64 @@ Flow C **chỉ được phép có đúng 3 màn hình**:
 
 * Ghi nhận **kết quả thực tế**
 * Ghi nhận **nhận xét cá nhân**
-* Không tạo insight
+* Không diễn giải dữ liệu
 
 ---
 
 ### 3.2 Header thông tin (READ-ONLY)
 
-**Hiển thị:**
+Hiển thị:
 
 * Tên lớp
-* Tên bài tập
-* Môn học
-* Topic
+* Title ExerciseSet
+* Intent (label mô tả)
+* Danh sách Exercise (tên rút gọn)
 
 ❌ Không hiển thị:
 
-* Độ khó (để tránh đánh giá)
-* “Mục tiêu học tập”
-* Thống kê chung
+* Nhận xét tổng
+* Thống kê
+* “Mức độ hoàn thành”
 
 ---
 
-## 4. Student Result List
+## 4. STUDENT RESULT LIST
 
 ### 4.1 Cấu trúc hiển thị
 
-Mỗi học sinh là **1 hàng độc lập**, gồm:
+Mỗi học sinh là **1 block độc lập**, gồm:
 
-| Thành phần   | Bắt buộc | Ghi chú                  |
-| ------------ | -------- | ------------------------ |
-| Tên học sinh | ✅        | Text                     |
-| Kết quả      | ❌        | Score **hoặc** Pass/Fail |
-| Nhận xét     | ❌        | Text                     |
-| AI gợi ý     | ❌        | Button                   |
+* Tên học sinh
+* Danh sách Exercise trong ExerciseSet
+
+  * Mỗi Exercise = 1 dòng kết quả
+* Nhận xét (text)
+* AI gợi ý (button)
 
 ---
 
-### 4.2 Input kết quả (Result Input)
+### 4.2 Input kết quả (Per Exercise)
 
-#### Option A – Điểm số
+Với **mỗi Exercise** trong ExerciseSet:
+
+**Option A – Điểm số**
 
 * Type: Number
 * Giá trị: do giáo viên quyết định
-* Không validate sư phạm
 
-#### Option B – Đạt / Không đạt
+**Option B – Đạt / Không đạt**
 
 * Type: Toggle / Select
 
 ❌ Không có:
 
 * Trung bình
-* Chuẩn đánh giá
-* So sánh
+* Tổng điểm đề
+* Chuẩn đánh giá hệ thống
 
 ---
 
-## 5. Comment Input (Nhận xét)
+## 5. COMMENT INPUT (NHẬN XÉT)
 
 ### 5.1 Nhận xét thủ công
 
@@ -1282,38 +1302,37 @@ Mỗi học sinh là **1 hàng độc lập**, gồm:
 | Required   | ❌        |
 | Editable   | Luôn     |
 
-❌ Không gợi ý sẵn
+Nhận xét có thể hiểu là:
+
+* Nhận xét chung cho ExerciseSet
+* Hoặc nhận xét tổng hợp từ nhiều bài
+
+❌ Không template sẵn
 ❌ Không auto-fill
 
 ---
 
-### 5.2 AI Gợi ý nhận xét (OPTIONAL)
+### 5.2 AI GỢI Ý NHẬN XÉT (OPTIONAL)
 
 #### Điều kiện hiển thị
 
 * Giáo viên **chủ động bấm** “Gợi ý nhận xét”
 
----
-
 #### Input cho AI (BẮT BUỘC TƯỜNG MINH)
 
-* Kết quả của học sinh
-* Nội dung bài tập
-* Yêu cầu cụ thể của giáo viên (nếu có)
+* Nội dung Exercise
+* Kết quả đã nhập
+* Yêu cầu cụ thể của giáo viên
 
 ❌ Không suy luận trình độ
-❌ Không prompt tổng hợp
-
----
+❌ Không prompt tổng hợp lớp
 
 #### Output AI
-
-**Hiển thị:**
 
 * Nhãn rõ: **“Gợi ý (AI)”**
 * Không chèn trực tiếp vào textarea
 
-**Giáo viên có thể:**
+Giáo viên có thể:
 
 * Copy
 * Chỉnh sửa
@@ -1323,11 +1342,11 @@ Mỗi học sinh là **1 hàng độc lập**, gồm:
 
 * Không auto-apply
 * Không auto-save
-* Không apply cho nhiều học sinh cùng lúc
+* Không áp dụng cho nhiều học sinh
 
 ---
 
-## 6. Action Buttons (Result Entry)
+## 6. ACTION BUTTONS (RESULT ENTRY)
 
 | Button | Điều kiện       |
 | ------ | --------------- |
@@ -1336,34 +1355,32 @@ Mỗi học sinh là **1 hàng độc lập**, gồm:
 
 ❌ Không có:
 
-* “Lưu tất cả & tổng kết”
-* “AI hoàn thiện nhận xét”
+* “Lưu & tổng kết”
+* “Khóa đề”
+* “AI hoàn thiện”
 
 ---
 
-## 7. Confirm Save (Inline / Modal)
+## 7. CONFIRM SAVE (INLINE / MODAL)
 
 ### 7.1 Nội dung bắt buộc
 
-> “Kết quả và nhận xét sẽ được lưu cho lớp này.
-> Không có phân tích hay tổng hợp tự động.”
+> “Kết quả và nhận xét sẽ được lưu cho đề này và lớp này.
+> Hệ thống không tự phân tích hay tổng hợp dữ liệu.”
 
 ### 7.2 Hành động
 
 * Xác nhận lưu
 * Hủy
 
-❌ Không nhắc AI
-❌ Không nhắc đánh giá năng lực
-
 ---
 
-## 8. Navigation Rules (Flow C Lock)
+## 8. NAVIGATION RULES (FLOW C LOCK)
 
 Flow C **chỉ cho phép điều hướng**:
 
-* Assign Exercise → Result Entry
-* Result Entry → Quay lại lớp
+* Assign ExerciseSet → Result Entry
+* Result Entry → Quay lại Class Detail
 
 ❌ CẤM:
 
@@ -1373,51 +1390,36 @@ Flow C **chỉ cho phép điều hướng**:
 
 ---
 
-## 9. Error & Validation Handling
+## 9. NHỮNG UI BỊ CẤM TUYỆT ĐỐI TRONG FLOW C
 
-### 9.1 Validation
-
-* Inline
-* Trung lập
-* Không kết luận
-
-### 9.2 Error system
-
-* Không retry AI
-* Không fallback sang phân tích
-
----
-
-## 10. Những UI BỊ CẤM TUYỆT ĐỐI trong Flow C
-
-* Nhận xét tổng hợp
-* Biểu đồ / bảng so sánh
+* Dashboard kết quả
 * Progress bar
-* “AI đánh giá học sinh”
-* Gợi ý lộ trình
+* Nhận xét tổng hợp tự động
+* Rule “đề thi”
+* AI đánh giá học sinh
 
-Nếu xuất hiện → **FAIL PHASE 1**.
+Xuất hiện → **FAIL PHASE 1**
 
 ---
 
-## 11. Checklist Review UI Flow C (PR Review)
+## 10. CHECKLIST REVIEW UI FLOW C (PR REVIEW)
 
-* [ ] Không phân tích
-* [ ] Không tổng hợp
+* [ ] Assignment gắn ExerciseSet
+* [ ] Không enforce intent
+* [ ] Không analytics
 * [ ] AI chỉ gợi ý chữ
 * [ ] Giáo viên bấm lưu cuối
-* [ ] Không shortcut sang dashboard
 
 ---
 
-### ✅ CHỐT FLOW C UI-SPEC
+### ✅ CHỐT UI-SPEC FLOW C (FINAL)
 
 Flow C UI tồn tại để:
 
-* **Ghi nhận sự kiện**
+* **Giao đề / bộ bài**
+* **Ghi nhận sự kiện dạy học**
 * **Không diễn giải dữ liệu**
-* **Không thay giáo viên đánh giá**
-* **Không tạo hồ sơ năng lực**
+* **Giáo viên quyết định – AI đứng sau**
 
 ---
 
