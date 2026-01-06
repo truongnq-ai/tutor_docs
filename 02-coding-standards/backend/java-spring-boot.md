@@ -444,6 +444,59 @@ public interface AuthenticationService {
 }
 ```
 
+## Repository Query Pattern - LIKE Queries
+
+### Nguyên tắc
+
+Khi sử dụng LIKE query trong JPQL/HQL, tuân thủ các quy tắc sau:
+
+1. **Không dùng LOWER()/UPPER() trực tiếp trên column**: 
+   - ❌ `LOWER(column) LIKE LOWER(CONCAT('%', :param, '%'))`
+   - ✅ `column LIKE :param`
+
+2. **Thêm wildcard % ở Service layer**: 
+   - Sử dụng `StringCommon.addLikeRightAndLeft()` trong service implementation để thêm `%` ở 2 đầu parameter trước khi truyền vào repository
+   - Không thêm `%` trong query string
+
+3. **Case-insensitive search**: 
+   - Nếu cần case-insensitive, normalize dữ liệu ở service layer (trim + lowercase/uppercase) trước khi truyền vào repository
+   - Hoặc sử dụng column `*_no_sign` (nếu có) như trong estore pattern
+
+### Ví dụ Repository
+
+```java
+@Query("SELECT e FROM Entity e WHERE " +
+       "AND (:name IS NULL OR e.name LIKE :name)")
+Page<Entity> findByFilters(@Param("name") String name, Pageable pageable);
+```
+
+### Ví dụ Service Implementation
+
+```java
+@Override
+public PageResponse<EntityResponse> getPage(PageRequest pageRequest) {
+    FilterRequest filter = objectMapper.convertValue(
+        pageRequest.getDataRequest(), 
+        FilterRequest.class
+    );
+    
+    Page<Entity> page = repository.findByFilters(
+        StringCommon.isNullOrBlank(filter.getName()) 
+            ? null 
+            : StringCommon.addLikeRightAndLeft(filter.getName()),
+        PageCommon.toPageable(pageRequest)
+    );
+    
+    // ... map to response
+}
+```
+
+### Lợi ích
+
+- **Performance**: Không cần function trên column → có thể sử dụng index
+- **Consistency**: Pattern nhất quán trong toàn bộ codebase
+- **Maintainability**: Dễ maintain và hiểu logic
+
 ## Tài liệu liên quan
 
 - [Database](./database.md) - Database naming, FK, indexes
