@@ -35,8 +35,8 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 - Prompt structure
 - AI integration patterns
 
-### Frontend (Flutter)
-- Widget structure
+### Frontend (Next.js/React)
+- Component structure
 - Folder organization
 - Naming conventions
 - State management
@@ -66,9 +66,9 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 - [AI Integration](./ai-service/ai-integration.md)
 
 ### Frontend
-- [Flutter](./frontend/flutter.md)
 - [State Management](./frontend/state-management.md)
 - [UI/UX Guidelines](./frontend/ui-ux-guidelines.md)
+- [Design System](./frontend/design-system/README.md)
 
 ### API
 - [REST Conventions](./api/rest-conventions.md)

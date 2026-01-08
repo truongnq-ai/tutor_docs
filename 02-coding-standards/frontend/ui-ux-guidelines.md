@@ -30,12 +30,30 @@ Tài liệu này mô tả UI/UX guidelines cho frontend - đặc biệt là quy 
 - **Progress**: "Đã hoàn thành 60%"
 
 ### Examples
-```dart
+```tsx
 // ✅ ĐÚNG: Hiển thị Chapter name
-Text("Hôm nay học Chapter '${chapter.name}'")
+<h1>Hôm nay học Chapter '{chapter.name}'</h1>
 
 // ❌ SAI: Hiển thị Chapter code
-Text("Hôm nay học Chapter '${chapter.code}'")  // "6.3" - không user-friendly
+<h1>Hôm nay học Chapter '{chapter.code}'</h1>  // "6.3" - không user-friendly
+```
+
+```tsx
+// ✅ ĐÚNG: Hiển thị Chapter name với TypeScript
+interface Chapter {
+  id: string;
+  code: string;  // Internal only
+  name: string;  // Display this
+}
+
+function ChapterCard({ chapter }: { chapter: Chapter }) {
+  return (
+    <div>
+      <h2>{chapter.name}</h2>
+      <p>Mã: {chapter.code}</p>  {/* ❌ Không nên hiển thị trong production */}
+    </div>
+  );
+}
 ```
 
 ## Skill Display (When Needed)
@@ -46,12 +64,34 @@ Text("Hôm nay học Chapter '${chapter.code}'")  // "6.3" - không user-friendl
 - **Context**: Chỉ hiển thị trong detailed analysis
 
 ### Examples
-```dart
+```tsx
 // ✅ ĐÚNG: Hiển thị Skill name trong context
-Text("Bạn làm tốt phần '${skill.name}'")
+<p>Bạn làm tốt phần '{skill.name}'</p>
 
 // ❌ SAI: Hiển thị Skill code
-Text("Bạn làm tốt Skill '${skill.code}'")  // "6.3.1" - không user-friendly
+<p>Bạn làm tốt Skill '{skill.code}'</p>  // "6.3.1" - không user-friendly
+```
+
+```tsx
+// ✅ ĐÚNG: Hiển thị Skill trong detailed analysis
+interface Skill {
+  id: string;
+  code: string;  // Internal only
+  name: string;  // Display this when needed
+}
+
+function SkillAnalysis({ skills }: { skills: Skill[] }) {
+  return (
+    <div>
+      <h3>Phân tích chi tiết</h3>
+      {skills.map(skill => (
+        <div key={skill.id}>
+          <p>{skill.name}</p>  {/* ✅ OK trong detailed analysis */}
+        </div>
+      ))}
+    </div>
+  );
+}
 ```
 
 ## Progress Visualization
@@ -66,28 +106,77 @@ Text("Bạn làm tốt Skill '${skill.code}'")  // "6.3.1" - không user-friendl
 - **Display**: Aggregate thành Chapter progress
 - **Not shown**: Không hiển thị progress từng Skill
 
+### Examples
+```tsx
+// ✅ ĐÚNG: Hiển thị progress theo Chapter
+interface ChapterProgress {
+  chapterName: string;
+  progressPercent: number;  // Calculated from skills
+  status: 'not_started' | 'in_progress' | 'completed';
+}
+
+function ProgressCard({ progress }: { progress: ChapterProgress }) {
+  return (
+    <div>
+      <h3>Chapter: {progress.chapterName}</h3>
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${progress.progressPercent}%` }}
+        />
+      </div>
+      <p>Đã hoàn thành {progress.progressPercent}%</p>
+      <p>Trạng thái: {progress.status === 'completed' ? 'Đã hoàn thành' : 'Đang học'}</p>
+    </div>
+  );
+}
+```
+
 ## Learning Plan Display
 
 ### Chapter Level
-```dart
+```tsx
 // ✅ ĐÚNG
-Column(
-  children: [
-    Text("Hôm nay học Chapter '${plan.recommendedChapter.chapterName}'"),
-    Text("Luyện tập: ${plan.recommendedChapter.skills.length} bài"),
-  ],
-)
+interface LearningPlan {
+  recommendedChapter: {
+    chapterName: string;
+    skills: Skill[];
+  };
+}
+
+function LearningPlanCard({ plan }: { plan: LearningPlan }) {
+  return (
+    <div>
+      <h2>Hôm nay học Chapter '{plan.recommendedChapter.chapterName}'</h2>
+      <p>Luyện tập: {plan.recommendedChapter.skills.length} bài</p>
+    </div>
+  );
+}
 ```
 
 ### Skill Level (Optional Detail)
-```dart
+```tsx
 // ✅ ĐÚNG: Hiển thị Skills như detail, không phải main focus
-ExpansionTile(
-  title: Text("Chi tiết"),
-  children: plan.recommendedChapter.skills.map((skill) => 
-    Text(skill.skillName)
-  ).toList(),
-)
+function LearningPlanDetail({ plan }: { plan: LearningPlan }) {
+  const [showDetails, setShowDetails] = useState(false);
+
+  return (
+    <div>
+      <h2>Hôm nay học Chapter '{plan.recommendedChapter.chapterName}'</h2>
+      <button onClick={() => setShowDetails(!showDetails)}>
+        {showDetails ? 'Ẩn' : 'Hiện'} chi tiết
+      </button>
+      {showDetails && (
+        <div>
+          <h3>Chi tiết:</h3>
+          {plan.recommendedChapter.skills.map(skill => (
+            <p key={skill.id}>{skill.name}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 ```
 
 ## Mini Test Display
@@ -101,6 +190,36 @@ ExpansionTile(
 - **Format**: "Bạn làm tốt phần 'Cộng trừ phân số', cần cải thiện phần 'Nhân chia phân số'"
 - **Not**: "Skill 6.3.1: 2/2 đúng"
 
+### Examples
+```tsx
+// ✅ ĐÚNG: Title theo Chapter
+function MiniTestPage({ chapter }: { chapter: Chapter }) {
+  return (
+    <div>
+      <h1>Mini Test - {chapter.name}</h1>
+      {/* Test content */}
+    </div>
+  );
+}
+
+// ✅ ĐÚNG: Skill analysis sau khi test
+function TestResults({ results }: { results: SkillResult[] }) {
+  const goodSkills = results.filter(r => r.score >= 0.8).map(r => r.skillName);
+  const weakSkills = results.filter(r => r.score < 0.8).map(r => r.skillName);
+
+  return (
+    <div>
+      {goodSkills.length > 0 && (
+        <p>Bạn làm tốt phần: {goodSkills.join(', ')}</p>
+      )}
+      {weakSkills.length > 0 && (
+        <p>Cần cải thiện phần: {weakSkills.join(', ')}</p>
+      )}
+    </div>
+  );
+}
+```
+
 ## Parent Dashboard
 
 ### Chapter Only
@@ -110,6 +229,40 @@ ExpansionTile(
 ### Recommendations
 - **Language**: "Nên luyện tập thêm phần 'Phân số'"
 - **Not**: "Nên luyện tập thêm Skill 6.3.1"
+
+### Examples
+```tsx
+// ✅ ĐÚNG: Weaknesses theo Chapter
+interface WeakChapter {
+  chapterName: string;
+  weaknessLevel: 'low' | 'medium' | 'high';
+}
+
+function WeakSkillsCard({ weakChapters }: { weakChapters: WeakChapter[] }) {
+  return (
+    <div>
+      <h3>Con đang yếu ở:</h3>
+      {weakChapters.map(chapter => (
+        <div key={chapter.chapterName}>
+          <p>Chapter '{chapter.chapterName}' - Mức độ: {chapter.weaknessLevel}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ✅ ĐÚNG: Recommendations theo Chapter
+function RecommendationsCard({ recommendations }: { recommendations: Chapter[] }) {
+  return (
+    <div>
+      <h3>Khuyến nghị:</h3>
+      {recommendations.map(chapter => (
+        <p key={chapter.id}>Nên luyện tập thêm phần '{chapter.name}'</p>
+      ))}
+    </div>
+  );
+}
+```
 
 ## UI Component States
 
@@ -443,6 +596,14 @@ Khi implement loading/error/empty states:
 - [ ] Empty states có action buttons khi có thể tạo data
 - [ ] Không tự tạo custom loading/error/empty states
 
+## Best Practices
+
+1. **Always use Chapter names**: Không bao giờ hiển thị Chapter code trực tiếp
+2. **Hide Skill codes**: Skill codes chỉ dùng internal, không hiển thị cho user
+3. **Aggregate Skill data**: Tính toán từ Skills nhưng hiển thị theo Chapter
+4. **Context matters**: Chỉ hiển thị Skills trong detailed analysis, không phải main UI
+5. **User-friendly language**: Dùng ngôn ngữ tự nhiên, không dùng technical terms
+
 ## Tài liệu liên quan
 
 - [Chapter vs Skill](../../00-core-concepts/chapter-vs-skill.md)
@@ -453,4 +614,3 @@ Khi implement loading/error/empty states:
 ---
 
 ← Quay lại: [README.md](../README.md)
-
