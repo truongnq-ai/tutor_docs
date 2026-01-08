@@ -13,6 +13,301 @@ Animation system của Tutor Platform bao gồm cả animations hiện tại (tr
 3. **Smooth**: Sử dụng easing functions phù hợp
 4. **Accessible**: Respect `prefers-reduced-motion`
 
+## Animation System Architecture
+
+### Tổng quan
+
+Animation system được tổ chức theo **Separation of Concerns** pattern với 3 layers chính, được tách thành các file CSS riêng biệt để dễ maintain và clone giữa các modules:
+
+1. **Entry Animations** - Animations khi component mount/enter viewport
+2. **Interaction Animations** - Animations khi user tương tác (hover, focus, active)
+3. **Conflict Resolution** - Auto-resolve conflicts giữa entry và interaction animations
+
+### Cấu trúc File System
+
+```
+src/
+├── app/
+│   └── globals.css          # Import animations
+└── styles/
+    └── animations/
+        ├── entry.css         # Entry animations
+        ├── interactions.css  # Interaction animations
+        └── conflicts.css    # Conflict resolution
+```
+
+### Import Strategy
+
+Animations được import vào `globals.css` theo thứ tự:
+
+```css
+/* globals.css */
+@import '../styles/animations/entry.css';
+@import '../styles/animations/interactions.css';
+@import '../styles/animations/conflicts.css';
+```
+
+**Import order matters:**
+1. Entry animations (base animations)
+2. Interaction animations (user-triggered)
+3. Conflict resolution (resolves conflicts)
+
+### Cấu trúc Layers
+
+Mỗi file sử dụng CSS layers để tổ chức:
+
+```css
+/* styles/animations/entry.css */
+@layer animations.entry {
+  /* Keyframes và animation classes cho mount animations */
+  .animate-fade-in-slide-up { ... }
+  .animate-icon-scale-in { ... }
+}
+
+/* styles/animations/interactions.css */
+@layer animations.interactions {
+  /* Utility classes cho user interactions */
+  .hover-lift { ... }
+  .hover-glow { ... }
+  .focus-scale { ... }
+}
+
+/* styles/animations/conflicts.css */
+@layer animations.conflicts {
+  /* Auto-resolve conflicts */
+  [class*="animate-"]:is(.hover-lift):hover { ... }
+}
+```
+
+### File Organization Details
+
+#### `entry.css`
+- Chứa tất cả entry animations (mount animations)
+- Keyframes và animation classes
+- Accessibility rules cho entry animations
+- Template comments cho animations tương lai
+
+#### `interactions.css`
+- Chứa tất cả interaction animations (hover, focus, active)
+- Hardware acceleration setup
+- Accessibility rules cho interactions
+- Template comments cho interactions tương lai
+
+#### `conflicts.css`
+- Generic conflict resolvers
+- Specific overrides khi cần
+- Template comments cho conflict resolution tương lai
+
+### Naming Convention
+
+#### Entry Animations
+Pattern: `animate-{effect}-{direction}`
+
+**Examples:**
+- `animate-fade-in-slide-up` - Fade in và slide up
+- `animate-icon-scale-in` - Scale in cho icons
+- `animate-slide-in-left` - Slide in từ trái
+- `animate-bounce-in` - Bounce in effect
+
+**Usage:**
+```tsx
+<div className={isVisible ? 'animate-fade-in-slide-up' : 'opacity-0'}>
+  Content
+</div>
+```
+
+#### Interaction Animations
+Pattern: `{trigger}-{effect}`
+
+**Triggers:**
+- `hover-` - Hover state
+- `focus-` - Focus state
+- `active-` - Active/pressed state
+
+**Examples:**
+- `hover-lift` - Lift effect khi hover
+- `hover-glow` - Glow effect khi hover
+- `focus-scale` - Scale effect khi focus
+- `active-press` - Press effect khi active
+
+**Usage:**
+```tsx
+<div className="hover-lift focus-scale">
+  Interactive content
+</div>
+```
+
+### Combining Animations
+
+Entry animations và interaction animations có thể combine tự do:
+
+```tsx
+// ✅ ĐÚNG: Combine entry + interaction
+<div className="animate-fade-in-slide-up hover-lift">
+  Content
+</div>
+
+// ✅ ĐÚNG: Multiple interactions
+<div className="hover-lift focus-scale active-press">
+  Button
+</div>
+
+// ✅ ĐÚNG: Different entry + interaction combinations
+<div className="animate-slide-in-left hover-glow">
+  Card
+</div>
+```
+
+### Conflict Resolution
+
+System tự động resolve conflicts giữa entry animations và interaction animations:
+
+```css
+/* Generic resolver - works for all combinations */
+[class*="animate-"]:is(.hover-lift):hover {
+  animation-play-state: paused;
+}
+
+/* Specific overrides when needed */
+.animate-fade-in-slide-up.hover-lift:hover {
+  transform: scale(1.05) translateY(-4px) translateZ(0) !important;
+}
+```
+
+**Benefits:**
+- Không cần tạo selector cụ thể cho mỗi combination
+- Dễ scale khi thêm animation mới
+- Maintainable và predictable
+
+### Thêm Animation Mới
+
+#### Thêm Entry Animation
+
+**Bước 1:** Mở `src/styles/animations/entry.css`
+
+**Bước 2:** Tìm TODO comment cho animation bạn muốn thêm, hoặc copy template:
+
+```css
+/* styles/animations/entry.css */
+@layer animations.entry {
+  /* Uncomment và implement TODO, hoặc thêm mới */
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft var(--duration-normal) var(--ease-out) forwards;
+  }
+
+  /* Thêm vào accessibility section */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-slide-in-left {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+```
+
+**Bước 3:** Update accessibility section để include animation mới
+
+#### Thêm Interaction Animation
+
+**Bước 1:** Mở `src/styles/animations/interactions.css`
+
+**Bước 2:** Tìm TODO comment hoặc copy template:
+
+```css
+/* styles/animations/interactions.css */
+@layer animations.interactions {
+  /* Uncomment và implement TODO, hoặc thêm mới */
+  .hover-glow {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition: box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(70, 95, 255, 0.3);
+  }
+
+  /* Thêm vào accessibility section */
+  @media (prefers-reduced-motion: reduce) {
+    .hover-glow:hover {
+      box-shadow: none;
+    }
+  }
+}
+```
+
+**Bước 3:** Update accessibility section và generic conflict resolver nếu cần
+
+#### Auto Conflict Resolution
+
+**Generic Resolver:** Tự động hoạt động cho tất cả combinations mới. Nếu cần override cụ thể:
+
+**Bước 1:** Mở `src/styles/animations/conflicts.css`
+
+**Bước 2:** Thêm generic resolver nếu cần (cho interaction mới):
+
+```css
+/* styles/animations/conflicts.css */
+@layer animations.conflicts {
+  /* Thêm vào generic resolvers section */
+  [class*="animate-"]:is(.hover-glow):hover {
+    animation-play-state: paused;
+  }
+}
+```
+
+**Bước 3:** Thêm specific override nếu generic không đủ:
+
+```css
+/* Specific override nếu cần */
+.animate-slide-in-left.hover-glow:hover {
+  transform: translateX(0) translateZ(0) !important;
+}
+```
+
+### Clone Animations giữa Modules
+
+Khi cần clone animations từ `tutor-admin-dashboard` sang `tutor-teacher`:
+
+**Bước 1:** Copy folder `styles/animations/`
+```
+tutor-admin-dashboard/src/styles/animations/*
+→ tutor-teacher/src/styles/animations/*
+```
+
+**Bước 2:** Verify `globals.css` của teacher có imports:
+```css
+@import '../styles/animations/entry.css';
+@import '../styles/animations/interactions.css';
+@import '../styles/animations/conflicts.css';
+```
+
+**Bước 3:** Verify CSS variables có trong `globals.css`:
+- `--duration-fast`, `--duration-normal`, `--duration-slow`
+- `--ease-in-out`, `--ease-out`, `--ease-in`, `--ease-spring`
+
+**Bước 4:** Test animations hoạt động đúng
+
+### Best Practices
+
+1. **Separation**: Luôn tách entry và interaction animations
+2. **Naming**: Follow naming convention nghiêm ngặt
+3. **Accessibility**: Luôn include `prefers-reduced-motion` check
+4. **Hardware Acceleration**: Sử dụng `transform` và `opacity` cho performance
+5. **Reusability**: Tạo animations có thể reuse, không hardcode cho component cụ thể
+
 ## Current Animations
 
 ### Transition Classes
@@ -559,6 +854,65 @@ const shouldAnimate = !prefersReducedMotion();
 
 ## Examples
 
+### Component với Entry + Interaction Animations
+
+**Example: EcommerceMetrics Component**
+
+```tsx
+"use client";
+import React, { useEffect, useState } from "react";
+
+export const EcommerceMetrics = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+      {metrics.map((metric, index) => (
+        <div
+          key={metric.label}
+          className={`
+            rounded-2xl 
+            border 
+            border-gray-200 
+            bg-white 
+            p-5 
+            dark:border-gray-800 
+            dark:bg-white/[0.03] 
+            md:p-6
+            cursor-pointer
+            ${isVisible ? 'animate-fade-in-slide-up' : 'opacity-0 translate-y-2'}
+            hover-lift
+            hover:shadow-[var(--shadow-theme-md)]
+            hover:border-brand-500
+            dark:hover:border-brand-500
+            transition-all 
+            duration-300 
+            ease-out
+            will-change-transform
+          `}
+          style={{
+            animationDelay: `${index * 50}ms`,
+            animationFillMode: 'forwards',
+          }}
+        >
+          {/* Content */}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+**Pattern Breakdown:**
+- **Entry Animation**: `animate-fade-in-slide-up` - Component slide up khi mount
+- **Interaction Animation**: `hover-lift` - Lift effect khi hover
+- **Conflict Resolution**: Tự động resolve bởi system
+- **Stagger Effect**: Sử dụng `animationDelay` cho sequential animation
+
 ### Button với Full Animations
 
 ```tsx
@@ -647,6 +1001,12 @@ const shouldAnimate = !prefersReducedMotion();
 4. **Accessibility**: Luôn check `prefers-reduced-motion`
 5. **Performance**: Sử dụng transform và opacity
 6. **Consistency**: Sử dụng animation patterns đã document
+7. **File Organization**: 
+   - Entry animations → `entry.css`
+   - Interaction animations → `interactions.css`
+   - Conflict resolution → `conflicts.css`
+8. **Future Planning**: Sử dụng TODO comments trong files để plan animations tương lai
+9. **Clone Process**: Khi clone giữa modules, copy toàn bộ folder `styles/animations/`
 
 ## Common Mistakes
 
