@@ -50,11 +50,11 @@ Title scale được sử dụng cho headings và large display text.
 
 | Token | Size | Line Height | Usage |
 |-------|------|--------------|-------|
-| `text-title-2xl` | 72px | 90px | Hero headings, landing page titles |
-| `text-title-xl` | 60px | 72px | Page titles, section headers |
-| `text-title-lg` | 48px | 60px | Major section headings |
-| `text-title-md` | 36px | 44px | Section headings |
-| `text-title-sm` | 30px | 38px | Subsection headings |
+| `text-title-2xl` | 60px | 75px | Hero headings, landing page titles |
+| `text-title-xl` | 50px | 63px | Page titles, section headers |
+| `text-title-lg` | 36px | 45px | Major section headings |
+| `text-title-md` | 32px | 40px | Section headings |
+| `text-title-sm` | 28px | 35px | Subsection headings |
 
 **Usage:**
 ```tsx
@@ -83,6 +83,35 @@ Title scale được sử dụng cho headings và large display text.
   Profile Information
 </h4>
 ```
+
+### Functional Title Pattern
+
+Functional titles (tiêu đề chức năng) sử dụng responsive pattern để đảm bảo hiển thị phù hợp trên mọi kích thước màn hình.
+
+**Responsive Pattern:**
+- Mobile: `text-title-sm` (28px)
+- Tablet (md): `text-title-md` (32px)
+- Desktop (lg): `text-title-lg` (36px)
+
+**Usage:**
+```tsx
+// ✅ ĐÚNG: Sử dụng utility class
+<h1 className="text-title-functional text-gray-900 dark:text-white">
+  Quản lý Admin
+</h1>
+
+// ✅ ĐÚNG: Sử dụng responsive pattern trực tiếp
+<h1 className="text-title-sm md:text-title-md lg:text-title-lg font-medium">
+  Quản lý Học sinh
+</h1>
+```
+
+**Áp dụng cho:**
+- Page titles (Quản lý Admin, Quản lý Học sinh)
+- Modal titles (Tạo mới Admin, Chi tiết Học sinh)
+- Section headings trong pages (nếu có)
+
+**Rule:** Tất cả tiêu đề chức năng phải dùng cùng responsive pattern này.
 
 ### Theme Scale
 

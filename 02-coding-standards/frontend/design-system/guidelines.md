@@ -449,6 +449,33 @@ function OneTimeCard() {
 </h1>
 ```
 
+### Functional Title Pattern
+
+**Rule:** Tất cả tiêu đề chức năng (functional titles) phải dùng cùng responsive pattern.
+
+**Pattern:**
+```tsx
+// ✅ ĐÚNG: Sử dụng utility class
+<h1 className="text-title-functional text-gray-900 dark:text-white">
+  Quản lý Admin
+</h1>
+
+// ✅ ĐÚNG: Responsive pattern trực tiếp
+<h1 className="text-title-sm md:text-title-md lg:text-title-lg font-medium">
+  Quản lý Học sinh
+</h1>
+```
+
+**Kích thước:**
+- Mobile: 28px
+- Tablet: 32px
+- Desktop: 36px
+
+**Áp dụng cho:**
+- Page titles
+- Modal titles  
+- Section headings trong pages
+
 ### Touch Targets
 
 **Minimum touch target size:**
