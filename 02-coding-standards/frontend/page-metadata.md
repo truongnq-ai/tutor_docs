@@ -1,6 +1,6 @@
 # PAGE METADATA - FRONTEND
 
-← Quay lại: [README.md](../README.md)
+[← Quay lại Overview](README.md)
 
 ## Tổng quan
 
@@ -13,11 +13,11 @@ Tài liệu này mô tả tiêu chuẩn về page metadata cho Next.js App Route
 Tất cả các trang trong `tutor-admin-dashboard` phải có metadata với format:
 
 ```typescript
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Tên trang | Tutor Admin Dashboard',
-  description: 'Mô tả trang',
+  title: "Tên trang | Tutor Admin Dashboard",
+  description: "Mô tả trang",
 };
 ```
 
@@ -26,11 +26,11 @@ export const metadata: Metadata = {
 Tất cả các trang trong `tutor-teacher` phải có metadata với format:
 
 ```typescript
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Tên trang | Tutor Teacher Dashboard',
-  description: 'Mô tả trang',
+  title: "Tên trang | Tutor Teacher Dashboard",
+  description: "Mô tả trang",
 };
 ```
 
@@ -47,25 +47,25 @@ export const metadata: Metadata = {
 ```typescript
 // ✅ ĐÚNG
 export const metadata: Metadata = {
-  title: 'Quản lý Môn học | Tutor Admin Dashboard',
-  description: 'Quản lý danh mục môn học',
+  title: "Quản lý Môn học | Tutor Admin Dashboard",
+  description: "Quản lý danh mục môn học",
 };
 
 export const metadata: Metadata = {
-  title: 'Tạo bài tập mới | Tutor Teacher Dashboard',
-  description: 'Tạo bài tập mới',
+  title: "Tạo bài tập mới | Tutor Teacher Dashboard",
+  description: "Tạo bài tập mới",
 };
 
 // ❌ SAI - Thiếu suffix
 export const metadata: Metadata = {
-  title: 'Quản lý Môn học',
-  description: 'Quản lý danh mục môn học',
+  title: "Quản lý Môn học",
+  description: "Quản lý danh mục môn học",
 };
 
 // ❌ SAI - Sai module
 export const metadata: Metadata = {
-  title: 'Quản lý Môn học | Tutor Teacher Dashboard', // Trong admin module
-  description: 'Quản lý danh mục môn học',
+  title: "Quản lý Môn học | Tutor Teacher Dashboard", // Trong admin module
+  description: "Quản lý danh mục môn học",
 };
 ```
 
@@ -138,14 +138,15 @@ export default function CreateExerciseContent() {
 ```typescript
 // ✅ ĐÚNG
 export const metadata: Metadata = {
-  title: 'Quản lý Bài tập | Tutor Teacher Dashboard',
-  description: 'Quản lý danh sách bài tập',
+  title: "Quản lý Bài tập | Tutor Teacher Dashboard",
+  description: "Quản lý danh sách bài tập",
 };
 
 // ❌ SAI - Quá dài
 export const metadata: Metadata = {
-  title: 'Quản lý Bài tập | Tutor Teacher Dashboard',
-  description: 'Trang này cho phép giáo viên quản lý danh sách bài tập, bao gồm tạo mới, chỉnh sửa, xóa, và phê duyệt bài tập...',
+  title: "Quản lý Bài tập | Tutor Teacher Dashboard",
+  description:
+    "Trang này cho phép giáo viên quản lý danh sách bài tập, bao gồm tạo mới, chỉnh sửa, xóa, và phê duyệt bài tập...",
 };
 ```
 
@@ -157,15 +158,15 @@ export const metadata: Metadata = {
 
 ```typescript
 // ✅ ĐÚNG
-title: 'Quản lý Môn học | Tutor Admin Dashboard'
-title: 'Tạo bài tập mới | Tutor Teacher Dashboard'
-title: 'Chi tiết đề bài | Tutor Teacher Dashboard'
+title: "Quản lý Môn học | Tutor Admin Dashboard";
+title: "Tạo bài tập mới | Tutor Teacher Dashboard";
+title: "Chi tiết đề bài | Tutor Teacher Dashboard";
 
 // ❌ SAI - Quá dài
-title: 'Trang quản lý danh sách môn học trong hệ thống | Tutor Admin Dashboard'
+title: "Trang quản lý danh sách môn học trong hệ thống | Tutor Admin Dashboard";
 
 // ❌ SAI - Không rõ ràng
-title: 'Môn học | Tutor Admin Dashboard'
+title: "Môn học | Tutor Admin Dashboard";
 ```
 
 ### 3. Consistency
@@ -253,5 +254,4 @@ Khi tạo hoặc sửa một trang, đảm bảo:
 
 ---
 
-← Quay lại: [README.md](../README.md)
-
+[← Quay lại Overview](README.md)

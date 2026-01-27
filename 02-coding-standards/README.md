@@ -9,17 +9,20 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 ## Cách áp dụng
 
 ### Bắt buộc
+
 - Tất cả code mới PHẢI tuân theo coding standards
 - Code review PHẢI kiểm tra coding standards
 - CI/CD PHẢI check coding standards
 
 ### Khuyến khích
+
 - Refactor code cũ để tuân theo standards
 - Thảo luận và cải thiện standards
 
 ## Phạm vi
 
 ### Backend (Java Spring Boot)
+
 - Package structure
 - Service layer
 - Transaction management
@@ -29,6 +32,7 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 - Flyway migrations
 
 ### AI Service (Python)
+
 - Code structure
 - Async/await patterns
 - Type hints
@@ -36,6 +40,7 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 - AI integration patterns
 
 ### Frontend (Next.js/React)
+
 - Component structure
 - Folder organization
 - Naming conventions
@@ -43,6 +48,7 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 - UI/UX guidelines
 
 ### API
+
 - REST conventions
 - URL structure
 - HTTP methods
@@ -52,29 +58,36 @@ Tài liệu này mô tả coding standards cho toàn bộ dự án Tutor - cách
 ## Tài liệu
 
 ### General
+
 - [General Principles](./general-principles.md)
 
 ### Backend
+
 - [Java Spring Boot](./backend/java-spring-boot.md)
 - [Database](./backend/database.md)
 - [Flyway](./backend/flyway.md)
 - [Error Handling](./backend/error-handling.md)
 
 ### AI Service
+
 - [Python](./ai-service/python.md)
 - [Prompt Structure](./ai-service/prompt-structure.md)
 - [AI Integration](./ai-service/ai-integration.md)
 
 ### Frontend
+
+- [Overview & Standards](./frontend/README.md)
+- [Page Metadata](./frontend/page-metadata.md)
 - [State Management](./frontend/state-management.md)
+- [Text Search Optimization](./frontend/text-search-optimization.md)
 - [UI/UX Guidelines](./frontend/ui-ux-guidelines.md)
 - [Design System](./frontend/design-system/README.md)
 
 ### API
+
 - [REST Conventions](./api/rest-conventions.md)
 - [Response Structure](./api/response-structure.md)
 
 ---
 
 ← Quay lại: [README.md](../README.md)
-
